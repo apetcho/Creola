@@ -28,6 +28,6 @@ pub struct Env{
 }
 
 // -*-
-pub fn eval(expr: &Expr, env: &Env) -> Expr {
+pub fn eval(expr: &Expr, env: &Env) -> Result<Expr, String> {
     Evaluator::eval(expr, env)
 }
