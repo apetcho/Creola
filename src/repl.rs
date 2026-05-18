@@ -165,7 +165,7 @@ impl Repl{
                 return Ok(None);
             }
         };
-        let last = match s.find(')'){
+        let last = match s.rfind(')'){
             Some(n) => n,
             None => {
                 return Ok(None);
@@ -193,7 +193,7 @@ impl Repl{
             }
         };
         let expr_str = inner[..split].trim();
-        let var_str = inner[split+1..].trim();
+        let var = inner[split+1..].trim();
         let mut parser = match Parser::new(expr_str){
             Ok(p) => p,
             Err(msg) => {
@@ -207,7 +207,7 @@ impl Repl{
             }
         };
 
-        Ok(Some((expr, var_str.to_string())))
+        Ok(Some((expr, var.to_string())))
     }
 
     fn handle_diff(&mut self, input: &str) -> Result<Option<String>, String> {
@@ -251,7 +251,56 @@ impl Repl{
     }
 
     fn handle_taylor(&mut self, input: &str) -> Result<Option<String>, String> {
-        todo!("")
+        // taylor(expr, x, 5)
+        let first = match input.find('('){
+            Some(p) => p,
+            None => {
+                return Ok(None);
+            }
+        };
+        let last = match input.rfind(')'){
+            Some(p) => p,
+            None => {
+                return Ok(None);
+            }
+        };
+
+        let inner = &input[first+1..last];
+        let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
+        if parts.len() == 3{
+            let expr_str = parts[0];
+            let var = parts[1];
+            let order: usize = match parts[2].parse(){
+                Ok(n) => n,
+                Err(err) => {
+                    return Err(format!("{:?}", err));
+                }
+            };
+
+            let mut parser = match Parser::new(expr_str){
+                Ok(p) => p,
+                Err(msg) => {
+                    return Err(msg);
+                }
+            };
+
+            let expr = match parser.parse_expr(){
+                Ok(e) => e,
+                Err(msg) => {
+                    return Err(msg);
+                }
+            };
+
+            let expr = match Creola::taylor(&expr, var, order){
+                Ok(e) => e,
+                Err(msg) => {
+                    return Err(msg);
+                }
+            };
+
+            return Ok(Some(format!("{}", expr)));
+        }
+        Err("ill-format 'taylor' expression".into())
     }
 
     fn handle_roots(&mut self, input: &str) -> Result<Option<String>, String> {
