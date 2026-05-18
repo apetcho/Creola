@@ -188,7 +188,14 @@ impl Parser{
     }
 
     fn parse_unary(&mut self) -> Result<Expr, String> {
-        todo!("")
+        match self.peek(){
+            Some(Token::Minus) => {
+                self.next();
+                let expr = self.parse_unary()?;
+                Ok(Expr::Unary(UnaryOp::Neg, Box::new(expr)))
+            }
+            _ => self.parse_primary(),
+        }
     }
 
     fn parse_primary(&mut self) -> Result<Expr, String> {
