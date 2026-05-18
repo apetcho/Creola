@@ -39,7 +39,7 @@ impl Lexer{
     }
 
     fn peek(&self) -> Option<char> {
-        todo!("")
+        self.chars.get(self.pos).copied()
     }
 
     fn next(&mut self) -> Option<char> {
