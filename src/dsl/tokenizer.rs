@@ -53,7 +53,9 @@ impl Lexer{
     }
 
     fn skip_ws(&mut self) {
-        todo!("")
+        while matches!(self.peek(), Some(c) if c.is_whitespace()){
+            self.next();
+        }
     }
 
     fn read_number(&mut self, first: char) -> Token {
