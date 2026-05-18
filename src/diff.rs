@@ -42,7 +42,12 @@ impl Differentiator{
     }
 
     fn diff_binary_mul(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        
+        let df = Differentiator::diff(lhs, var)?;
+        let dh = Differentiator::diff(rhs, var)?;
+        let xlhs = Expr::Binary(BinaryOp::Mul, Box::new(df.clone()), Box::new(rhs.clone()));
+        let xrhs = Expr::Binary(BinaryOp::Mul, Box::new(lhs.clone()), Box::new(dh.clone()));
+
+        Ok(Expr::Binary(BinaryOp::Add, Box::new(xlhs), Box::new(xrhs)))
     }
 
     fn diff_binary_div(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
