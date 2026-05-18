@@ -21,7 +21,8 @@ impl Differentiator{
     }
 
     fn diff_unary(expr: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        let ans = Differentiator::diff(expr, var)?;
+        Ok(Expr::Unary(UnaryOp::Neg, Box::new(ans)))
     }
 
     fn diff_binary(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
