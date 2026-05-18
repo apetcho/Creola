@@ -134,8 +134,34 @@ impl Integrator{
         Ok(Expr::Call("∫".into(), vec![expr]))
     }
 
-    fn integrate_binary_pow(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+    fn integrate_binary_pow(base: &Expr, expo: &Expr, var: &str) -> Result<Expr, String> {
+        // special case: ∫ x^n dx = x^(n+1)/(n+1)
+        if matches!(base.clone(), Expr::Var(name) if name == var) && matches!(expo.clone(), Expr::Num(_)){
+            if let Expr::Num(n) = *expo {
+                let m = n + 1.0;
+                let numerator = Expr::Binary(
+                    BinaryOp::Pow,
+                    Box::new(Expr::Var(var.to_string())),
+                    Box::new(Expr::Num(m))
+                );
+                let ans = Expr::Binary(
+                    BinaryOp::Div,
+                    Box::new(numerator),
+                    Box::new(Expr::Num(m))
+                );
+                Ok(ans)
+            }else{
+                let expr = Expr::Binary(
+                    BinaryOp::Pow, Box::new(base.clone()), Box::new(expo.clone())
+                );
+                Ok(Expr::Call("∫".into(), vec![expr]))
+            }
+        }else{
+            let expr = Expr::Binary(
+                BinaryOp::Pow, Box::new(base.clone()), Box::new(expo.clone())
+            );
+            Ok(Expr::Call("∫".into(), vec![expr]))
+        }
     }
 
     fn integrate_func(name: &str, args: Vec<Expr>, var: &str) -> Result<Expr, String> {
