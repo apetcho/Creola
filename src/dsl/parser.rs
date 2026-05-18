@@ -22,6 +22,27 @@ impl Parser{
         })
     }
 
+    pub fn parse(&mut self) -> Result<Stmt, String> {
+        if let Some(token) = self.peek() {
+            match token {
+                Token::Let => {
+                    self.next();
+                    self.parse_let()
+                }
+                Token::Fun => {
+                    self.next();
+                    self.parse_fun()
+                }
+                _ => {
+                    let expr = self.parse_expr()?;
+                    Ok(Stmt::Expr(expr))
+                }
+            }
+        }else{
+            Err("unexpected error.".into())
+        }
+    }
+
     fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.pos)
     }
@@ -45,9 +66,7 @@ impl Parser{
         }
     }
 
-    pub fn parse(&mut self) -> Result<Stmt, String> {
-        todo!("")
-    }
+
 
     fn parse_let(&mut self) -> Result<Stmt, String> {
         todo!("")
