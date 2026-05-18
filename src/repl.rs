@@ -68,12 +68,17 @@ impl Repl{
                     rl.add_history_entry(line);
 
                     // Special commands: diff(...), integrate(...) etc. via DSL
-                    if let Some(ans) = self.handle_builtin_commands(&mut line){
+
+
+                    if let Ok(Some(ans)) = self.handle_builtin_commands(&mut line){
                         println!("{}", ans);
+                        continue;
+                    }else if let Err(msg) = self.handle_builtin_commands(&mut line){
+                        eprintln!("{msg}");
                         continue;
                     }
 
-                    let input = line.clone();
+                    let input = line;
                     let mut parser = match Parser::new(input){
                         Ok(p) => p,
                         Err(msg) => {
@@ -154,8 +159,23 @@ impl Repl{
         eprintln!("x^2");
     }
 
-    fn handle_builtin_commands(&mut self, input: &str) -> Option<String> {
-        todo!("")
+    fn handle_builtin_commands(&mut self, input: &str) -> Result<Option<String>, String> {
+        if input.starts_with("diff("){
+            return self.handle_diff(input);
+        }else if input.starts_with("integrate("){
+            return self.handle_integrate(input);
+        }else if input.starts_with("taylor("){
+            return self.handle_taylor(input);
+        }else if input.starts_with("roots(") || input.starts_with("solve("){
+            return self.handle_roots(input);
+        }else if input.starts_with("factor("){
+            return self.handle_factor(input);
+        }else if input.starts_with("expand("){
+            return self.handle_expand(input);
+        }else if input.starts_with("simplify("){
+            return self.handle_simplify(input);
+        }
+        Ok(None)
     }
 
     fn parse_two_args(s: &str) -> Result<Option<(Expr, String)>, String>{
