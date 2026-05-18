@@ -63,8 +63,50 @@ impl Differentiator{
         Ok(ans)
     }
 
-    fn diff_binary_pow(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+    fn diff_binary_pow(op: BinaryOp, base: &Expr, expo: &Expr, var: &str) -> Result<Expr, String> {
+        match (base, expo) {
+            (Expr::Var(name), Expr::Num(n)) if name == var => {
+                // d/dx x^n = n x^(n-1)
+                let m = *n - 1.0;
+                let rhs = Expr::Binary(BinaryOp::Pow, Box::new(Expr::Var(name.clone())), Box::new(Expr::Num(m)));
+                let ans = Expr::Binary(BinaryOp::Mul, Box::new(Expr::Num(*n)), Box::new(rhs));
+                Ok(ans)
+            }
+            _ => {
+                // general case: (f^g)' = f^g (g' ln f + g f'/f)
+                let f = base;
+                let g = expo;
+                let df = Differentiator::diff(f, var)?;
+                let dg = Differentiator::diff(g, var)?;
+                let f_pow_g = Expr::Binary(BinaryOp::Pow, Box::new(f.clone()), Box::new(g.clone()));
+                let dg_ln_f = Expr::Binary(
+                    BinaryOp::Mul,
+                    Box::new(dg),
+                    Box::new(Expr::Call("ln".into(), vec![(*f).clone()]))
+                );
+                let g_df_by_f = Expr::Binary(
+                    BinaryOp::Mul,
+                    Box::new((*g).clone()),
+                    Box::new(
+                        Expr::Binary(
+                            BinaryOp::Div,
+                            Box::new(df),
+                            Box::new((*f).clone())
+                        )
+                    )
+                );
+                let ans = Expr::Binary(
+                    BinaryOp::Mul,
+                    Box::new(f_pow_g),
+                    Box::new(Expr::Binary(
+                        BinaryOp::Add,
+                        Box::new(dg_ln_f),
+                        Box::new(g_df_by_f)
+                    ))
+                );
+                Ok(ans)
+            }
+        }
     }
 
 
