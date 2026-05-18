@@ -69,7 +69,14 @@ impl Integrator{
     }
 
     fn integrate_binary_add(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        let lhs = Integrator::integrate(lhs, var)?;
+        let rhs = Integrator::integrate(rhs, var)?;
+        let ans = Expr::Binary(
+            BinaryOp::Add,
+            Box::new(lhs),
+            Box::new(rhs)
+        );
+        Ok(ans)
     }
 
     fn integrate_binary_sub(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
