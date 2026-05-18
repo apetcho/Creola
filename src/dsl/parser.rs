@@ -27,7 +27,10 @@ impl Parser{
     }
 
     fn next(&mut self) -> Option<&Token> {
-        todo!("")
+        if self.pos < self.tokens.len() {
+            self.pos += 1;
+        }
+        self.tokens.get(self.pos - 1)
     }
 
     fn consume(&mut self, expected: &Token) -> bool {
