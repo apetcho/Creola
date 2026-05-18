@@ -1,4 +1,4 @@
-use crate::dsl::{Expr, Token, Lexer};
+use crate::dsl::{Expr, Token, Lexer, BinaryOp, UnaryOp};
 
 #[derive(Debug)]
 pub enum Stmt {
@@ -129,7 +129,23 @@ impl Parser{
     }
 
     fn parse_add_sub(&mut self) -> Result<Expr, String> {
-        todo!("")
+        let mut node = self.parse_mul_div()?;
+        loop{
+            match self.peek(){
+                Some(Token::Plus) => {
+                    self.next();
+                    let rhs = self.parse_mul_div()?;
+                    node = Expr::Binary(BinaryOp::Add, Box::new(node), Box::new(rhs));
+                }
+                Some(Token::Minus) => {
+                    self.next();
+                    let rhs = self.parse_mul_div()?;
+                    node = Expr::Binary(BinaryOp::Sub, Box::new(node), Box::new(rhs));
+                }
+                _ => { break; }
+            }
+        }
+        Ok(node)
     }
 
     fn parse_mul_div(&mut self) -> Result<Expr, String> {
