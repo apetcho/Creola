@@ -178,7 +178,13 @@ impl Parser{
     }
 
     fn parse_pow(&mut self) -> Result<Expr, String> {
-        todo!("")
+        let mut node = self.parse_unary()?;
+        while let Some(Token::Caret) = self.peek() {
+            self.next();
+            let rhs = self.parse_unary()?;
+            node = Expr::Binary(BinaryOp::Pow, Box::new(node), Box::new(rhs));
+        }
+        Ok(node)
     }
 
     fn parse_unary(&mut self) -> Result<Expr, String> {
