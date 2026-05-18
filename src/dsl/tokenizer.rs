@@ -100,7 +100,31 @@ impl Lexer{
         }
     }
 
-    fn next_token(&mut self) -> Token {
-        todo!("")
+    fn next_token(&mut self) -> Result<Token, String> {
+        self.skip_ws();
+        match self.next() {
+            None => Ok(Token::Eof),
+            Some(c) => match c {
+                '+' => Ok(Token::Plus),
+                '-' => {
+                    if self.peek() == Some('>') {
+                        self.next();
+                        Ok(Token::Arrow)
+                    }else{
+                        Ok(Token::Minus)
+                    }
+                }
+                '*' => Ok(Token::Star),
+                '/' => Ok(Token::Slash),
+                '^' => Ok(Token::Caret),
+                '(' => Ok(Token::LParen),
+                ')' => Ok(Token::RParen),
+                ',' => Ok(Token::Comma),
+                '=' => Ok(Token::Equal),
+                c if c.is_ascii_digit() || c == '.' => self.read_number(c),
+                c if c.is_alphabetic() => Ok(self.read_ident(c)),
+                _ => Ok(Token::Eof),
+            }
+        }
     }
 }
