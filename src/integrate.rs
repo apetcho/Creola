@@ -54,7 +54,8 @@ impl Integrator{
     }
 
     fn integrate_unary(expr: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        let ans = Integrator::integrate(expr, var)?;
+        Ok(Expr::Unary(UnaryOp::Neg, Box::new(ans)))
     }
 
     fn integrate_binary(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
