@@ -80,7 +80,14 @@ impl Integrator{
     }
 
     fn integrate_binary_sub(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        let lhs = Integrator::integrate(lhs, var)?;
+        let rhs = Integrator::integrate(rhs, var)?;
+        let ans = Expr::Binary(
+            BinaryOp::Sub,
+            Box::new(lhs),
+            Box::new(rhs)
+        );
+        Ok(ans)
     }
 
     fn integrate_binary_mul(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
