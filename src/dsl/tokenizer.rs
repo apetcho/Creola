@@ -82,7 +82,22 @@ impl Lexer{
     }
 
     fn read_ident(&mut self, first: char) -> Token {
-        todo!("")
+        let mut ident = String::new();
+        ident.push(first);
+        while let Some(c) = self.peek() {
+            if c.is_alphanumeric() || c == '_'{
+                ident.push(c);
+                self.next();
+            }else{
+                break;
+            }
+        }
+
+        match ident.as_str(){
+            "let" => Token::Let,
+            "fun" => Token::Fun,
+            _ => Token::Ident(ident),
+        }
     }
 
     fn next_token(&mut self) -> Token {
