@@ -52,7 +52,7 @@ impl Creola{
     }
 
     pub fn expand(expr: &Expr) -> Result<Expr, String> {
-        todo!("")
+        Expander::expand(expr)
     }
 
     pub fn roots(expr: &Expr, var: &str, guess: f64) -> Result<Option<f64>, String>{
