@@ -127,8 +127,11 @@ impl Integrator{
         }
     }
 
-    fn integrate_binary_div(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+    fn integrate_binary_div(lhs: &Expr, rhs: &Expr, _var: &str) -> Result<Expr, String> {
+        let expr = Expr::Binary(
+            BinaryOp::Div, Box::new(lhs.clone()), Box::new(rhs.clone())
+        );
+        Ok(Expr::Call("∫".into(), vec![expr]))
     }
 
     fn integrate_binary_pow(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
