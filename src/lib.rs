@@ -44,7 +44,7 @@ impl Creola{
     }
 
     pub fn integrate(expr: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        Integrator::integrate(expr, var)
     }
 
     pub fn factor(expr: &Expr) -> Result<Expr, String> {
