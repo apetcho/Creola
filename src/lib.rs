@@ -64,6 +64,6 @@ impl Creola{
     }
 
     pub fn taylor(expr: &Expr, var: &str, order: usize) -> Result<Expr, String> {
-        todo!("")
+        Series::taylor(expr, var, order)
     }
 }
