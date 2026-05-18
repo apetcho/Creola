@@ -30,8 +30,8 @@ impl Differentiator{
             BinaryOp::Add => Differentiator::diff_binary_add(lhs, rhs, var),
             BinaryOp::Sub => Differentiator::diff_binary_sub(lhs, rhs, var),
             BinaryOp::Mul => Differentiator::diff_binary_mul(lhs, rhs, var),
-            BinaryOp::Div => Differentiator::diff_binary_div(op, lhs, rhs, var),
-            BinaryOp::Pow => Differentiator::diff_binary_pow(op, lhs, rhs, var),
+            BinaryOp::Div => Differentiator::diff_binary_div(lhs, rhs, var),
+            BinaryOp::Pow => Differentiator::diff_binary_pow(lhs, rhs, var),
         }
     }
 
@@ -57,7 +57,7 @@ impl Differentiator{
         Ok(Expr::Binary(BinaryOp::Add, Box::new(xlhs), Box::new(xrhs)))
     }
 
-    fn diff_binary_div(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+    fn diff_binary_div(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
         // quotient rule: (u/v)' = (u'v - uv')/v^2
         let uprime = Differentiator::diff(lhs, var)?;
         let vprime = Differentiator::diff(rhs, var)?;
@@ -69,7 +69,7 @@ impl Differentiator{
         Ok(ans)
     }
 
-    fn diff_binary_pow(op: BinaryOp, base: &Expr, expo: &Expr, var: &str) -> Result<Expr, String> {
+    fn diff_binary_pow(base: &Expr, expo: &Expr, var: &str) -> Result<Expr, String> {
         match (base, expo) {
             (Expr::Var(name), Expr::Num(n)) if name == var => {
                 // d/dx x^n = n x^(n-1)

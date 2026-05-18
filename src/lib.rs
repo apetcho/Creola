@@ -40,7 +40,7 @@ impl Creola{
     }
 
     pub fn diff(expr: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        Differentiator::diff(expr, var)
     }
 
     pub fn integrate(expr: &Expr, var: &str) -> Result<Expr, String> {
