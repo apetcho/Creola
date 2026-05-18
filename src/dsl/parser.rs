@@ -149,7 +149,32 @@ impl Parser{
     }
 
     fn parse_mul_div(&mut self) -> Result<Expr, String> {
-        todo!("")
+        let mut node = self.parse_pow()?;
+        loop {
+            // implicit multiplication: if next token starts with a primary, treat as '*'
+            let implicit_mul = matches!(
+                self.peek(),
+                Some(Token::Num(_)) | Some(Token::Ident(_)) | Some(Token::LParen)
+            );
+            match self.peek() {
+                Some(Token::Star) => {
+                    self.next();
+                    let rhs = self.parse_pow()?;
+                    node = Expr::Binary(BinaryOp::Mul, Box::new(node), Box::new(rhs));
+                }
+                Some(Token::Slash) => {
+                    self.next();
+                    let rhs = self.parse_pow()?;
+                    node = Expr::Binary(BinaryOp::Div, Box::new(node), Box::new(rhs));
+                }
+                _ if implicit_mul => {
+                    let rhs = self.parse_pow()?;
+                    node = Expr::Binary(BinaryOp::Mul, Box::new(node), Box::new(rhs));
+                }
+                _ => { break; }
+            }
+        }
+        Ok(node)
     }
 
     fn parse_pow(&mut self) -> Result<Expr, String> {
