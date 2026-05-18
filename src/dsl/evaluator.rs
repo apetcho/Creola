@@ -34,7 +34,56 @@ impl Evaluator{
         }
     }
 
-    fn eval_function_call(name: &str, args: Vec<Expr>) -> Result<Expr, String> {
-        todo!("")
+    fn eval_function_call(name: &str, args: Vec<Expr>, env: &Env) -> Result<Expr, String> {
+        let mut argv: Vec<Expr> = Vec::new();
+        for arg in args.iter(){
+            match Evaluator::eval(arg, env) {
+                Ok(expr) => argv.push(expr),
+                Err(msg) => {
+                    return Err(msg.clone());
+                }
+            }
+        }
+
+        match name{
+            "exp" => {
+                if let [Expr::Num(x)] = argv.as_slice(){
+                    Ok(Expr::Num(x.exp()))
+                }else{
+                    Ok(Expr::Call(name.to_string(), argv))
+                }
+            }
+
+            "sin" => {
+                if let [Expr::Num(x)] = argv.as_slice(){
+                    Ok(Expr::Num(x.sin()))
+                }else{
+                    Ok(Expr::Call(name.to_string(), argv))
+                }
+            }
+
+            "cos" => {
+                if let [Expr::Num(x)] = argv.as_slice(){
+                    Ok(Expr::Num(x.cos()))
+                }else{
+                    Ok(Expr::Call(name.to_string(), argv))
+                }
+            }
+            _ => {
+                if let Some(def) = env.funcs.get(name){
+                    if def.params.len() == argv.len(){
+                        let mut local_env = env.clone();
+                        for (p, v) in def.params.iter().zip(argv.iter()){
+                            local_env.vars.insert(p.clone(), v.clone());
+                        }
+                        Evaluator::eval(&def.body, &local_env)
+                    }else{
+                        Ok(Expr::Call(name.to_string(), argv))
+                    }
+                }else{
+                    Ok(Expr::Call(name.to_string(), argv))
+                }
+            }
+        }
     }
 }
