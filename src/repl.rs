@@ -5,7 +5,7 @@ use rustyline::hint::Hinter;
 use rustyline::highlight::{Highlighter, MatchingBracketHighlighter};
 use rustyline::validate::Validator;
 
-use crate::dsl::{Env, Expr};
+use crate::dsl::{Env, Expr, Parser, Stmt, FunctionDef};
 use crate::Creola;
 
 struct CreolaHelper{
@@ -53,19 +53,105 @@ impl Repl{
     pub fn run(&mut self) {
         let mut rl = Editor::new().expect("failed to create line editor");
         rl.set_helper(Some(CreolaHelper::new()));
+        let mut id: usize = 1;
 
         self.info();
+
+        loop{
+            id += 1;
+            let prompt = format!("\x1b[32mcreola\x1b[0m:\x1b[33m{}\x1b[0m>> ", id);
+            let readline = rl.readline(prompt.as_str());
+            match readline {
+                Ok(line) => {
+                    let mut line = line.trim();
+                    if line.is_empty(){ continue; }
+                    rl.add_history_entry(line);
+
+                    // Special commands: diff(...), integrate(...) etc. via DSL
+                    if let Some(ans) = self.handle_builtin_commands(&mut line){
+                        println!("{}", ans);
+                        continue;
+                    }
+
+                    let input = line.clone();
+                    let mut parser = match Parser::new(input){
+                        Ok(p) => p,
+                        Err(msg) => {
+                            eprintln!("{}", msg);
+                            continue;
+                        }
+                    };
+
+                    match parser.parse() {
+                        Ok(stmt) => match stmt {
+                            Stmt::Let(name, expr) => {
+                                let val = match Creola::eval(&expr, &self.env){
+                                    Ok(ans) => ans,
+                                    Err(msg) => {
+                                        eprintln!("{}", msg);
+                                        continue;
+                                    }
+                                };
+                                self.env.vars.insert(name.clone(), val);
+                                println!("{} = {}", name, val);
+                            }
+                            Stmt::Fun(name, params, body) => {
+                                let def = FunctionDef{
+                                    params: params.clone(),
+                                    body: body.clone(),
+                                };
+                                self.env.funcs.insert(name.clone(), def.clone());
+                                let mut my_params = String::new();
+                                my_params.push('(');
+                                for (i, param) in params.iter().enumerate(){
+                                    if i > 0 {
+                                        my_params.push_str(", ");
+                                    }
+                                    my_params.push_str(param.as_str());
+                                }
+                                my_params.push(')');
+                                println!("{}{} = {}", name, my_params, body);
+                            }
+                            Stmt::Expr(expr) => {
+                                let ans = match Creola::eval(&expr, &self.env){
+                                    Ok(e) => e,
+                                    Err(msg) => {
+                                        eprintln!("{}", msg);
+                                        continue;
+                                    }
+                                };
+                                println!("{}", ans);
+                            }
+                        }
+                        Err(msg) => {
+                            eprintln!("ParserError: {}", msg);
+                        }
+                    }
+                }
+                Err(ReadlineError::Interrupted) => { continue; }
+                Err(ReadlineError::Eof) => {
+                    println!("\nBye");
+                    break;
+                }
+                Err(err) => {
+                    eprintln!("Error: {err:?}");
+                    break;
+                }
+            }
+        }
     }
 
     fn info(&self) {
         eprintln!("Creola COMPUTER ALGEBRA SYSTEM Version 0.0.1");
         eprintln!("Example Creola session:\n");
-        eprintln!(" creola:1>> let x = 3.14");
-        eprintln!(" creola:2>> fun f = (x) -> x^2 + 1");
-        eprintln!(" creola:3>> diff(\"x^2 + 1\", \"x\")");
-        eprintln!(" x");
-        eprintln!(" creola:4>> integrate(\"2x\", \"x\")");
-        eprintln!(" x^2");
+        eprintln!("creola:1>> let x = 3.14");
+        eprintln!("x = 3.14");
+        eprintln!("creola:2>> fun f = (x) -> x^2 + 1");
+        eprintln!("f(x) = x^2 + 1");
+        eprintln!("creola:3>> diff(\"x^2 + 1\", \"x\")");
+        eprintln!("x");
+        eprintln!("creola:4>> integrate(\"2x\", \"x\")");
+        eprintln!("x^2");
     }
 
     fn handle_builtin_commands(&mut self, input: &str) -> Option<String> {
