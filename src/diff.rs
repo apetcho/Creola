@@ -42,6 +42,7 @@ impl Differentiator{
     }
 
     fn diff_binary_mul(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+        // product rule: (uv)' = u'v + uv'
         let df = Differentiator::diff(lhs, var)?;
         let dh = Differentiator::diff(rhs, var)?;
         let xlhs = Expr::Binary(BinaryOp::Mul, Box::new(df.clone()), Box::new(rhs.clone()));
@@ -51,7 +52,15 @@ impl Differentiator{
     }
 
     fn diff_binary_div(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        // quotient rule: (u/v)' = (u'v - uv')/v^2
+        let uprime = Differentiator::diff(lhs, var)?;
+        let vprime = Differentiator::diff(rhs, var)?;
+        let uprime_v = Expr::Binary(BinaryOp::Mul, Box::new(uprime.clone()), Box::new(rhs.clone()));
+        let u_vprime = Expr::Binary(BinaryOp::Mul, Box::new(lhs.clone()), Box::new(vprime.clone()));
+        let vsquare = Expr::Binary(BinaryOp::Pow, Box::new(rhs.clone()), Box::new(Expr::Num(2.0)));
+        let numertor = Expr::Binary(BinaryOp::Sub, Box::new(uprime_v), Box::new(u_vprime));
+        let ans = Expr::Binary(BinaryOp::Div, Box::new(numertor), Box::new(vsquare));
+        Ok(ans)
     }
 
     fn diff_binary_pow(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
