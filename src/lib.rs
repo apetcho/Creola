@@ -73,14 +73,14 @@ impl Creola{
 
     pub fn solve(expr: &Expr, var: &str, guess: f64) -> Result<Expr, String> {
         let expr = Solver::solve(expr, var, guess)?;
-        let expr = match expr{
-            Some(e) => {
-                Expr::Num(e)
-            }
-            None => {
-                return Err("no solution found".into());
-            }
-        };
+        // let expr = match expr{
+        //     Some(e) => {
+        //         Expr::Num(e)
+        //     }
+        //     None => {
+        //         return Err("no solution found".into());
+        //     }
+        // };
         Creola::simplify(&expr)
     }
 

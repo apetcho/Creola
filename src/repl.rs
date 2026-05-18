@@ -231,7 +231,23 @@ impl Repl{
     }
 
     fn handle_integrate(&mut self, input: &str) -> Result<Option<String>, String> {
-        todo!("")
+        match Repl::parse_two_args(input){
+            Ok(Some((expr, var))) => {
+                let diff = match Creola::integrate(&expr, var.as_str()){
+                    Ok(ans) => ans,
+                    Err(msg) => {
+                        return Err(msg);
+                    }
+                };
+                Ok(Some(format!("{}", diff)))
+            }
+            Ok(None) => {
+                return Err("ill-formed 'integrate' expression".into());
+            }
+            Err(msg) => {
+                return Err(msg);
+            }
+        }
     }
 
     fn handle_taylor(&mut self, input: &str) -> Result<Option<String>, String> {
