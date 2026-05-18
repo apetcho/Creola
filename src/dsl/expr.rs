@@ -28,7 +28,7 @@ pub enum BinaryOp {
 // ======================
 impl fmt::Display for Expr{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!("")
+        write!(f, "{}", self.format(0))
     }
 }
 
