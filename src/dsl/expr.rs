@@ -34,6 +34,86 @@ impl fmt::Display for Expr{
 
 impl Expr{
     pub fn format(&self, prec: u8) -> String {
-        todo!("")
+        use Expr::*;
+        match self{
+            Num(n) => {
+                if n.fract() == 0.0 {
+                    format!("{}", *n as i64)
+                }else{
+                    format!("{}", n)
+                }
+            }
+
+            Var(name) => {
+                let greek = match name.as_str(){
+                    "alpha" => "α",
+                    "beta" => "β",
+                    "gamma" => "γ",
+                    "delta" => "δ",
+                    "lambda" => "λ",
+                    "pi" => "π",
+                _   => name,
+                };
+                format!("{}", greek)
+            }
+
+            Unary(UnaryOp::Neg, rhs) => format!("-{}", rhs),
+
+            Binary(op, lhs, rhs) => {
+                let (p, sym) = match op {
+                    BinaryOp::Add => (1, " + "),
+                    BinaryOp::Sub => (1, " - "),
+                    BinaryOp::Mul => (2, " * "),
+                    BinaryOp::Div => (2, " / "),
+                    BinaryOp::Pow => (3, "^"),
+                };
+
+                let need_paren = p < prec;
+                let mut text = String::new();
+                if need_paren {
+                    text.push_str("(");
+                }
+
+                match op{
+                    BinaryOp::Div => {
+                        text.push_str(format!("{} / {}", lhs, rhs).as_str());
+                    }
+                    BinaryOp::Pow => {
+                        text.push_str(format!("{}^{}", lhs, rhs).as_str());
+                    }
+
+                    _ => {
+                        text.push_str(format!("{}", lhs.format(p)).as_str());
+                        text.push_str(format!("{}", sym).as_str());
+                        text.push_str(format!("{}", rhs.format(p)).as_str());
+                    }
+                }
+                if need_paren {
+                    text.push_str(")");
+                }
+                text
+            }
+
+            Call(name, args) => {
+                let greek = match name.as_str() {
+                    "sqrt" => "√",
+                    "exp" => "exp",
+                    "sin" => "sin",
+                    "cos" => "cos",
+                    "tan" => "tan",
+                    _ => name,
+                };
+                let mut text = String::new();
+                text.push_str(format!("{}(", greek).as_str());
+                for (i, arg) in args.iter().enumerate(){
+                    if i > 0 {
+                        text.push_str(", ");
+                    }
+                    text.push_str(format!("{}", arg).as_str());
+                }
+                text.push_str(")");
+                text
+            }
+        }
     }
 }
