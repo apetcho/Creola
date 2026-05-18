@@ -58,8 +58,27 @@ impl Lexer{
         }
     }
 
-    fn read_number(&mut self, first: char) -> Token {
-        todo!("")
+    fn read_number(&mut self, first: char) -> Result<Token, String> {
+        let mut numstr = String::new();
+        numstr.push(first);
+        let mut has_dot = first == '.';
+        while let Some(c) = self.peek() {
+            if c.is_ascii_digit(){
+                numstr.push(c);
+                self.next();
+            }else if c == '.' && !has_dot {
+                has_dot = true;
+                numstr.push(c);
+                self.next();
+            }else{
+                break;
+            }
+        }
+        if let Ok(num) = numstr.parse::<f64>() {
+            Ok(Token::Num(num))
+        }else{
+            Err(format!("Invalid number found: '{}'", numstr))
+        }
     }
 
     fn read_ident(&mut self, first: char) -> Token {
