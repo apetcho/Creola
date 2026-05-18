@@ -1,8 +1,8 @@
 mod dsl;
-use dsl::Expr;
+use dsl::{Expr, Evaluator, Env};
 
 mod simplify;
-use simplify::Simplify;
+use simplify::Simplifier;
 
 mod diff;
 use diff::Differentiator;
@@ -32,35 +32,38 @@ pub struct Creola;
 
 
 impl Creola{
-    pub fn simplify(expr: &Expr) -> Expr {
+    pub fn eval(expr: &Expr, env: &Env) -> Result<Expr, String> {
+        Evaluator::eval(expr, env)
+    }
+    pub fn simplify(expr: &Expr) -> Result<Expr, String> {
+        Simplifier::simplify(expr)
+    }
+
+    pub fn diff(expr: &Expr, var: &str) -> Result<Expr, String> {
         todo!("")
     }
 
-    pub fn diff(expr: &Expr, var: &str) -> Expr {
+    pub fn integrate(expr: &Expr, var: &str) -> Result<Expr, String> {
         todo!("")
     }
 
-    pub fn integrate(expr: &Expr, var: &str) -> Expr {
+    pub fn factor(expr: &Expr) -> Result<Expr, String> {
         todo!("")
     }
 
-    pub fn factor(expr: &Expr) -> Expr {
+    pub fn expand(expr: &Expr) -> Result<Expr, String> {
         todo!("")
     }
 
-    pub fn expand(expr: &Expr) -> Expr {
+    pub fn roots(expr: &Expr, var: &str, guess: f64) -> Result<Option<f64>, String>{
         todo!("")
     }
 
-    pub fn roots(expr: &Expr, var: &str, guess: f64) -> Option<f64>{
+    pub fn solve(expr: &Expr, var: &str, guess: f64) -> Result<Option<f64>, String> {
         todo!("")
     }
 
-    pub fn solve(expr: &Expr, var: &str, guess: f64) -> Option<f64> {
-        todo!("")
-    }
-
-    pub fn taylor(expr: &Expr, var: &str, order: usize) -> Expr {
+    pub fn taylor(expr: &Expr, var: &str, order: usize) -> Result<Expr, String> {
         todo!("")
     }
 }

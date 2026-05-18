@@ -10,7 +10,7 @@ mod parser;
 pub use parser::{Stmt, Parser};
 
 mod evaluator;
-use evaluator::Evaluator;
+pub use evaluator::Evaluator;
 
 // ===================
 // -*- Environment -*-
