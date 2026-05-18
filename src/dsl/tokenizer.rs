@@ -34,8 +34,18 @@ impl Lexer{
         }
     }
 
-    pub fn tokenize(&mut self) -> Vec<Token>{
-        todo!("")
+    pub fn tokenize(&mut self) -> Result<Vec<Token>, String>{
+        let mut tokens = Vec::new();
+        loop{
+            let token = self.next_token()?;
+            if token == Token::Eof {
+                tokens.push(token);
+                break;
+            }
+            tokens.push(token);
+        }
+
+        Ok(tokens)
     }
 
     fn peek(&self) -> Option<char> {
