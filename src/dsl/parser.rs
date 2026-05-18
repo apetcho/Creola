@@ -14,8 +14,12 @@ pub struct Parser{
 }
 
 impl Parser{
-    pub fn new(input: &str) -> Self{
-        todo!("")
+    pub fn new(input: &str) -> Result<Self, String>{
+        let mut lexer = Lexer::new(input);
+        Ok(Parser{
+            tokens: lexer.tokenize()?,
+            pos: 0,
+        })
     }
 
     fn peek(&self) -> Option<&Token> {
