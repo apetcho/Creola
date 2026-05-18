@@ -36,7 +36,7 @@ impl Validator for CreolaHelper{}
 
 impl CreolaHelper{
     pub fn new() -> Self {
-        todo!("")
+        CreolaHelper { bracket: MatchingBracketHighlighter::new() }
     }
 }
 
