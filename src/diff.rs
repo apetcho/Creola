@@ -29,6 +29,29 @@ impl Differentiator{
         todo!("")
     }
 
+    fn diff_binary_add(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+        let lhs = Differentiator::diff(lhs, var)?;
+        let rhs = Differentiator::diff(rhs, var)?;
+        Ok(Expr::Binary(BinaryOp::Add, Box::new(lhs), Box::new(rhs)))
+    }
+
+    fn diff_binary_sub(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+        todo!("")
+    }
+
+    fn diff_binary_mul(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+        todo!("")
+    }
+
+    fn diff_binary_div(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+        todo!("")
+    }
+
+    fn diff_binary_pow(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+        todo!("")
+    }
+
+
     fn diff_function_call(name: &str, args: Vec<Expr>) -> Result<Expr, String> {
         todo!("")
     }
