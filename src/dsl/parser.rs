@@ -84,7 +84,44 @@ impl Parser{
     }
 
     fn parse_fun(&mut self) -> Result<Stmt, String> {
-        todo!("")
+        let name = match self.next(){
+            Some(Token::Ident(ident)) => ident.clone(),
+            _ => {
+                return Err("Expected identifier after 'fun'".into());
+            }
+        };
+        if !self.consume(&Token::Equal) {
+            return Err("Expected '=' in fun definition".into());
+        }
+
+        // (x, y, ...) -> body
+        if !self.consume(&Token::LParen){
+            return Err("Expected '(' after 'fun f ='".into());
+        }
+        let mut params = Vec::new();
+        loop{
+            match self.next(){
+                Some(Token::Ident(id)) => params.push(id.clone()),
+                Some(Token::RParen) => { break; },
+                Some(Token::Comma) => { continue; },
+                _ => {
+                    return Err("Invalid parameter list in function definition".into());
+                }
+            }
+
+            if self.consume(&Token::RParen){
+                break;
+            }else if self.consume(&Token::Comma){
+                continue;
+            }
+        }
+
+        if !self.consume(&Token::Arrow){
+            return Err("Expected '->' in function definition".into());
+        }
+
+        let body = self.parse_expr()?;
+        Ok(Stmt::Fun(name, params, body))
     }
 
     fn parse_expr(&mut self) -> Result<Expr, String> {
