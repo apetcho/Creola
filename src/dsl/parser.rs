@@ -199,6 +199,41 @@ impl Parser{
     }
 
     fn parse_primary(&mut self) -> Result<Expr, String> {
-        todo!("")
+        match self.next(){
+            Some(Token::Num(num)) => Ok(Expr::Num(*num)),
+            Some(Token::Ident(name)) => {
+                let name = name.clone();
+                if self.consume(&Token::LParen){
+                    // function call
+                    let mut args = Vec::new();
+                    if !self.consume(&Token::RParen){
+                        loop{
+                            let arg = self.parse_expr()?;
+                            args.push(arg);
+                            if self.consume(&Token::RParen){
+                                break;
+                            }else if self.consume(&Token::Comma){
+                                continue;
+                            }else{
+                                return Err("Expected ',' or ')'".into());
+                            }
+                        }
+                    }
+                    Ok(Expr::Call(name, args))
+                }else{
+                    Ok(Expr::Var(name))
+                }
+            }
+            Some(Token::LParen) => {
+                let expr = self.parse_expr()?;
+                if !self.consume(&Token::RParen){
+                    return Err("Expected ')'".into());
+                }
+                Ok(expr)
+            }
+            _ => {
+                return Err("unexpected token in expression".into());
+            }
+        }
     }
 }
