@@ -355,7 +355,40 @@ impl Repl{
     }
 
     fn handle_factor(&mut self, input: &str) -> Result<Option<String>, String> {
-        todo!("")
+        // factor(expr)
+        let first = match input.find('('){
+            Some(p) => p,
+            None => {
+                return Ok(None);
+            }
+        };
+        let last = match input.rfind(')'){
+            Some(p) => p,
+            None => {
+                return Ok(None);
+            }
+        };
+        let inner = &input[first+1..last];
+        let mut parser = match Parser::new(inner){
+            Ok(p) => p,
+            Err(msg) => {
+                return Err(msg);
+            }
+        };
+        let expr = match parser.parse_expr(){
+            Ok(e) => e,
+            Err(msg) => {
+                return Err(msg);
+            }
+        };
+        let ans = match Creola::factor(&expr){
+            Ok(e) => e,
+            Err(msg) => {
+                return Err(msg);
+            }
+        };
+
+        Ok(Some(format!("{}", ans)))
     }
 
     fn handle_expand(&mut self, input: &str) -> Result<Option<String>, String> {
