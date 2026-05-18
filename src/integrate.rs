@@ -91,7 +91,40 @@ impl Integrator{
     }
 
     fn integrate_binary_mul(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        // c*base^expo with base == var && expo == number
+        match (lhs.clone(), rhs.clone()) {
+            (Expr::Num(c), Expr::Binary(BinaryOp::Pow, base, expo))
+                if matches!(*base.clone(), Expr::Var(name) if name == var) && matches!(*expo.clone(), Expr::Num(_)) => {
+                    if let Expr::Num(n) = *expo.clone() {
+                        let m = n + 1.0;
+                        let y = Expr::Binary(
+                            BinaryOp::Pow,
+                            Box::new(Expr::Var(var.to_string())),
+                            Box::new(Expr::Num(m))
+                        );
+                        let ans = Expr::Binary(
+                            BinaryOp::Mul,
+                            Box::new(Expr::Num(c/m)),
+                            Box::new(y)
+                        );
+                        Ok(ans)
+                    }else{
+                        let ans = Expr::Binary(
+                            BinaryOp::Mul,
+                            Box::new(lhs.clone()),
+                            Box::new(rhs.clone())
+                        );
+                        let ans = Expr::Call("∫".into(), vec![ans]);
+                        Ok(ans)
+                    }
+                }
+            _ => {
+                let expr = Expr::Binary(
+                    BinaryOp::Mul, Box::new(lhs.clone()), Box::new(rhs.clone())
+                );
+                Ok(Expr::Call("∫".into(), vec![expr]))
+            }
+        }
     }
 
     fn integrate_binary_div(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
