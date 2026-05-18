@@ -1,4 +1,4 @@
-use crate::dsl::{Expr, UnaryOp, BinaryOp};
+use crate::dsl::Expr;
 
 pub struct Factorizer;
 

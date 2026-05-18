@@ -48,7 +48,7 @@ impl Creola{
     }
 
     pub fn factor(expr: &Expr) -> Result<Expr, String> {
-        todo!("")
+        Factorizer::factorize(expr)
     }
 
     pub fn expand(expr: &Expr) -> Result<Expr, String> {
