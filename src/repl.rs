@@ -51,11 +51,21 @@ impl Repl{
     }
 
     pub fn run(&mut self) {
+        let mut rl = Editor::new().expect("failed to create line editor");
+        rl.set_helper(Some(CreolaHelper::new()));
 
+        self.info();
     }
 
     fn info(&self) {
-
+        eprintln!("Creola COMPUTER ALGEBRA SYSTEM Version 0.0.1");
+        eprintln!("Example Creola session:\n");
+        eprintln!(" creola:1>> let x = 3.14");
+        eprintln!(" creola:2>> fun f = (x) -> x^2 + 1");
+        eprintln!(" creola:3>> diff(\"x^2 + 1\", \"x\")");
+        eprintln!(" x");
+        eprintln!(" creola:4>> integrate(\"2x\", \"x\")");
+        eprintln!(" x^2");
     }
 
     fn handle_builtin_commands(&mut self, input: &str) -> Option<String> {
