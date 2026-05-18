@@ -304,7 +304,54 @@ impl Repl{
     }
 
     fn handle_roots(&mut self, input: &str) -> Result<Option<String>, String> {
-        todo!("")
+        // roots(expr, x, guess)
+        let first = match input.find('('){
+            Some(p) => p,
+            None => {
+                return Ok(None);
+            }
+        };
+        let last = match input.rfind(')'){
+            Some(p) => p,
+            None => {
+                return Ok(None);
+            }
+        };
+
+        let inner = &input[first+1..last];
+        let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
+        if parts.len() == 3 {
+            let expr_str = parts[0];
+            let var = parts[1];
+            let guess: f64 = match parts[2].parse(){
+                Ok(v) => v,
+                Err(err) => {
+                    return Err(format!("{:?}", err));
+                }
+            };
+
+            let mut parser = match Parser::new(expr_str){
+                Ok(p) => p,
+                Err(msg) => {
+                    return Err(msg);
+                }
+            };
+            let expr = match parser.parse_expr(){
+                Ok(e) => e,
+                Err(msg) => {
+                    return Err(msg);
+                }
+            };
+            let ans = match Creola::roots(&expr, var, guess){
+                Ok(e) => e,
+                Err(msg) => {
+                    return Err(msg);
+                }
+            };
+
+            return Ok(Some(format!("{}", ans)));
+        }
+        Err("No root found".into())
     }
 
     fn handle_factor(&mut self, input: &str) -> Result<Option<String>, String> {
