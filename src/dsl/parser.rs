@@ -69,7 +69,18 @@ impl Parser{
 
 
     fn parse_let(&mut self) -> Result<Stmt, String> {
-        todo!("")
+        let name = match self.next(){
+            Some(Token::Ident(ident)) => ident.clone(),
+            _ => {
+                return Err("Expected identifier after 'let'".into());
+            }
+        };
+        if !self.consume(&Token::Equal){
+            return Err("Expected '=' in let binding".into());
+        }
+
+        let expr = self.parse_expr()?;
+        Ok(Stmt::Let(name, expr))
     }
 
     fn parse_fun(&mut self) -> Result<Stmt, String> {
