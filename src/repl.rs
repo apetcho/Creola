@@ -47,7 +47,7 @@ pub struct Repl{
 
 impl Repl{
     pub fn new() -> Self {
-        todo!("")
+        Repl { env: Env::default() }
     }
 
     pub fn run(&mut self) {
