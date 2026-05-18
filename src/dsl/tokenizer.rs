@@ -43,7 +43,13 @@ impl Lexer{
     }
 
     fn next(&mut self) -> Option<char> {
-        todo!("")
+        if self.pos >= self.chars.len() {
+            None
+        }else{
+            let c = self.chars[self.pos];
+            self.pos += 1;
+            Some(c)
+        }
     }
 
     fn skip_ws(&mut self) {
