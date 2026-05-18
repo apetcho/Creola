@@ -28,7 +28,10 @@ pub struct Lexer{
 
 impl Lexer{
     pub fn new(input: &str) -> Self{
-        todo!("")
+        Lexer {
+            chars: input.chars().collect(),
+            pos: 0,
+        }
     }
 
     pub fn tokenize(&mut self) -> Vec<Token>{
