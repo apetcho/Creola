@@ -59,7 +59,13 @@ impl Integrator{
     }
 
     fn integrate_binary(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        match op {
+            BinaryOp::Add => Integrator::integrate_binary_add(lhs, rhs, var),
+            BinaryOp::Sub => Integrator::integrate_binary_sub(lhs, rhs, var),
+            BinaryOp::Mul => Integrator::integrate_binary_mul(lhs, rhs, var),
+            BinaryOp::Div => Integrator::integrate_binary_div(lhs, rhs, var),
+            BinaryOp::Pow => Integrator::integrate_binary_pow(lhs, rhs, var),
+        }
     }
 
     fn integrate_binary_add(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
