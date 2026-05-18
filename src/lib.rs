@@ -60,7 +60,7 @@ impl Creola{
     }
 
     pub fn solve(expr: &Expr, var: &str, guess: f64) -> Result<Option<f64>, String> {
-        todo!("")
+        Solver::solve(expr, var, guess)
     }
 
     pub fn taylor(expr: &Expr, var: &str, order: usize) -> Result<Expr, String> {
