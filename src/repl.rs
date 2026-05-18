@@ -210,31 +210,47 @@ impl Repl{
         Ok(Some((expr, var_str.to_string())))
     }
 
-    fn handle_diff(&mut self, input: &str) -> Option<String> {
+    fn handle_diff(&mut self, input: &str) -> Result<Option<String>, String> {
+        match Repl::parse_two_args(input){
+            Ok(Some((expr, var))) => {
+                let diff = match Creola::diff(&expr, var.as_str()){
+                    Ok(ans) => ans,
+                    Err(msg) => {
+                        return Err(msg);
+                    }
+                };
+                Ok(Some(format!("{}", diff)))
+            }
+            Ok(None) => {
+                return Err("ill-formed 'diff' expression".into());
+            }
+            Err(msg) => {
+                return Err(msg);
+            }
+        }
+    }
+
+    fn handle_integrate(&mut self, input: &str) -> Result<Option<String>, String> {
         todo!("")
     }
 
-    fn handle_integrate(&mut self, input: &str) -> Option<String> {
+    fn handle_taylor(&mut self, input: &str) -> Result<Option<String>, String> {
         todo!("")
     }
 
-    fn handle_taylor(&mut self, input: &str) -> Option<String> {
+    fn handle_roots(&mut self, input: &str) -> Result<Option<String>, String> {
         todo!("")
     }
 
-    fn handle_roots(&mut self, input: &str) -> Option<String> {
+    fn handle_factor(&mut self, input: &str) -> Result<Option<String>, String> {
         todo!("")
     }
 
-    fn handle_factor(&mut self, input: &str) -> Option<String> {
+    fn handle_expand(&mut self, input: &str) -> Result<Option<String>, String> {
         todo!("")
     }
 
-    fn handle_expand(&mut self, input: &str) -> Option<String> {
-        todo!("")
-    }
-
-    fn handle_simplify(&mut self, input: &str) -> Option<String> {
+    fn handle_simplify(&mut self, input: &str) -> Result<Option<String>, String> {
         todo!("")
     }
 }
