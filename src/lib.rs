@@ -56,7 +56,7 @@ impl Creola{
     }
 
     pub fn roots(expr: &Expr, var: &str, guess: f64) -> Result<Option<f64>, String>{
-        todo!("")
+        RootFinder::roots(expr, var, guess)
     }
 
     pub fn solve(expr: &Expr, var: &str, guess: f64) -> Result<Option<f64>, String> {
