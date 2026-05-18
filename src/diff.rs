@@ -15,7 +15,7 @@ impl Differentiator{
                 Differentiator::diff_binary(op.clone(), lhs, rhs, var)
             }
             Expr::Call(name, args) => {
-                Differentiator::diff_function_call(name, args.clone())
+                Differentiator::diff_function_call(name, args.clone(), var)
             }
         }
     }
@@ -110,7 +110,43 @@ impl Differentiator{
     }
 
 
-    fn diff_function_call(name: &str, args: Vec<Expr>) -> Result<Expr, String> {
-        todo!("")
+    fn diff_function_call(name: &str, args: Vec<Expr>, var: &str) -> Result<Expr, String> {
+        match name {
+            "exp" => {
+                // (exp(f))' = f' exp(f)
+                let f = args[0].clone();
+                let df = Differentiator::diff(&f, var)?;
+                let expf = Expr::Call("exp".into(), vec![f.clone()]);
+                let ans = Expr::Binary(
+                    BinaryOp::Mul, Box::new(df), Box::new(expf)
+                );
+                Ok(ans)
+            }
+
+            "sin" => {
+                let f = args[0].clone();
+                let df = Differentiator::diff(&f, var)?;
+                let cos = Expr::Call("cos".into(), vec![f.clone()]);
+                let ans = Expr::Binary(
+                    BinaryOp::Mul, Box::new(df), Box::new(cos)
+                );
+                Ok(ans)
+            }
+
+            "cos" => {
+                let f = args[0].clone();
+                let df = Differentiator::diff(&f, var)?;
+                let sin = Expr::Call("sin".into(), vec![f.clone()]);
+                let ans = Expr::Unary(
+                    UnaryOp::Neg,
+                    Box::new(Expr::Binary(BinaryOp::Mul, Box::new(df), Box::new(sin)))
+                );
+                Ok(ans)
+            }
+            _ => {
+                // generic: (f(g))' = f'(g) * g'
+                Ok(Expr::Call(format!("d_{}{}", name, var), args.clone()))
+            }
+        }
     }
 }
