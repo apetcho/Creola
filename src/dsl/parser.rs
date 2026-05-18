@@ -34,7 +34,15 @@ impl Parser{
     }
 
     fn consume(&mut self, expected: &Token) -> bool {
-        todo!("")
+        if let Some(token) = self.peek() {
+            if token == expected {
+                true
+            }else{
+                false
+            }
+        }else{
+            false
+        }
     }
 
     pub fn parse(&mut self) -> Result<Stmt, String> {
