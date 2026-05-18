@@ -3,8 +3,8 @@ use std::collections::HashMap;
 mod expr;
 pub use expr::{Expr, UnaryOp, BinaryOp};
 
-mod tokenizer;
-pub use tokenizer::{Token, Lexer};
+mod lexer;
+pub use lexer::{Token, Lexer};
 
 mod parser;
 pub use parser::{Stmt, Parser};

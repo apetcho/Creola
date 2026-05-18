@@ -23,7 +23,7 @@ impl Parser{
     }
 
     fn peek(&self) -> Option<&Token> {
-        todo!("")
+        self.tokens.get(self.pos)
     }
 
     fn next(&mut self) -> Option<&Token> {
