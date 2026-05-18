@@ -23,7 +23,12 @@ impl Hinter for CreolaHelper{
 
 impl Highlighter for CreolaHelper{
     fn highlight<'l>(&self, line: &'l str, pos: usize) -> std::borrow::Cow<'l, str> {
-        todo!("")
+        // Very minimal: just highlight "let" and "fun"
+        if line.trim_start().starts_with("let") || line.trim_start().starts_with("fun"){
+            std::borrow::Cow::Owned(format!("\x1b[1;34m{}\x1b[0m", line))
+        }else{
+            self.bracket.highlight(line, pos)
+        }
     }
 }
 
