@@ -165,6 +165,15 @@ impl Integrator{
     }
 
     fn integrate_func(name: &str, args: Vec<Expr>, var: &str) -> Result<Expr, String> {
-        todo!("")
+        match name{
+            "exp" if matches!(args[0].clone(), Expr::Var(v) if v==var) => {
+                let ans = Expr::Call("exp".into(), vec![Expr::Var(var.to_string())]);
+                Ok(ans)
+            }
+            _ => {
+                let expr = Expr::Call(name.to_string(), args.clone());
+                Ok(Expr::Call("∫".into(), vec![expr]))
+            }
+        }
     }
 }
