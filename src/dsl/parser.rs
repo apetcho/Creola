@@ -124,7 +124,7 @@ impl Parser{
         Ok(Stmt::Fun(name, params, body))
     }
 
-    fn parse_expr(&mut self) -> Result<Expr, String> {
+    pub fn parse_expr(&mut self) -> Result<Expr, String> {
         self.parse_add_sub()
     }
 

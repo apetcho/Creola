@@ -92,7 +92,7 @@ impl Repl{
                                         continue;
                                     }
                                 };
-                                self.env.vars.insert(name.clone(), val);
+                                self.env.vars.insert(name.clone(), val.clone());
                                 println!("{} = {}", name, val);
                             }
                             Stmt::Fun(name, params, body) => {
@@ -158,8 +158,56 @@ impl Repl{
         todo!("")
     }
 
-    fn parse_two_args(s: &str) -> Option<(Expr, String)> {
-        todo!("")
+    fn parse_two_args(s: &str) -> Result<Option<(Expr, String)>, String>{
+        let first = match s.find('('){
+            Some(n) => n,
+            None => {
+                return Ok(None);
+            }
+        };
+        let last = match s.find(')'){
+            Some(n) => n,
+            None => {
+                return Ok(None);
+            }
+        };
+        let inner = &s[&first+1..last];
+        let mut depth = 0;
+        let mut split_pos = None;
+        for (i, c) in inner.char_indices(){
+            match c {
+                '(' => depth += 1,
+                ')' => depth -= 1,
+                ',' if depth == 0 => {
+                    split_pos = Some(i);
+                    break;
+                }
+                _ => {}
+            }
+        }
+
+        let split = match split_pos{
+            Some(v) => v,
+            None => {
+                return Ok(None);
+            }
+        };
+        let expr_str = inner[..split].trim();
+        let var_str = inner[split+1..].trim();
+        let mut parser = match Parser::new(expr_str){
+            Ok(p) => p,
+            Err(msg) => {
+                return Err(msg);
+            }
+        };
+        let expr = match parser.parse_expr(){
+            Ok(e) => e,
+            Err(msg) => {
+                return Err(msg);
+            }
+        };
+
+        Ok(Some((expr, var_str.to_string())))
     }
 
     fn handle_diff(&mut self, input: &str) -> Option<String> {
