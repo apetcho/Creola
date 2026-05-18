@@ -26,7 +26,13 @@ impl Differentiator{
     }
 
     fn diff_binary(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        match op {
+            BinaryOp::Add => Differentiator::diff_binary_add(lhs, rhs, var),
+            BinaryOp::Sub => Differentiator::diff_binary_sub(lhs, rhs, var),
+            BinaryOp::Mul => Differentiator::diff_binary_mul(lhs, rhs, var),
+            BinaryOp::Div => Differentiator::diff_binary_div(op, lhs, rhs, var),
+            BinaryOp::Pow => Differentiator::diff_binary_pow(op, lhs, rhs, var),
+        }
     }
 
     fn diff_binary_add(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
