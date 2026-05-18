@@ -5,7 +5,25 @@ pub struct Evaluator;
 
 impl Evaluator{
     pub fn eval(expr: &Expr, env: &Env) -> Result<Expr, String>{
-        todo!("")
+        match expr {
+            Expr::Num(_) => Ok(expr.clone()),
+            Expr::Var(name) => {
+                if let Some(v) = env.vars.get(name).cloned(){
+                    Ok(v)
+                }else{
+                    Err(format!("Undefined variable {}", name.clone()))
+                }
+            }
+            Expr::Unary(_, rhs) => {
+                Evaluator::eval_unary(rhs, env)
+            }
+            Expr::Binary(op, lhs, rhs) => {
+                Evaluator::eval_binary(op.clone(), lhs, rhs, env)
+            }
+            Expr::Call(name, args) => {
+                Evaluator::eval_function_call(name, args.clone(), env)
+            }
+        }
     }
 
     fn eval_unary(expr: &Expr, env: &Env) -> Result<Expr, String> {
