@@ -36,11 +36,13 @@ impl Differentiator{
     }
 
     fn diff_binary_sub(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+        let lhs = Differentiator::diff(lhs, var)?;
+        let rhs = Differentiator::diff(rhs, var)?;
+        Ok(Expr::Binary(BinaryOp::Sub, Box::new(lhs), Box::new(rhs)))
     }
 
-    fn diff_binary_mul(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
-        todo!("")
+    fn diff_binary_mul(lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
+        
     }
 
     fn diff_binary_div(op: BinaryOp, lhs: &Expr, rhs: &Expr, var: &str) -> Result<Expr, String> {
