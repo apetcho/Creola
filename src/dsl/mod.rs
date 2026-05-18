@@ -18,7 +18,7 @@ use evaluator::Evaluator;
 #[derive(Clone)]
 pub struct FunctionDef{
     pub params: Vec<String>,
-    body: Expr,
+    pub body: Expr,
 }
 
 #[derive(Clone, Default)]

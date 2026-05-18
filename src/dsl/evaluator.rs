@@ -8,11 +8,15 @@ impl Evaluator{
         todo!("")
     }
 
-    fn eval_unary(expr: &Expr) -> Expr {
-        todo!("")
+    fn eval_unary(expr: &Expr, env: &Env) -> Expr {
+        if let Expr::Num(num) = Evaluator::eval(expr, env){
+            Expr::Num(-num)
+        }else{
+            Expr::Unary(UnaryOp::Neg, Box::new(Evaluator::eval(expr, env)))
+        }
     }
 
-    fn eval_binary(op: BinaryOp, lhs: &Expr, rhs: &Expr) -> Expr{
+    fn eval_binary(op: BinaryOp, lhs: &Expr, rhs: &Expr, env: &Env) -> Expr{
         todo!("")
     }
 
