@@ -125,7 +125,7 @@ impl Parser{
     }
 
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        todo!("")
+        self.parse_add_sub()
     }
 
     fn parse_add_sub(&mut self) -> Result<Expr, String> {
