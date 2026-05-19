@@ -29,7 +29,9 @@ impl Polynomial{
     }
 
     pub fn one(var: &str) -> Self {
-        todo!("")
+        let mut poly = Polynomial::zero(var);
+        poly.coeffs.insert(0, (1, 1));
+        poly
     }
 
     pub fn from_int(n: i64, var: &str) -> Polynomial {
