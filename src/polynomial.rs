@@ -18,7 +18,11 @@ fn lcm(m: i64, n: i64) -> i64{
 }
 
 fn divisors(n: i64) -> Vec<i64>{
-    todo!("")
+    let mut divs = Vec::new();
+    for i in 1..=n.abs() {
+        if n % i == 0 { divs.push(i); }
+    }
+    divs
 }
 
 
