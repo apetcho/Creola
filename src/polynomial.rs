@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::ops::{Add, Sub, Mul};
 
-use crate::dsl::{Expr, BinaryOp, UnaryOp};
+use crate::dsl::{Expr, BinaryOp};
 
 #[derive(Clone, Debug)]
 pub struct Polynomial{
