@@ -68,7 +68,12 @@ impl Polynomial{
     }
 
     pub fn eval(&self, x: f64) -> f64 {
-        todo!("");
+        let mut ans = 0.0;
+        for (pow, (n, d)) in &self.coeffs {
+            ans += (*n as f64 / *d as f64) * x.powi(*pow);
+        }
+
+        ans
     }
 
     pub fn factor(&self) -> Vec<Polynomial> {
