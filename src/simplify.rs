@@ -110,7 +110,12 @@ impl Simplifier{
     }
 
     fn flatten_mul(expr: Expr, out: &mut Vec<Expr>) {
-        todo!("")
+        if let Expr::Binary(BinaryOp::Mul, lhs, rhs) = expr {
+            Simplifier::flatten_mul(*lhs, out);
+            Simplifier::flatten_mul(*rhs, out);
+        }else{
+            out.push(expr);
+        }
     }
 
     fn simplify_mul(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
