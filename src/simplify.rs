@@ -95,7 +95,7 @@ impl Simplifier{
         }
         match result{
             None => {
-                return Err("".into());
+                return Ok(Expr::Num(0.0));
             }
             Some(e) => {
                 return Ok(e);
@@ -104,7 +104,9 @@ impl Simplifier{
     }
 
     fn simplify_sub(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
-        todo!("")
+        // a - b ==> a + (-b)
+        let rhs = Expr::Unary(UnaryOp::Neg, Box::new(rhs));
+        Simplifier::simplify_add(lhs, rhs)
     }
 
     fn flatten_mul(expr: Expr, out: &mut Vec<Expr>) {
