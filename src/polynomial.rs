@@ -74,8 +74,17 @@ impl Polynomial{
 impl Add for Polynomial {
     type Output = Polynomial;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        todo!("")
+    fn add(mut self, rhs: Self) -> Self::Output {
+        for (k, (rn, rd)) in rhs.coeffs {
+            let (ln, ld) = self.coeffs.get(&k).cloned().unwrap_or((0, 1));
+            let lcm_d = lcm(ld, rd);
+            let ln2 = ln * (lcm_d/ld);
+            let rn2 = rn * (lcm_d/rd);
+            let (n, d) = Polynomial::reduce(ln2+rn2, lcm_d);
+            if n == 0 { self.coeffs.remove(&k); }
+            else{ self.coeffs.insert(k, (n, d)); }
+        }
+        self
     }
 }
 
