@@ -119,7 +119,45 @@ impl Simplifier{
     }
 
     fn simplify_mul(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
-        todo!("")
+        let mut factors = Vec::new();
+        Simplifier::flatten_mul(lhs, &mut factors);
+        Simplifier::flatten_mul(rhs, &mut factors);
+
+        // numeric product
+        let mut const_prod = 1.0;
+        let mut others = Vec::new();
+        for factor in factors {
+            if let Expr::Num(n) = factor {
+                const_prod *= n;
+            }else{
+                others.push(factor);
+            }
+        }
+
+        if const_prod == 0.0 {
+            return Ok(Expr::Num(0.0));
+        }
+
+        let mut result: Option<Expr> = None;
+        if const_prod != 1.0 || others.is_empty(){
+            result = Some(Expr::Num(const_prod));
+        }
+
+        for factor in others {
+            result = Some(match result{
+                None => factor,
+                Some(acc) => Expr::Binary(BinaryOp::Mul, Box::new(acc), Box::new(factor)),
+            });
+        }
+
+        match result {
+            Some(e) => {
+                return Ok(e);
+            }
+            None => {
+                return Ok(Expr::Num(1.0));
+            }
+        }
     }
 
     fn simplify_div(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
