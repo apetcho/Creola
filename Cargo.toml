@@ -5,3 +5,9 @@ edition = "2024"
 
 [dependencies]
 rustyline = "18.0.0"
+
+[profile.dev]
+opt-level = 1
+
+#[build]
+#rustflags = ["-C", "link-args=-zstack-size=33554432"]
