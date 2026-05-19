@@ -77,7 +77,30 @@ impl Polynomial{
     }
 
     pub fn factor(&self) -> Vec<Polynomial> {
-        todo!("")
+        let mut factors = Vec::new();
+        let mut current = self.clone();
+
+        loop {
+            let roots = current.rational_roots();
+            if roots.is_empty(){ break; }
+
+            let r = roots[0];
+            let (num, den) = Polynomial::reduce((r * 1_000_000.0) as i64, 1_000_000);
+
+            // factor (x - r)
+            let mut lin = Polynomial::zero(&self.var);
+            lin.coeffs.insert(1, (1, 1));
+            lin.coeffs.insert(0, (-num, den));
+
+            factors.push(lin.clone());
+            current = current.synthetic_div(r);
+        }
+
+        if !current.coeffs.is_empty() {
+            factors.push(current);
+        }
+
+        factors
     }
 
     fn synthetic_div(&self, r: f64) -> Polynomial {
