@@ -25,6 +25,9 @@ use solve::Solver;
 mod series;
 use series::Series;
 
+mod polynomial;
+pub use polynomial::Polynomial;
+
 mod repl;
 pub use repl::Repl;
 

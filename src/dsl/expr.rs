@@ -1,4 +1,5 @@
-use std::fmt;
+use std::{collections::BTreeMap, fmt};
+use crate::Polynomial;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expr {
@@ -114,6 +115,51 @@ impl Expr{
                 text.push_str(")");
                 text
             }
+        }
+    }
+
+    // -
+    pub fn to_polynomial(&self, var: &str) -> Option<Polynomial> {
+        match self {
+            Expr::Num(n) => {
+                let mut poly = Polynomial{
+                    var: var.to_string(),
+                    coeffs: BTreeMap::new(),
+                };
+                let (num, den) = Polynomial::reduce((*n*1_000_000_.0) as i64, 1_000_000);
+                poly.coeffs.insert(0, (num, den));
+                Some(poly)
+            }
+
+            Expr::Var(v) if v == var => {
+                let mut poly = Polynomial{
+                    var: var.to_string(),
+                    coeffs: BTreeMap::new(),
+                };
+                poly.coeffs.insert(1,(1, 1));
+                Some(poly)
+            }
+
+            Expr::Binary(op, lhs, rhs) => {
+                let xpoly = lhs.to_polynomial(var)?;
+                let ypoly = rhs.to_polynomial(var)?;
+                match op {
+                    BinaryOp::Add => Some(xpoly + ypoly),
+                    BinaryOp::Sub => Some(xpoly - ypoly),
+                    BinaryOp::Mul => Some(xpoly * ypoly),
+                    BinaryOp::Pow => {
+                        if let Expr::Num(n) = **rhs{
+                            let mut r = Polynomial::one(var);
+                            for _ in 0..(n as i32) {
+                                r = r * xpoly.clone();
+                            }
+                            Some(r)
+                        }else{ None }
+                    }
+                    _ => None,
+                }
+            }
+            _ => None,
         }
     }
 }
