@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::ops::{Add, Sub, Mul};
 
-use crate::Expr;
+use crate::dsl::{Expr, BinaryOp, UnaryOp};
 
 #[derive(Clone, Debug)]
 pub struct Polynomial{
@@ -118,7 +118,34 @@ impl Polynomial{
     }
 
     pub fn to_expr(&self) -> Expr {
-        todo!("")
+        let mut terms = Vec::new();
+        for (pow, (n, d)) in &self.coeffs{
+            let coeff = Expr::Num(*n as f64 / *d as f64);
+            let term = if *pow == 0 {
+                coeff
+            }else if *pow == 1{
+                Expr::Binary(
+                    BinaryOp::Mul,
+                    Box::new(coeff),
+                    Box::new(Expr::Var(self.var.clone()))
+                )
+            }else{
+                Expr::Binary(
+                    BinaryOp::Mul,
+                    Box::new(coeff),
+                    Box::new(Expr::Binary(
+                        BinaryOp::Pow,
+                        Box::new(Expr::Var(self.var.clone())),
+                        Box::new(Expr::Num(*pow as f64))
+                    ))
+                )
+            };
+            terms.push(term);
+        }
+
+        terms.into_iter().reduce(|x, y|
+            Expr::Binary(BinaryOp::Add, Box::new(x), Box::new(y))
+        ).unwrap_or(Expr::Num(0.0))
     }
 
     pub fn reduce(num: i64, den: i64) -> (i64, i64) {
