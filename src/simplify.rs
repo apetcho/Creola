@@ -66,7 +66,41 @@ impl Simplifier{
     }
 
     fn simplify_add(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
-        todo!("")
+        // flatten nested additions
+        let mut terms = Vec::new();
+        Simplifier::flatten_add(lhs, &mut terms);
+        Simplifier::flatten_add(rhs, &mut terms);
+
+        // combine numeric constants
+        let mut const_sum = 0.0;
+        let mut others = Vec::new();
+        for term in terms{
+            if let Expr::Num(n) = term{
+                const_sum+= n;
+            }else{
+                others.push(term);
+            }
+        }
+
+        let mut result: Option<Expr> = None;
+        if const_sum != 0.0 {
+            result = Some(Expr::Num(const_sum));
+        }
+
+        for term in others {
+            result = Some(match result {
+                None => term,
+                Some(acc) => Expr::Binary(BinaryOp::Add, Box::new(acc), Box::new(term)),
+            });
+        }
+        match result{
+            None => {
+                return Err("".into());
+            }
+            Some(e) => {
+                return Ok(e);
+            }
+        }
     }
 
     fn simplify_sub(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
