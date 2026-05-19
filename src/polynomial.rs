@@ -25,7 +25,7 @@ fn divisors(n: i64) -> Vec<i64>{
 // -
 impl Polynomial{
     pub fn zero(var: &str) -> Self {
-        todo!("")
+        Polynomial { var: var.into(), coeffs: BTreeMap::new() }
     }
 
     pub fn one(var: &str) -> Self {
