@@ -47,11 +47,22 @@ impl Simplifier{
     }
 
     fn simplify_binop(op: BinaryOp, lhs: Expr, rhs: Expr) -> Result<Expr, String> {
-        todo!("")
+        match op {
+            BinaryOp::Add => Simplifier::simplify_add(lhs, rhs),
+            BinaryOp::Sub => Simplifier::simplify_sub(lhs, rhs),
+            BinaryOp::Mul => Simplifier::simplify_mul(lhs, rhs),
+            BinaryOp::Div => Simplifier::simplify_div(lhs, rhs),
+            BinaryOp::Pow => Simplifier::simplify_pow(lhs, rhs),
+        }
     }
 
     fn flatten_add(expr: Expr, out: &mut Vec<Expr>) {
-        todo!("")
+        if let Expr::Binary(BinaryOp::Add, lhs, rhs) = expr {
+            Simplifier::flatten_add(*lhs, out);
+            Simplifier::flatten_add(*rhs, out);
+        }else{
+            out.push(expr);
+        }
     }
 
     fn simplify_add(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
@@ -66,7 +77,7 @@ impl Simplifier{
         todo!("")
     }
 
-    fn simplify_mul() -> Result<Expr, String> {
+    fn simplify_mul(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
         todo!("")
     }
 
