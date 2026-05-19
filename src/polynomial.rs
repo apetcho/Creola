@@ -101,6 +101,20 @@ impl Mul for Polynomial{
     type Output = Polynomial;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        todo!("")
+        let mut out = Polynomial::zero(&self.var);
+        for (xpow, (xn, xd)) in self.coeffs{
+            for (ypow, (yn, yd)) in &rhs.coeffs {
+                let pow = xpow + ypow;
+                let (n, d) = Polynomial::reduce(xn * yn,  xd * yd);
+                let (ln, ld) = out.coeffs.get(&pow).cloned().unwrap_or((0, 1));
+                let lcm_d = lcm(ld, d);
+                let ln2 = ln * (lcm_d/ld);
+                let rn2 = n * (lcm_d/d);
+                let (n3, d3) = Polynomial::reduce(ln2 + rn2, lcm_d);
+                if n3 == 0 { out.coeffs.remove(&pow); }
+                else { out.coeffs.insert(pow, (n3, d3)); }
+            }
+        }
+        out
     }
 }
