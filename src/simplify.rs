@@ -171,7 +171,14 @@ impl Simplifier{
     }
 
     fn simplify_pow(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
-        todo!("")
+        match (&lhs, &rhs){
+            (_, Expr::Num(1.0)) => Ok(lhs.clone()),
+            (_, Expr::Num(0.0)) => Ok(Expr::Num(1.0)),
+            (Expr::Num(0.0), Expr::Num(n)) if *n > 0.0  => Ok(Expr::Num(0.0)),
+            (Expr::Num(0.0), Expr::Num(n)) if *n <= 0.0 => Err("division by zero".into()),
+            (Expr::Num(x), Expr::Num(y)) => Ok(Expr::Num(x.powf(*y))),
+            _ => Ok(Expr::Binary(BinaryOp::Pow, Box::new(lhs), Box::new(rhs)))
+        }
     }
 
     fn simplify_fun(name: &str, args: Vec<Expr>) -> Result<Expr, String> {
