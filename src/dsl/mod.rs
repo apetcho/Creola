@@ -26,8 +26,3 @@ pub struct Env{
     pub vars: HashMap<String, Expr>,
     pub funcs: HashMap<String, FunctionDef>,
 }
-
-// -*-
-pub fn eval(expr: &Expr, env: &Env) -> Result<Expr, String> {
-    Evaluator::eval(expr, env)
-}

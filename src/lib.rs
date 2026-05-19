@@ -33,8 +33,7 @@ pub struct Creola;
 
 impl Creola{
     pub fn eval(expr: &Expr, env: &Env) -> Result<Expr, String> {
-        let expr = Evaluator::eval(expr, env)?;
-        Creola::simplify(&expr)
+        Evaluator::eval(expr, env)
     }
     pub fn simplify(expr: &Expr) -> Result<Expr, String> {
         Simplifier::simplify(expr)

@@ -1,3 +1,7 @@
+use creola::Repl;
+
+
 fn main() {
-    println!("Hello, world!");
+    let mut repl = Repl::new();
+    repl.run();
 }

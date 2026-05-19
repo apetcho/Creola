@@ -1,5 +1,5 @@
 use rustyline::error::ReadlineError;
-use rustyline::{Editor, Helper, Context};
+use rustyline::{Editor, Helper};
 use rustyline::completion::Completer;
 use rustyline::hint::Hinter;
 use rustyline::highlight::{Highlighter, MatchingBracketHighlighter};
@@ -53,7 +53,7 @@ impl Repl{
     pub fn run(&mut self) {
         let mut rl = Editor::new().expect("failed to create line editor");
         rl.set_helper(Some(CreolaHelper::new()));
-        let mut id: usize = 1;
+        let mut id: usize = 0;
 
         self.info();
 
@@ -65,11 +65,15 @@ impl Repl{
                 Ok(line) => {
                     let mut line = line.trim();
                     if line.is_empty(){ continue; }
-                    rl.add_history_entry(line);
+                    match rl.add_history_entry(line){
+                        Ok(_) => {}
+                        Err(_) => {}
+                    }
 
+                    if line == ":q" || line == ":quit" {
+                        break;
+                    }
                     // Special commands: diff(...), integrate(...) etc. via DSL
-
-
                     if let Ok(Some(ans)) = self.handle_builtin_commands(&mut line){
                         println!("{}", ans);
                         continue;
@@ -427,7 +431,7 @@ impl Repl{
             }
         };
         let inner = &input[first+1..last];
-        let mut parser = match Parser::new(input){
+        let mut parser = match Parser::new(inner){
             Ok(p) => p,
             Err(msg) => {
                 return Err(msg);
@@ -465,7 +469,7 @@ impl Repl{
         };
 
         let inner = &input[first+1..last];
-        let mut parser = match Parser::new(input){
+        let mut parser = match Parser::new(inner){
             Ok(p) => p,
             Err(msg) => {
                 return Err(msg);

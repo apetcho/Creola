@@ -23,23 +23,19 @@ impl Parser{
     }
 
     pub fn parse(&mut self) -> Result<Stmt, String> {
-        if let Some(token) = self.peek() {
-            match token {
-                Token::Let => {
-                    self.next();
-                    self.parse_let()
-                }
-                Token::Fun => {
-                    self.next();
-                    self.parse_fun()
-                }
-                _ => {
-                    let expr = self.parse_expr()?;
-                    Ok(Stmt::Expr(expr))
-                }
+        match self.peek() {
+            Some(Token::Let) => {
+                self.next();
+                self.parse_let()
             }
-        }else{
-            Err("unexpected error.".into())
+            Some(Token::Fun) => {
+                self.next();
+                self.parse_fun()
+            }
+            _ => {
+                let expr = self.parse_expr()?;
+                Ok(Stmt::Expr(expr))
+            }
         }
     }
 
@@ -51,24 +47,22 @@ impl Parser{
         if self.pos < self.tokens.len() {
             self.pos += 1;
         }
-        self.tokens.get(self.pos - 1)
+        self.tokens.get(self.pos-1)
     }
 
     fn consume(&mut self, expected: &Token) -> bool {
         if let Some(token) = self.peek() {
             if token == expected {
+                self.next();
                 true
-            }else{
-                false
             }
-        }else{
-            false
+            else{ false }
         }
+        else{ false }
     }
 
-
-
     fn parse_let(&mut self) -> Result<Stmt, String> {
+        // let x = expr
         let name = match self.next(){
             Some(Token::Ident(ident)) => ident.clone(),
             _ => {
@@ -231,8 +225,11 @@ impl Parser{
                 }
                 Ok(expr)
             }
+            Some(tok) => {
+                return Err(format!("unexpected token in expression: {:?}", tok.clone()));
+            }
             _ => {
-                return Err("unexpected token in expression".into());
+                return Err(".....".into());
             }
         }
     }
