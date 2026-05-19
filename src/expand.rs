@@ -1,4 +1,4 @@
-use crate::dsl::{Expr, BinaryOp, UnaryOp};
+use crate::dsl::{Expr, BinaryOp};
 
 pub struct Expander;
 
@@ -95,6 +95,31 @@ impl Expander{
     }
 
     fn expand_pow_int(base: Expr, n: usize) -> Result<Expr, String> {
-        todo!("")
+        if n == 0 {
+            return Ok(Expr::Num(1.0));
+        }
+
+        if n == 1 {
+            return Ok(base);
+        }
+
+        // exponentiation by squaring with expansion at each step
+        let mut result = Expr::Num(1.0);
+        let mut b = base;
+        let mut e = n;
+
+        while e > 0 {
+            if e % 2 == 1 {
+                result = Expander::expand_mul(result, b.clone())?;
+            }
+
+            if e > 1 {
+                b = Expander::expand_mul(b.clone(), b)?;
+            }
+
+            e /= 2;
+        }
+
+        Ok(result)
     }
 }
