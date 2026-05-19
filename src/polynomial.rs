@@ -92,7 +92,8 @@ impl Sub for Polynomial{
     type Output = Polynomial;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        todo!("")
+        let var = rhs.clone().var;
+        self + rhs * Polynomial::from_int(-1, var.as_str())
     }
 }
 
