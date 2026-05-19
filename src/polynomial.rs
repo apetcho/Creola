@@ -41,7 +41,26 @@ impl Polynomial{
     }
 
     pub fn rational_roots(&self) -> Vec<f64> {
-        todo!("")
+        let leading = self.coeffs.iter().rev().next().unwrap().1.0;
+        let constant = self.coeffs.get(&0).map(|c| c.0).unwrap_or(0);
+
+        let mut roots = Vec::new();
+
+        let divs_const = divisors(constant);
+        let divs_lead = divisors(leading);
+
+        for x in divs_const {
+            for y in &divs_lead {
+                let candidates = [x as f64 / *y as f64, -(x as f64 / *y as f64)];
+                for r in candidates {
+                    if self.eval(r).abs() < 1e-9 {
+                        roots.push(r);
+                    }
+                }
+            }
+        }
+
+        roots
     }
 
     pub fn eval(&self, x: f64) -> f64 {
