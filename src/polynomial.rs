@@ -35,7 +35,9 @@ impl Polynomial{
     }
 
     pub fn from_int(n: i64, var: &str) -> Polynomial {
-        todo!("")
+        let mut poly = Polynomial::zero(var);
+        poly.coeffs.insert(0, (n, 1));
+        poly
     }
 
     pub fn rational_roots(&self) -> Vec<f64> {
