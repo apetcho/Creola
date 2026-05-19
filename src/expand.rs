@@ -79,7 +79,19 @@ impl Expander{
     }
 
     fn expand_pow(base: Expr, expo: Expr) -> Result<Expr, String> {
-        todo!("")
+        match expo {
+            Expr::Num(n) => {
+                let k = n.round() as i32;
+                if (n - k as f64).abs() < 1e-12 && k >= 0 && k <= 16 {
+                    // small non-negative integer exponent: repeated multiplication
+                    Expander::expand_pow_int(base, k as usize)
+                }else{
+                    Ok(Expr::Binary(BinaryOp::Pow, Box::new(base), Box::new(Expr::Num(n))))
+                }
+            }
+
+            _ => Ok(Expr::Binary(BinaryOp::Pow, Box::new(base), Box::new(expo)))
+        }
     }
 
     fn expand_pow_int(base: Expr, n: usize) -> Result<Expr, String> {
