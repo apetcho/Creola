@@ -161,7 +161,13 @@ impl Simplifier{
     }
 
     fn simplify_div(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
-        todo!("")
+        match (&lhs, &rhs) {
+            (_, Expr::Num(1.0)) => Ok(lhs.clone()),
+            (Expr::Num(0.0), _) => Ok(Expr::Num(0.0)),
+            (Expr::Num(_), Expr::Num(0.0)) => Err("division by zero".into()),
+            (Expr::Num(x), Expr::Num(y)) => Ok(Expr::Num(x/y)),
+            _ => Ok(Expr::Binary(BinaryOp::Div, Box::new(lhs), Box::new(rhs))),
+        }
     }
 
     fn simplify_pow(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
