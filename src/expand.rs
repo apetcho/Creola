@@ -44,7 +44,38 @@ impl Expander{
     }
 
     fn expand_mul(lhs: Expr, rhs: Expr) -> Result<Expr, String> {
-        todo!("")
+        match (lhs, rhs) {
+            // (A + B) * C => A*C + B*C
+            (Expr::Binary(BinaryOp::Add, x, y), z) => {
+                let x = Expander::expand_mul(*x, z.clone())?;
+                let y = Expander::expand_mul(*y, z)?;
+                Ok(Expr::Binary(BinaryOp::Add, Box::new(x), Box::new(y)))
+            }
+
+            // (A - B) * C => A*C - B*C
+            (Expr::Binary(BinaryOp::Sub, x, y), z) => {
+                let x = Expander::expand_mul(*x, z.clone())?;
+                let y = Expander::expand_mul(*y, z)?;
+                Ok(Expr::Binary(BinaryOp::Sub, Box::new(x), Box::new(y)))
+            }
+
+            // C * (A + B) => C*A + C*B
+            (x, Expr::Binary(BinaryOp::Add, y, z)) => {
+                let a = Expander::expand_mul(x.clone(), *y)?;
+                let b = Expander::expand_mul(x, *z)?;
+                Ok(Expr::Binary(BinaryOp::Add, Box::new(a), Box::new(b)))
+            }
+
+            // C * (A - B) => C*A - C*B
+            (x, Expr::Binary(BinaryOp::Sub, y, z)) => {
+                let a = Expander::expand_mul(x.clone(), *y)?;
+                let b = Expander::expand_mul(x, *z)?;
+                Ok(Expr::Binary(BinaryOp::Sub, Box::new(a), Box::new(b)))
+            }
+
+            // otherwise just x*y
+            (x, y) => Ok(Expr::Binary(BinaryOp::Mul, Box::new(x), Box::new(y))),
+        }
     }
 
     fn expand_pow(base: Expr, expo: Expr) -> Result<Expr, String> {
