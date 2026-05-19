@@ -1,5 +1,4 @@
-use crate::dsl::{Expr, Env, BinaryOp, UnaryOp};
-use crate::Creola;
+use crate::dsl::{Expr, BinaryOp, UnaryOp};
 
 pub struct Simplifier;
 
@@ -182,6 +181,24 @@ impl Simplifier{
     }
 
     fn simplify_fun(name: &str, args: Vec<Expr>) -> Result<Expr, String> {
-        todo!("")
+        // all numeric?
+        let all_num = args.iter().all(|a|matches!(a, Expr::Num(_)));
+        if all_num {
+            let nums: Vec<f64> = args
+                .iter()
+                .map(|arg| if let Expr::Num(n) = arg { *n }else{ 0.0})
+                .collect();
+
+            match (name, nums.as_slice()){
+                ("expr", [x]) => Ok(Expr::Num(x.exp())),
+                ("sin", [x]) => Ok(Expr::Num(x.sin())),
+                ("cos", [x]) => Ok(Expr::Num(x.cos())),
+                ("tan", [x]) => Ok(Expr::Num(x.tan())),
+                ("sqrt", [x]) => Ok(Expr::Num(x.sqrt())),
+                _ => Ok(Expr::Call(name.into(), args))
+            }
+        }else{
+            Ok(Expr::Call(name.to_string(), args))
+        }
     }
 }
