@@ -104,7 +104,17 @@ impl Polynomial{
     }
 
     fn synthetic_div(&self, r: f64) -> Polynomial {
-        todo!("")
+        let mut out = Polynomial::zero(&self.var);
+        let mut acc = 0.0;
+
+        for (pow, (n, d)) in self.coeffs.iter().rev(){
+            acc = acc * r + (*n as f64 / *d as f64);
+            if *pow > 0 {
+                out.coeffs.insert(pow-1, Polynomial::reduce((acc * 1_000_000.0) as i64, 1_000_000));
+            }
+        }
+
+        out
     }
 
     pub fn to_expr(&self) -> Expr {
