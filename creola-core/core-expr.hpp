@@ -233,10 +233,11 @@ struct FuncCall : ExprBase{
 };
 
 
-// -*-
+// ------------------------
+// -*- Helper functions -*-
+// ------------------------
 inline Expr number(f64 val){
-    //! @todo
-    return nullptr;
+    return std::make_shared<Number>(val);
 }
 
 inline Expr symbol(const std::string& var){
