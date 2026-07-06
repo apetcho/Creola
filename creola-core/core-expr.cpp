@@ -205,65 +205,87 @@ void Neg::print_unicode(std::ostream& os, int prec=0) const{
 // ----------------------
 // --- Add Expression ---
 // ----------------------
-
-/*
-
 Expr Add::simplify(void) const{
-    //! @todo
-    return;
+    Vec<Expr> flattened{};
+    f64 acc{0.0};
+    for(auto& term: this->terms){
+        auto expr = term->simplify();
+        if (auto e = std::dynamic_pointer_cast<Add>(expr)){
+            flattened.insert(flattened.end(), e->terms.begin(), e->terms.end());
+        }else if (auto num = std::dynamic_pointer_cast<Number>(expr)){
+            acc += num->value;
+        }else{
+            flattened.push_back(expr);
+        }
+    }
+
+    if (std::fabsl(acc) != 0.0L){ flattened.push_back(number(acc)); }
+    if (flattened.empty()){ return number(0); }
+    if (flattened.size() == 1) { return flattened[0]; }
+    return std::make_shared<Add>(flattened);
 }
+
+
 Expr Add::diff(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
+
+
 Expr Add::integrate(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
+
+
 Expr Add::expand(void) const{
     //! @todo
-    return;
+    return nullptr;
 }
+
+
 Expr Add::factor(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
+
 Expr Add::groebner(const Vec<Expr>& exprs) const{
     //! @todo
-    return;
+    return nullptr;
 }
+
 Expr Add::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
-    return;
+    return nullptr;
 }
-Vec<f64> Add::roots(const std::string& var, f64 vmin=, f64 vmax, int samples) const{
+
+Vec<f64> Add::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
-    return;
+    return {};
 }
 f64 Add::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
-    return;
+    return 0.0;
 }
 
 f64 Add::eval(const std::string& var, f64 val) const{
     //! @todo
-    return;
+    return 0.0;
 }
 
 Box Add::to_box(void) const{
     //! @todo
-    return;
+    return Box();
 }
+
 Box Add::to_box_prec(int parent_prec) const{
     //! @todo
-    return;
+    return Box();
 }
 void Add::print_unicode(std::ostream& os, int prec=0) const{
     //! @todo
     return;
 }
-
-*/
 
 
 // ----------------------
