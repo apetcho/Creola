@@ -5,6 +5,7 @@
 #include<unordered_map>
 #include<map>
 
+#define CREOLA_UNUSED(arg)  (void)arg
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
