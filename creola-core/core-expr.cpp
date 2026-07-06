@@ -61,8 +61,11 @@ Box Number::to_box_prec(int parent_prec) const{
     //! @todo
     return Box();
 }
+
+// -*-
 void Number::print_unicode(std::ostream& os, int prec) const{
-    //! @todo
+    CREOLA_UNUSED(prec);
+    os << this->value;
     return;
 }
 
