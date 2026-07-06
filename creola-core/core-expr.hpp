@@ -241,8 +241,7 @@ inline Expr number(f64 val){
 }
 
 inline Expr symbol(const std::string& var){
-    //! @todo
-    return nullptr;
+    return std::make_shared<Symbol>(var);
 }
 
 inline bool is_zero(const Expr& expr){
