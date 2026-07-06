@@ -245,8 +245,8 @@ inline Expr symbol(const std::string& var){
 }
 
 inline bool is_zero(const Expr& expr){
-    //! @todo
-    return false;
+    auto num = std::dynamic_pointer_cast<Number>(expr);
+    return (num && std::fabsl(num->value==0.0L));
 }
 
 inline bool is_one(const Expr& expr){
