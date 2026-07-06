@@ -80,9 +80,9 @@ Expr Symbol::simplify(void) const{
 
 //
 Expr Symbol::diff(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    return std::make_shared<Number>(this->name==var ? 1.0 : 0.0);
 }
+
 Expr Symbol::integrate(const std::string& var) const{
     //! @todo
     return nullptr;
