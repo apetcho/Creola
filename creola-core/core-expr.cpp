@@ -291,7 +291,13 @@ Box Add::to_box_prec(int parent_prec) const{
     return Box();
 }
 void Add::print_unicode(std::ostream& os, int prec=0) const{
-    //! @todo
+    CREOLA_UNUSED(prec);
+    for(size_t i=0; i < this->terms.size(); ++i){
+        if (i > 0){
+            os << " + ";
+        }
+        this->terms[i]->print_unicode(os, 1);
+    }
     return;
 }
 
