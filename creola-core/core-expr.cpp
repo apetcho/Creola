@@ -447,9 +447,31 @@ Expr Pow::simplify(void) const{
     return std::make_shared<Pow>(b, e);
 }
 
+// -*-
 Expr Pow::diff(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    //! Only handle power with numeric exponent: (f^n)' = n f^(n-1) f'
+    auto num = std::dynamic_pointer_cast<Number>(this->expo);
+    if(num){
+        auto _expo = number(num->value-1);
+        auto fprime = this->base->diff(var);
+        return std::make_shared<Mul>(Vec<Expr>{
+            number(num->value),
+            std::make_shared<Pow>(this->base, _expo),
+            fprime
+        })->simplify();
+    }
+    // general case: (f^g)' = f^g (g' ln f + g f'/f)
+    auto ln_f = std::make_shared<FuncCall>("ln", Vec<Expr>{this->base});
+    auto gprime = this->expo->diff(var);
+    auto fprime = this->base->diff(var);
+    auto term1 = std::make_shared<Mul>(Vec<Expr>{gprime, ln_f});
+    auto term2 = std::make_shared<Mul>(Vec<Expr>{
+        this->expo, fprime, std::make_shared<Pow>(this->base, number(-1))
+    });
+    auto sum = std::make_shared<Add>(Vec<Expr>{term1, term2});
+    return std::make_shared<Mul>(
+        Vec<Expr>{std::make_shared<Pow>(this->base, this->expo), sum}
+    )->simplify();
 }
 
 Expr Pow::integrate(const std::string& var) const{
