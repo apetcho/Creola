@@ -11,9 +11,9 @@
 
 
 // -*----------------------------------------------------------------*-
-// -*- begin::namespace::creola                                     -*-
+// -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 struct ExprBase;
 using Expr = Shared<ExprBase>;
@@ -294,5 +294,5 @@ Expr limit_symbolic(const Expr& expr, const std::string& var, f64 val, int max_i
 
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola                                       -*-
+}//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-

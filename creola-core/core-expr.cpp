@@ -1,9 +1,9 @@
 #include "core-expr.hpp"
 
 // -*----------------------------------------------------------------*-
-// -*- begin::namespace::creola                                     -*-
+// -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 // -------------------------
 // --- Number Expression ---
@@ -139,9 +139,13 @@ void Symbol::print_unicode(std::ostream& os, int prec) const{
 // --- Neg[ate] Expression ---
 // ---------------------------
 Expr Neg::simplify(void) const{
-    //! @todo
-    return nullptr;
+    auto expr = this->arg->simplify();
+    if (auto num = std::dynamic_pointer_cast<Number>(expr)){
+        return number(-num->value);
+    }
+    return std::make_shared<Neg>(expr);
 }
+
 Expr Neg::diff(const std::string& var) const{
     //! @todo
     return nullptr;
@@ -465,5 +469,5 @@ f64 limit(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
 */
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola                                       -*-
+}//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-
