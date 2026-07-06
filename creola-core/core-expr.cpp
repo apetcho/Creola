@@ -206,23 +206,23 @@ void Neg::print_unicode(std::ostream& os, int prec=0) const{
 // --- Add Expression ---
 // ----------------------
 Expr Add::simplify(void) const{
-    Vec<Expr> flattened{};
-    f64 acc{0.0};
+    Vec<Expr> result{};
+    f64 acc{0.0L};
     for(auto& term: this->terms){
         auto expr = term->simplify();
         if (auto e = std::dynamic_pointer_cast<Add>(expr)){
-            flattened.insert(flattened.end(), e->terms.begin(), e->terms.end());
+            result.insert(result.end(), e->terms.begin(), e->terms.end());
         }else if (auto num = std::dynamic_pointer_cast<Number>(expr)){
             acc += num->value;
         }else{
-            flattened.push_back(expr);
+            result.push_back(expr);
         }
     }
 
-    if (std::fabsl(acc) != 0.0L){ flattened.push_back(number(acc)); }
-    if (flattened.empty()){ return number(0); }
-    if (flattened.size() == 1) { return flattened[0]; }
-    return std::make_shared<Add>(flattened);
+    if (std::fabsl(acc) != 0.0L){ result.push_back(number(acc)); }
+    if (result.empty()){ return number(0); }
+    if (result.size() == 1) { return result[0]; }
+    return std::make_shared<Add>(result);
 }
 
 
@@ -306,12 +306,30 @@ void Add::print_unicode(std::ostream& os, int prec=0) const{
 // --- Mul Expression ---
 // ----------------------
 
-/*
-
 Expr Mul::simplify(void) const{
-    //! @todo
-    return;
+    Vec<Expr> result{};
+    f64 acc{1.0L};
+    for(auto& factor: this->factors){
+        auto expr = factor->simplify();
+        if(auto e = std::dynamic_pointer_cast<Mul>(expr)){
+            result.insert(result.end(), e->factors.begin(), e->factors.end());
+        }else if(auto num = std::dynamic_pointer_cast<Number>(expr)){
+            acc *= num->value;
+        }else{
+            result.push_back(expr);
+        }
+    }
+
+    if(acc == 0.0L){ return number(0.0L); }
+    if(acc != 1.0L || result.empty()){
+        result.push_back(number(acc));
+    }
+    if(result.empty()){ return number(1.0L); }
+    if(result.size()==1){ return result[0]; }
+
+    return std::make_shared<Mul>(result);
 }
+
 Expr Mul::diff(const std::string& var) const{
     //! @todo
     return;
@@ -336,7 +354,7 @@ Expr Mul::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return;
 }
-Vec<f64> Mul::roots(const std::string& var, f64 vmin=, f64 vmax, int samples) const{
+Vec<f64> Mul::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
     return;
 }
@@ -363,7 +381,6 @@ void Mul::print_unicode(std::ostream& os, int prec=0) const{
     return;
 }
 
-*/
 
 // ----------------------
 // --- Pow Expression ---
