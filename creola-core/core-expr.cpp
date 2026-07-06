@@ -227,8 +227,12 @@ Expr Add::simplify(void) const{
 
 
 Expr Add::diff(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    Vec<Expr> result{};
+    result.reserve(this->terms.size());
+    for(auto& term: this->terms){
+        result.push_back(term->diff(var));
+    }
+    return std::make_shared<Add>(result)->simplify();
 }
 
 
