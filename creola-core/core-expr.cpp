@@ -195,7 +195,7 @@ Box Neg::to_box_prec(int parent_prec) const{
     //! @todo
     return Box();
 }
-void Neg::print_unicode(std::ostream& os, int prec=0) const{
+void Neg::print_unicode(std::ostream& os, int prec) const{
     CREOLA_UNUSED(prec);
     os << "-";
     this->arg->print_unicode(os, 3);
@@ -290,7 +290,7 @@ Box Add::to_box_prec(int parent_prec) const{
     //! @todo
     return Box();
 }
-void Add::print_unicode(std::ostream& os, int prec=0) const{
+void Add::print_unicode(std::ostream& os, int prec) const{
     CREOLA_UNUSED(prec);
     for(size_t i=0; i < this->terms.size(); ++i){
         if (i > 0){
@@ -423,7 +423,7 @@ Box Mul::to_box_prec(int parent_prec) const{
     //! @todo
     return;
 }
-void Mul::print_unicode(std::ostream& os, int prec=0) const{
+void Mul::print_unicode(std::ostream& os, int prec) const{
     CREOLA_UNUSED(prec);
     for(size_t i=0; i < this->factors.size(); ++i){
         if(i > 0){ os << "*"; } // or just "" for implicit multiplication
@@ -437,64 +437,69 @@ void Mul::print_unicode(std::ostream& os, int prec=0) const{
 // --- Pow Expression ---
 // ----------------------
 
-/*
-
 Expr Pow::simplify(void) const{
-    //! @todo
-    return;
+    auto b = this->base->simplify();
+    auto e = this->expo->simplify();
+    if(auto num = std::dynamic_pointer_cast<Number>(e)){
+        if(num->value == 1.0L){ return b; }
+        if(num->value == 0.0L){ return number(1.0L); }
+    }
+    return std::make_shared<Pow>(b, e);
 }
+
 Expr Pow::diff(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
+
 Expr Pow::integrate(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
+
 Expr Pow::expand(void) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr Pow::factor(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr Pow::groebner(const Vec<Expr>& exprs) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr Pow::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
-    return;
+    return nullptr;
 }
-Vec<f64> Pow::roots(const std::string& var, f64 vmin=, f64 vmax, int samples) const{
+Vec<f64> Pow::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
-    return;
+    return {};
 }
 f64 Pow::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
-    return;
+    return 0.0L;
 }
 
 f64 Pow::eval(const std::string& var, f64 val) const{
     //! @todo
-    return;
+    return 0.0L;
 }
 
 Box Pow::to_box(void) const{
     //! @todo
-    return;
+    return Box();
 }
 Box Pow::to_box_prec(int parent_prec) const{
     //! @todo
-    return;
+    return Box();
 }
-void Pow::print_unicode(std::ostream& os, int prec=0) const{
+void Pow::print_unicode(std::ostream& os, int prec) const{
     //! @todo
     return;
 }
 
-*/
 
 // ---------------------------
 // --- FuncCall Expression ---
