@@ -480,9 +480,26 @@ Expr Pow::integrate(const std::string& var) const{
 }
 
 Expr Pow::expand(void) const{
-    //! @todo
-    return nullptr;
+    //! naive: only expand integer exponent >= 0
+    auto num = std::dynamic_pointer_cast<Number>(this->expo);
+    if(!num){
+        return std::make_shared<Pow>(
+            this->base->expand(), this->expo->expand()
+        );
+    }
+    i64 k = std::llround(num->value);
+    if(k < 0 || std::fabsl(num->value - k) > 1e-12){
+        return std::make_shared<Pow>(this->base->expand(), this->expo->expand());
+    }
+
+    Expr acc = number(1);
+    for(i64 i=0; i < k; i++){
+        acc = std::make_shared<Mul>(Vec<Expr>{acc, this->base})->expand();
+    }
+    return acc->simplify();
 }
+
+// -*-
 Expr Pow::factor(const std::string& var) const{
     //! @todo
     return nullptr;
