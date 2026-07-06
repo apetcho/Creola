@@ -87,10 +87,13 @@ Expr Symbol::integrate(const std::string& var) const{
     //! @todo
     return nullptr;
 }
+
+// -*-
 Expr Symbol::expand(void) const{
-    //! @todo
-    return nullptr;
+    return std::make_shared<Symbol>(*this);
 }
+
+
 Expr Symbol::factor(const std::string& var) const{
     //! @todo
     return nullptr;
