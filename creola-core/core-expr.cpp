@@ -146,10 +146,11 @@ Expr Neg::simplify(void) const{
     return std::make_shared<Neg>(expr);
 }
 
+// -*-
 Expr Neg::diff(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    return std::make_shared<Neg>(this->arg->diff(var));
 }
+
 Expr Neg::integrate(const std::string& var) const{
     //! @todo
     return nullptr;
