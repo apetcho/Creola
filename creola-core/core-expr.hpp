@@ -250,8 +250,8 @@ inline bool is_zero(const Expr& expr){
 }
 
 inline bool is_one(const Expr& expr){
-    //! @todo
-    return false;
+    auto num = std::dynamic_pointer_cast<Number>(expr);
+    return (num && std::fabsl(num->value - 1.0L)==0.0L);
 }
 
 Expr simplify(const Expr& expr);
