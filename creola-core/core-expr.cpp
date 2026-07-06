@@ -330,10 +330,26 @@ Expr Mul::simplify(void) const{
     return std::make_shared<Mul>(result);
 }
 
+// -*-
 Expr Mul::diff(const std::string& var) const{
-    //! @todo
-    return;
+    // Product rule: (f1*...*fn)' = sum_i (f1*...*fi'*...*fn)
+    Vec<Expr> sum_terms{};
+    for(size_t i=0; i < this->factors.size(); ++i){
+        Vec<Expr> product{};
+        product.reserve(this->factors.size());
+        for(size_t j=0; j < this->factors.size(); ++j){
+            if(i == j){
+                product.push_back(this->factors[j]->diff(var));
+            }else{
+                product.push_back(this->factors[j]);
+            }
+        }
+        sum_terms.push_back(std::make_shared<Mul>(product));
+    }
+    return std::make_shared<Add>(sum_terms)->simplify();
 }
+
+
 Expr Mul::integrate(const std::string& var) const{
     //! @todo
     return;
