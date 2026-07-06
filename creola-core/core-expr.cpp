@@ -243,8 +243,12 @@ Expr Add::integrate(const std::string& var) const{
 
 
 Expr Add::expand(void) const{
-    //! @todo
-    return nullptr;
+    Vec<Expr> result{};
+    result.reserve(this->terms.size());
+    for(auto& term: this->terms){
+        result.push_back(term->expand());
+    }
+    return std::make_shared<Add>(result)->simplify();
 }
 
 
