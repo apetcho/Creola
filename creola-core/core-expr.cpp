@@ -534,8 +534,13 @@ Box Pow::to_box_prec(int parent_prec) const{
     //! @todo
     return Box();
 }
+
+// -*-
 void Pow::print_unicode(std::ostream& os, int prec) const{
-    //! @todo
+    CREOLA_UNUSED(prec);
+    this->base->print_unicode(os, 3);
+    os << "^";
+    this->expo->print_unicode(os, 3);
     return;
 }
 
