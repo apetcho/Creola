@@ -130,7 +130,8 @@ Box Symbol::to_box_prec(int parent_prec) const{
     return Box();
 }
 void Symbol::print_unicode(std::ostream& os, int prec) const{
-    //! @todo
+    CREOLA_UNUSED(prec);
+    os << this->name;
     return;
 }
 
