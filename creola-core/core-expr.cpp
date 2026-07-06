@@ -424,7 +424,11 @@ Box Mul::to_box_prec(int parent_prec) const{
     return;
 }
 void Mul::print_unicode(std::ostream& os, int prec=0) const{
-    //! @todo
+    CREOLA_UNUSED(prec);
+    for(size_t i=0; i < this->factors.size(); ++i){
+        if(i > 0){ os << "*"; } // or just "" for implicit multiplication
+        this->factors[i]->print_unicode(os, 2);
+    }
     return;
 }
 
