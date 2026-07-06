@@ -16,14 +16,17 @@ Expr Number::diff(const std::string& var) const{
     return std::make_shared<Number>(0.0);
 }
 
+// -*-
 Expr Number::integrate(const std::string& var) const{
     //! @todo
     return nullptr;
 }
+
+// -*-
 Expr Number::expand(void) const{
-    //! @todo
-    return nullptr;
+    return std::make_shared<Number>(*this);
 }
+
 Expr Number::factor(const std::string& var) const{
     //! @todo
     return nullptr;
