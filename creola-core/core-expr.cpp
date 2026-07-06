@@ -153,7 +153,8 @@ Expr Neg::diff(const std::string& var) const{
 
 // -*-
 Expr Neg::integrate(const std::string& var) const{
-    return std::make_shared<Neg>(this->arg->expand());
+    //! @todo
+    return nullptr;
 }
 
 // -*-
@@ -195,7 +196,9 @@ Box Neg::to_box_prec(int parent_prec) const{
     return Box();
 }
 void Neg::print_unicode(std::ostream& os, int prec=0) const{
-    //! @todo
+    CREOLA_UNUSED(prec);
+    os << "-";
+    this->arg->print_unicode(os, 3);
     return;
 }
 
