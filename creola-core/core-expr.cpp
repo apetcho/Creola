@@ -354,10 +354,41 @@ Expr Mul::integrate(const std::string& var) const{
     //! @todo
     return;
 }
+
+// -*-
 Expr Mul::expand(void) const{
-    //! @todo
-    return;
+    if(this->factors.empty()){ return number(1.0L); }
+    Expr acc = this->factors[0]->expand();
+    for(size_t i=1; i < this->factors.size(); ++i){
+        Expr next = this->factors[i]->expand();
+        // distribute acc * next
+        auto xadd = std::dynamic_pointer_cast<Add>(acc);
+        auto yadd = std::dynamic_pointer_cast<Add>(next);
+        Vec<Expr> neo_terms{};
+        if(xadd && yadd){
+            for(auto& xterm: xadd->terms){
+                for(auto& yterm: yadd->terms){
+                    neo_terms.push_back(std::make_shared<Mul>(Vec<Expr>{xterm, yterm}));
+                }
+            }
+            acc = std::make_shared<Add>(neo_terms)->simplify();
+        }else if (xadd){
+            for(auto& xterm: xadd->terms){
+                neo_terms.push_back(std::make_shared<Mul>(Vec<Expr>{xterm, next}));
+            }
+            acc = std::make_shared<Add>(neo_terms)->simplify();
+        }else if (yadd){
+            for(auto& yterm: yadd->terms){
+                neo_terms.push_back(std::make_shared<Mul>(Vec<Expr>{acc, yterm}));
+            }
+            acc = std::make_shared<Add>(neo_terms)->simplify();
+        }else{
+            acc = std::make_shared<Mul>(Vec<Expr>{acc, next})->simplify();
+        }
+    }
+    return acc;
 }
+
 Expr Mul::factor(const std::string& var) const{
     //! @todo
     return;
