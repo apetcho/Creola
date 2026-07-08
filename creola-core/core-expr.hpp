@@ -17,6 +17,52 @@
 // -*----------------------------------------------------------------*-
 namespace creola::core{
 //
+// -
+/*
+Table of Derivatives:
+--------------------
+x^a         ==> a x^(a-1)
+exp(x)      ==> exp(x)
+a^x         ==> ln a a^x
+ln(x)       ==> 1/x
+sin(x)      ==> cos x
+cos(x)      ==> -sin x
+tan(x)      ==> 1 + (tan(x))^2
+asin(x)     ==> 1/(sqrt(1 - x^2))
+acos(x)     ==> -1/(sqrt(1 - x^2))
+atan(x)     ==> 1/(1 + x^2)
+sinh(x)     ==> cosh(x)
+cosh(x)     ==> sinh(x)
+tanh(x)     ==> 1 - (tanh(x))^2
+
+
+Integration Rules
+-----------------
+∫ c dx = cx + K
+∫ c f(x) dx = c ∫f(x)dx
+∫(f(x) + g(x)) dx = ∫f(x)dx + ∫g(x)dx
+∫(f(x) - g(x)) dx = ∫f(x)dx - ∫g(x)dx 
+∫ x^n dx = x^(n+1)/(n+1) + K, (n != -1)
+∫ 1/x dx = ln(|x|) + K
+∫ exp(x) dx = exp(x) + K
+∫ a^x dx = a^(x)/(ln(a)) + K
+∫ sin(x) dx = -cos(x) + K
+∫ cos(x) dx = sin(x) + K
+∫ (sec(x))^2 dx = tan(x) + K
+∫ (csc(x))^2 dx = -cot(x) + K
+∫ sec() tan(x) dx = sec(x) + K
+∫ csc(x) cot(x) dx = -csc(x) + C
+∫ 1/(x^2 + 1) dx = 1/(tan(x)) + K
+∫ 1/(sqrt(1 - x^2)) dx = 1/(sin(x)) + K
+∫ sinh(x) dx = cosh(x) + K
+∫ cosh(x) dx = sinh(x) + K
+
+Notations:
+ csc(x) = 1/sin(x)
+ sec(x) = 1/cos(x)
+ cot(x) = 1/tan(x) = cos(x)/sin(x) = csc(x)/sec(x) 
+
+*/
 // -*- Common Math functions mapping
 enum class MathFunc{
     // Trigonometric functions

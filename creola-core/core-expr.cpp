@@ -84,8 +84,19 @@ Expr Symbol::diff(const std::string& var) const{
 }
 
 Expr Symbol::integrate(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    // let var := x
+    // ∫ sym dx => (sym == var) ? 1/2 x^2 : sym x 
+    Expr ans = nullptr;
+    if(this->name==var){
+        auto c = number(0.5);
+        auto x2 = std::make_shared<Pow>(symbol(var), number(2.0));
+        ans = std::make_shared<Mul>(Vec<Expr>{c, x2});
+    }else{
+        auto sym = symbol(this->name);
+        auto x = symbol(var);
+        ans = std::make_shared<Mul>(Vec<Expr>{sym, x});
+    }
+    return std::move(ans);
 }
 
 // -*-
