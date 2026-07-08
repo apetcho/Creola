@@ -20,8 +20,8 @@ Expr Number::diff(const std::string& var) const{
 
 // -*-
 Expr Number::integrate(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    // ∫ c dx = c x
+    return std::make_shared<Mul>(Vec<Expr>{number(this->value), symbol(var)});
 }
 
 // -*-
@@ -674,24 +674,46 @@ void FuncCall::print_unicode(std::ostream& os, int prec=0) const{
     os << ")";
 }
 
+// ----------------------------------
+// --- High level elper functions ---
+// ----------------------------------
+Expr simplify(const Expr& expr){
+    return expr->simplify();
+}
 
-// ---- Helper functions ----
-/*
+Expr diff(const Expr& expr, const std::string& var){
+    return expr->diff(var);
+}
 
+Expr expand(const Expr& expr){
+    return expr->expand();
+}
 
-// -*-
+Expr factor(const Expr& expr, const std::string& var){
+    //! @todo
+    return;
+}
+Expr integrate(const Expr& expr, const std::string& var){
+    //! @todo
+    return;
+}
+f64 eval(const Expr& expr, const std::string& var, f64 val){
+    //! @todo
+    return;
+}
+Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin, f64 vmax, int samples){
+    //! @todo
+    return;
+}
+Expr taylor(const Expr& expr, const std::string& var, f64 val, int n){
+    //! @todo
+    return;
+}
+f64 limit(const Expr& expr, const std::string& var, f64 val, int max_iter=5){
+    //! @todo
+    return;
+}
 
-Expr simplify(const Expr& expr){}
-Expr diff(const Expr& expr);
-Expr expand(const Expr& expr);
-Expr factor(const Expr& expr, const std::string& var);
-Expr integrate(const Expr& expr, const std::string& var);
-f64 eval(const Expr& expr, const std::string& var, f64 val);
-Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=200);
-Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
-f64 limit(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
-
-*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-

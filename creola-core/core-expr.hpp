@@ -312,8 +312,12 @@ inline bool is_one(const Expr& expr){
     return (num && std::fabsl(num->value - 1.0L)==0.0L);
 }
 
+
+// -----------------------------------
+// -*- High level helper functions -*-
+// -----------------------------------
 Expr simplify(const Expr& expr);
-Expr diff(const Expr& expr);
+Expr diff(const Expr& expr, const std::string& var);
 Expr expand(const Expr& expr);
 Expr factor(const Expr& expr, const std::string& var);
 Expr integrate(const Expr& expr, const std::string& var);
