@@ -367,8 +367,27 @@ Expr Mul::diff(const std::string& var) const{
 
 
 Expr Mul::integrate(const std::string& var) const{
-    //! @todo
-    return;
+    // ∫ f * g dx
+    //  (1) typeof(f) := Number
+    //      ==> n * ∫ g dx
+    //  (2) typeof(g) := Number
+    //      ==> n * ∫ f dx
+    //  (3) Fallback: FuncCall("∫_" + var, this->factors)
+    if(this->factors.size()==2){
+        auto num = std::dynamic_pointer_cast<Number>(this->factors[0]);
+        if(num){
+            auto n = num->value;
+            auto F = this->factors[1]->integrate(var)->simplify();
+            return std::make_shared<Mul>(Vec<Expr>{number(n), F})->simplify();
+        }
+        num = std::dynamic_pointer_cast<Number>(this->factors[1]);
+        if(num){
+            auto n = num->value;
+            auto F = this->factors[0]->integrate(var)->simplify();
+            return std::make_shared<Mul>(Vec<Expr>{number(n), F})->simplify();
+        }
+    }
+    return std::make_shared<FuncCall>("∫_"+var, this->factors); // fallback
 }
 
 // -*-
