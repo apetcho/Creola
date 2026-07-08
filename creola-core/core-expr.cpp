@@ -621,9 +621,14 @@ Expr FuncCall::integrate(const std::string& var) const{
     return nullptr;
 }
 Expr FuncCall::expand(void) const{
-    //! @todo
-    return nullptr;
+    Vec<Expr> argv{};
+    argv.reserve(this->args.size());
+    for(auto& arg: args){
+        argv.push_back(arg->expand());
+    }
+    return std::make_shared<FuncCall>(this->name, argv);
 }
+
 Expr FuncCall::factor(const std::string& var) const{
     //! @todo
     return nullptr;
