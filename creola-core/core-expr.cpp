@@ -570,10 +570,52 @@ Expr FuncCall::simplify(void) const{
     return std::make_shared<FuncCall>(this->name, argv);
 }
 
+// -*-
 Expr FuncCall::diff(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    if(this->args.size() != 1){
+        return number(0.0); // keep it simple
+    }
+    auto x = this->args[0];
+    auto dx = x->diff(var);
+    if(name=="sin"){
+        return std::make_shared<Mul>(
+            Vec<Expr>{
+                std::make_shared<FuncCall>("cos", Vec<Expr>{x}),
+                dx
+            }
+        )->simplify();
+    }
+
+    if(name=="cos"){
+        return std::make_shared<Mul>(
+            Vec<Expr>{
+                number(-1.0),
+                std::make_shared<FuncCall>("sin", Vec<Expr>{x}),
+                dx
+            }
+        )->simplify();
+    }
+
+    if(name=="exp"){
+        return std::make_shared<Mul>(
+            std::make_shared<FuncCall>("expr", Vec<Expr>{x}),
+            dx
+        )->simplify();
+    }
+
+    if(name=="ln"){
+        return std::make_shared<Mul>(
+            Vec<Expr>{std::make_shared<Pow>(x, number(-1.0)), dx}
+        )->simplify();
+    }
+
+    // ...
+
+    // user-defined functions: f(x) ==> f'(x) * dx
+    // We'll handle later
+    return std::make_shared<FuncCall>(this->name + "'", Vec<Expr>{x, dx});
 }
+
 Expr FuncCall::integrate(const std::string& var) const{
     //! @todo
     return nullptr;
