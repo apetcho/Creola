@@ -665,8 +665,13 @@ Box FuncCall::to_box_prec(int parent_prec) const{
 }
 
 void FuncCall::print_unicode(std::ostream& os, int prec=0) const{
-    //! @todo
-    return;
+    CREOLA_UNUSED(prec);
+    os << this->name << "(";
+    for(size_t i=0; i < args.size(); ++i){
+        if(i > 0){ os << ", "; }
+        this->args[i]->print_unicode(os, 0);
+    }
+    os << ")";
 }
 
 
