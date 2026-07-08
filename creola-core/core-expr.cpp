@@ -96,7 +96,7 @@ Expr Symbol::integrate(const std::string& var) const{
         auto x = symbol(var);
         ans = std::make_shared<Mul>(Vec<Expr>{sym, x});
     }
-    return std::move(ans);
+    return std::move(ans->simplify());
 }
 
 // -*-
@@ -164,8 +164,8 @@ Expr Neg::diff(const std::string& var) const{
 
 // -*-
 Expr Neg::integrate(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    // ∫- expr dx = - ∫ expr dx
+    return std::make_shared<Neg>(this->arg->integrate(var));
 }
 
 // -*-
