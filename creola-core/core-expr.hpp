@@ -3,11 +3,13 @@
 #include "common.hpp"
 #include "pprint.hpp"
 
+#include<functional>
 #include<unordered_map>
 #include<iostream>
 #include<memory>
 #include<vector>
 #include<string>
+#include<cmath>
 
 
 // -*----------------------------------------------------------------*-
@@ -15,6 +17,62 @@
 // -*----------------------------------------------------------------*-
 namespace creola::core{
 //
+// -*- Common Math functions mapping
+enum class MathFunc{
+    // Trigonometric functions
+    Sin, Cos, Tan, Asin, Acos, Atan,
+    // Hyperbolic functions
+    Sinh, Cosh, Tanh, Asinh, Acosh, Atanh,
+    // Power functions
+    Pow, Sqrt, Cbrt, Exp,
+    // ...
+};
+
+using MFunc = std::function<f64(f64)>;
+
+// -*-
+static inline f64 _creola_sin(f64 x){ return std::sin(x); }
+static inline f64 _creola_cos(f64 x){ return std::cos(x); }
+static inline f64 _creola_tan(f64 x){ return std::tan(x); }
+static inline f64 _creola_asin(f64 x){ return std::asin(x); }
+static inline f64 _creola_acos(f64 x){ return std::acos(x); }
+static inline f64 _creola_atan(f64 x){ return std::atan(x); }
+
+static inline f64 _creola_sinh(f64 x){ return std::sinh(x); }
+static inline f64 _creola_cosh(f64 x){ return std::cosh(x); }
+static inline f64 _creola_tanh(f64 x){ return std::tanh(x); }
+static inline f64 _creola_asinh(f64 x){ return std::asinh(x); }
+static inline f64 _creola_acosh(f64 x){ return std::acosh(x); }
+static inline f64 _creola_atanh(f64 x){ return std::atanh(x); }
+
+static inline f64 _creola_sqrt(f64 x){ return std::sqrt(x); }
+static inline f64 _creola_cbrt(f64 x){ return std::cbrt(x); }
+static inline f64 _creola_exp(f64 x){ return std::exp(x); }
+static inline f64 _creola_ln(f64 x){ return std::log(x); }
+
+
+static const std::unordered_map<std::string, MFunc> MFUNCS_TABLE = {
+    {"sin", _creola_sin},
+    {"cos", _creola_cos},
+    {"tan", _creola_tan},
+    {"asin", _creola_asin},
+    {"acos", _creola_acos},
+    {"atan", _creola_atan},
+
+    {"sinh", _creola_sinh},
+    {"cosh", _creola_cosh},
+    {"tanh", _creola_tanh},
+    {"asinh", _creola_asinh},
+    {"acosh", _creola_acosh},
+    {"atanh", _creola_atanh},
+
+    {"sqrt", _creola_sqrt},
+    {"cbrt", _creola_cbrt},
+    {"exp", _creola_exp},
+    {"ln", creola_ln},
+};
+
+// -*-
 struct ExprBase;
 using Expr = Shared<ExprBase>;
 

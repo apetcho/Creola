@@ -488,7 +488,7 @@ Expr Pow::expand(void) const{
         );
     }
     i64 k = std::llround(num->value);
-    if(k < 0 || std::fabsl(num->value - k) > 1e-12){
+    if(k < 0 || std::fabs(num->value - k) > 1e-12){
         return std::make_shared<Pow>(this->base->expand(), this->expo->expand());
     }
 
@@ -549,64 +549,79 @@ void Pow::print_unicode(std::ostream& os, int prec) const{
 // --- FuncCall Expression ---
 // ---------------------------
 
-/*
-
 Expr FuncCall::simplify(void) const{
-    //! @todo
-    return;
+    Vec<Expr> argv{};
+    argv.reserve(this->args.size());
+    for(auto& arg: args){
+        argv.push_back(arg->simplify());
+    }
+    if(argv.size()==1){
+        auto num = std::dynamic_pointer_cast<Number>(argv[0]);
+        if(num){
+            f64 val = num->value;
+            auto entry = MFUNCS_TABLE.find(this->name);
+            if(entry != MFUNCS_TABLE.end()){
+                auto ans = entry->second(val);
+                return number(ans);
+            }
+        }
+    }
+
+    return std::make_shared<FuncCall>(this->name, argv);
 }
+
 Expr FuncCall::diff(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr FuncCall::integrate(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr FuncCall::expand(void) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr FuncCall::factor(const std::string& var) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr FuncCall::groebner(const Vec<Expr>& exprs) const{
     //! @todo
-    return;
+    return nullptr;
 }
 Expr FuncCall::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
-    return;
+    return nullptr;
 }
-Vec<f64> FuncCall::roots(const std::string& var, f64 vmin=, f64 vmax, int samples) const{
+Vec<f64> FuncCall::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
-    return;
+    return {};
 }
 f64 FuncCall::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
-    return;
+    return 0.0;
 }
 
 f64 FuncCall::eval(const std::string& var, f64 val) const{
     //! @todo
-    return;
+    return 0.0;
 }
 
 Box FuncCall::to_box(void) const{
     //! @todo
-    return;
+    return Box();
 }
 Box FuncCall::to_box_prec(int parent_prec) const{
     //! @todo
-    return;
+    return Box();
 }
+
 void FuncCall::print_unicode(std::ostream& os, int prec=0) const{
     //! @todo
     return;
 }
 
-*/
 
 // ---- Helper functions ----
 /*
