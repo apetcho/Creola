@@ -165,7 +165,7 @@ Expr Neg::diff(const std::string& var) const{
 // -*-
 Expr Neg::integrate(const std::string& var) const{
     // ∫- expr dx = - ∫ expr dx
-    return std::make_shared<Neg>(this->arg->integrate(var));
+    return std::make_shared<Neg>(this->arg->integrate(var))->simplify();
 }
 
 // -*-
@@ -248,8 +248,13 @@ Expr Add::diff(const std::string& var) const{
 
 
 Expr Add::integrate(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    // ∫(f + g)dx = ∫ f dx + ∫ g dx
+    Vec<Expr> result{};
+    result.reserve(this->terms.size());
+    for(auto& term: this->terms){
+        result.push_back(term->integrate(var));
+    }
+    return std::make_shared<Add>(result)->simplify();
 }
 
 
