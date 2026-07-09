@@ -79,15 +79,61 @@ core::Expr Parser::parse(void){
 
 
 void Parser::consume(TokenKind kind){
-    if(this->m_curTok.kind != kind){
-        throw std::runtime_error("unexpected token");
+    if(this->match(kind)){
+        this->m_curTok = this->m_tokenizer.next();
     }
-    this->m_curTok = this->m_tokenizer.next();
 }
 
-core::Expr Parser::parse_primary(void){
-    //! @todo
+void Parser::expect(TokenKind kind){
+    if(!this->match(kind)){
+        throw std::runtime_error("unexpected token");
+    }
 }
+
+
+core::Expr Parser::parse_primary(void){
+    if(this->match(TokenKind::Number)){
+        auto val = this->m_curTok.num;
+        this->consume(TokenKind::Number);
+        return core::number(val);
+    }
+    if(this->match(TokenKind::Ident)){
+        auto name = this->m_curTok.text;
+        this->consume(TokenKind::Ident);
+        if(this->match(TokenKind::LParen)){
+            this->consume(TokenKind::LParen);
+            Vec<core::Expr> args{};
+            if(!this->match(TokenKind::RParen)){
+                while(true){
+                    args.push_back(this->parse());
+                    if(this->match(TokenKind::Comma)){
+                        this->consume(TokenKind::Comma);
+                    }else{
+                        break;
+                    }
+                }
+            }
+            this->expect(TokenKind::RParen);
+            this->consume(TokenKind::RParen);
+            return std::make_shared<core::FuncCall>(name, args);
+        }
+        return core::symbol(name);
+    }
+    if(this->match(TokenKind::LParen)){
+        this->consume(TokenKind::LParen);
+        auto expr = this->parse();
+        this->expect(TokenKind::RParen);
+        this->consume(TokenKind::RParen);
+        return std::move(expr);
+    }
+    if(this->match(TokenKind::Minus)){
+        this->consume(TokenKind::Minus);
+        return std::make_shared<core::Neg>(this->parse_primary());
+    }
+
+    throw std::runtime_error("invalid primary");
+}
+
 core::Expr Parser::parse_pow(void){
     //! @todo
 }
