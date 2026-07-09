@@ -235,8 +235,11 @@ f64 Add::limit(const std::string& var, f64 val, f64 eps) const{
 }
 
 f64 Add::eval(const std::string& var, f64 val) const{
-    //! @todo
-    return 0.0;
+    f64 ans = 0.0;
+    for(auto& term: this->terms){
+        ans += term->eval(var, val);
+    }
+    return ans;
 }
 
 
