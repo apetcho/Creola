@@ -246,7 +246,6 @@ f64 Add::eval(const std::string& var, f64 val) const{
 // ----------------------
 // --- Mul Expression ---
 // ----------------------
-
 Expr Mul::simplify(void) const{
     Vec<Expr> result{};
     f64 acc{1.0L};
@@ -374,8 +373,11 @@ f64 Mul::limit(const std::string& var, f64 val, f64 eps) const{
 }
 
 f64 Mul::eval(const std::string& var, f64 val) const{
-    //! @todo
-    return;
+    f64 ans = 1.0;
+    for(auto& expr: this->factors){
+        ans *= expr->eval(var, val);
+    }
+    return ans;
 }
 
 
