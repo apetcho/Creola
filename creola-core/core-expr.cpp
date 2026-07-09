@@ -48,8 +48,9 @@ f64 Number::limit(const std::string& var, f64 val, f64 eps=1e-6) const{
 }
 
 f64 Number::eval(const std::string& var, f64 val) const{
-    //! @todo
-    return 0.0;
+    CREOLA_UNUSED(var);
+    CREOLA_UNUSED(val);
+    return this->value;
 }
 
 // -------------------------
@@ -565,9 +566,66 @@ Expr FuncCall::diff(const std::string& var) const{
 }
 
 Expr FuncCall::integrate(const std::string& var) const{
-    //! @todo
+    if(this->name=="sin"){
+        //! @todo
+    }
+
+    if(this->name=="cos"){
+        //! @todo
+    }
+
+    if(this->name=="tan"){
+        //! @todo
+    }
+
+    if(this->name=="asin"){
+        //! @todo
+    }
+
+    if(this->name=="acos"){
+        //! @todo
+    }
+
+    if(this->name=="atan"){
+        //! @todo
+    }
+
+    if(this->name=="sinh"){
+        //! @todo
+    }
+
+    if(this->name=="cosh"){
+        //! @todo
+    }
+
+    if(this->name=="tanh"){
+        //! @todo
+    }
+
+    if(this->name=="asinh"){
+        //! @todo
+    }
+
+    if(this->name=="acosh"){
+        //! @todo
+    }
+
+    if(this->name=="atanh"){
+        //! @todo
+    }
+
+    if(this->name=="exp"){
+        //! @todo
+    }
+
+    if(this->name=="sqrt"){
+        //! @todo
+    }
+
     return nullptr;
 }
+
+
 Expr FuncCall::expand(void) const{
     Vec<Expr> argv{};
     argv.reserve(this->args.size());
