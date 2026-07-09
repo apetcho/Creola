@@ -74,7 +74,22 @@ Parser::Parser(std::string&& src)
 }
 
 core::Expr Parser::parse(void){
-    //! @todo
+    auto lhs = this->parse_term();
+    while(this->match(TokenKind::Plus) || this->match(TokenKind::Minus)){
+        auto op = this->m_curTok.kind;
+        this->consume(op);
+        auto rhs = this->parse_term();
+        if(op == TokenKind::Plus){
+            lhs = std::make_shared<core::Add>(Vec<core::Expr>{lhs, rhs});
+        }else{
+            lhs = std::make_shared<core::Add>(Vec<core::Expr>{
+                lhs,
+                std::make_shared<core::Neg>(rhs)
+            });
+        }
+    }
+
+    return std::move(lhs);
 }
 
 
