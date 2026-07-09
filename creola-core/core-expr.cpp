@@ -1,5 +1,10 @@
 #include "core-expr.hpp"
 
+//! @todo: Implement Expr->roots(...) -> Vec<f64>
+//! @todo: Implement Expr->taylor(...) -> Expr
+//! @todo: Implement Expr->limit(...) -> f64
+
+
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
