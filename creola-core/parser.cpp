@@ -1,5 +1,7 @@
 #include "parser.hpp"
 #include<cctype>
+#include<stdexcept>
+
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
@@ -77,8 +79,12 @@ core::Expr Parser::parse(void){
 
 
 void Parser::consume(TokenKind kind){
-    //! @todo
+    if(this->m_curTok.kind != kind){
+        throw std::runtime_error("unexpected token");
+    }
+    this->m_curTok = this->m_tokenizer.next();
 }
+
 core::Expr Parser::parse_primary(void){
     //! @todo
 }
