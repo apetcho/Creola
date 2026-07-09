@@ -11,7 +11,51 @@ Tokenizer::Tokenizer(std::string&& src)
 {}
 
 Token Tokenizer::next(void){
-    //! @todo
+    this->skip_whitespace();
+    if(this->m_pos == this->m_src.size()){
+        return Token(TokenKind::End, "");
+    }
+
+    auto c = this->m_src[this->m_pos];
+    if(std::isdigit(c)){
+        auto start = this->m_pos;
+        size_t& pos = this->m_pos;
+        while(pos < this->m_src.size() && (std::isdigit(this->m_src[pos]) || this->m_src[pos]=='.')){
+            ++pos;
+        }
+        auto lexme = this->m_src.substr(start, pos-start);
+        auto num = std::stod(lexme);
+        return Token(TokenKind::Number, lexme, num);
+    }
+    if(std::isalpha(c) || c == '_'){
+        auto start = this->m_pos;
+        size_t& pos = this->m_pos;
+        while(pos < this->m_src.size() && (std::isalnum(this->m_src[pos]) || this->m_src[0]=='_')){
+            ++pos;
+        }
+        auto lexeme = this->m_src.substr(start, pos-start);
+        if(lexeme=="let"){
+            return Token(TokenKind::KwLet, "let");
+        }
+        if(lexeme=="fun"){
+            return Token(TokenKind::KwFun, "fun");
+        }
+        return Token(TokenKind::Ident, lexeme);
+    }
+    ++this->m_pos;
+    switch(c){
+    case '+': return Token(TokenKind::Plus, "+");
+    case '-': return Token(TokenKind::Minus, "-");
+    case '*': return Token(TokenKind::Star, "*");
+    case '/': return Token(TokenKind::Slash, "/");
+    case '^': return Token(TokenKind::Caret, "^");
+    case '(': return Token(TokenKind::LParen, "(");
+    case ')': return Token(TokenKind::RParen, ")");
+    case ',': return Token(TokenKind::Comma, ",");
+    case '=': return Token(TokenKind::Equal, "=");
+    }
+
+    return Token(TokenKind::End, "");
 }
 
 void Tokenizer::skip_whitespace(void){

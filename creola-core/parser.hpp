@@ -21,6 +21,10 @@ struct Token{
     TokenKind kind;
     std::string text;
     long double num;
+
+    Token(TokenKind kind, const std::string& lexme, f64 val=std::numeric_limits<f64>::max())
+    : kind{kind}, text{lexme}, num{val}
+    {}
 };
 
 // -*-
