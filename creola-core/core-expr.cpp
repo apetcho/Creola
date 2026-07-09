@@ -151,6 +151,7 @@ f64 Neg::limit(const std::string& var, f64 val, f64 eps=1e-6) const{
     return 0.0;
 }
 
+// -*-
 f64 Neg::eval(const std::string& var, f64 val) const{
     if(auto sym = std::dynamic_pointer_cast<Symbol>(this->arg)){
         if(sym->name==var){ return -1.0 * val; }
