@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include<cctype>
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
@@ -14,7 +15,10 @@ Token Tokenizer::next(void){
 }
 
 void Tokenizer::skip_whitespace(void){
-    //! @todo
+    while(this->m_pos < this->m_src.size()){
+        auto c = this->m_src[this->m_pos++];
+        if(std::isspace(c)){ break; }
+    }
 }
 
 // ---
