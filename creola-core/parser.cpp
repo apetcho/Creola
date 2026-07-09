@@ -135,7 +135,12 @@ core::Expr Parser::parse_primary(void){
 }
 
 core::Expr Parser::parse_pow(void){
-    //! @todo
+    auto lhs = this->parse_primary();
+    while(this->match(TokenKind::Caret)){
+        this->consume(TokenKind::Caret);
+        auto rhs = this->parse_primary();
+        lhs = std::make_shared<core::Pow>(lhs, rhs);
+    }
 }
 core::Expr Parser::parse_term(void){
     //! @todo
