@@ -33,10 +33,7 @@ Expr Number::factor(const std::string& var) const{
     //! @todo
     return nullptr;
 }
-Expr Number::groebner(const Vec<Expr>& exprs) const{
-    //! @todo
-    return nullptr;
-}
+
 Expr Number::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return nullptr;
@@ -53,22 +50,6 @@ f64 Number::limit(const std::string& var, f64 val, f64 eps=1e-6) const{
 f64 Number::eval(const std::string& var, f64 val) const{
     //! @todo
     return 0.0;
-}
-
-Box Number::to_box(void) const{
-    //! @todo
-    return Box();
-}
-Box Number::to_box_prec(int parent_prec) const{
-    //! @todo
-    return Box();
-}
-
-// -*-
-void Number::print_unicode(std::ostream& os, int prec) const{
-    CREOLA_UNUSED(prec);
-    os << this->value;
-    return;
 }
 
 // -------------------------
@@ -109,10 +90,6 @@ Expr Symbol::factor(const std::string& var) const{
     //! @todo
     return nullptr;
 }
-Expr Symbol::groebner(const Vec<Expr>& exprs) const{
-    //! @todo
-    return nullptr;
-}
 Expr Symbol::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return nullptr;
@@ -129,21 +106,6 @@ f64 Symbol::limit(const std::string& var, f64 val, f64 eps) const{
 f64 Symbol::eval(const std::string& var, f64 val) const{
     //! @todo
     return 0.0;
-}
-
-Box Symbol::to_box(void) const{
-    //! @todo
-    return Box();
-}
-
-Box Symbol::to_box_prec(int parent_prec) const{
-    //! @todo
-    return Box();
-}
-void Symbol::print_unicode(std::ostream& os, int prec) const{
-    CREOLA_UNUSED(prec);
-    os << this->name;
-    return;
 }
 
 // ---------------------------
@@ -176,10 +138,6 @@ Expr Neg::factor(const std::string& var) const{
     //! @todo
     return nullptr;
 }
-Expr Neg::groebner(const Vec<Expr>& exprs) const{
-    //! @todo
-    return nullptr;
-}
 Expr Neg::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return nullptr;
@@ -196,21 +154,6 @@ f64 Neg::limit(const std::string& var, f64 val, f64 eps=1e-6) const{
 f64 Neg::eval(const std::string& var, f64 val) const{
     //! @todo
     return 0.0;
-}
-
-Box Neg::to_box(void) const{
-    //! @todo
-    return Box();
-}
-Box Neg::to_box_prec(int parent_prec) const{
-    //! @todo
-    return Box();
-}
-void Neg::print_unicode(std::ostream& os, int prec) const{
-    CREOLA_UNUSED(prec);
-    os << "-";
-    this->arg->print_unicode(os, 3);
-    return;
 }
 
 // ----------------------
@@ -267,17 +210,13 @@ Expr Add::expand(void) const{
     return std::make_shared<Add>(result)->simplify();
 }
 
-
+// -*-
 Expr Add::factor(const std::string& var) const{
     //! @todo
     return nullptr;
 }
 
-Expr Add::groebner(const Vec<Expr>& exprs) const{
-    //! @todo
-    return nullptr;
-}
-
+// -*-
 Expr Add::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return nullptr;
@@ -295,26 +234,6 @@ f64 Add::limit(const std::string& var, f64 val, f64 eps) const{
 f64 Add::eval(const std::string& var, f64 val) const{
     //! @todo
     return 0.0;
-}
-
-Box Add::to_box(void) const{
-    //! @todo
-    return Box();
-}
-
-Box Add::to_box_prec(int parent_prec) const{
-    //! @todo
-    return Box();
-}
-void Add::print_unicode(std::ostream& os, int prec) const{
-    CREOLA_UNUSED(prec);
-    for(size_t i=0; i < this->terms.size(); ++i){
-        if (i > 0){
-            os << " + ";
-        }
-        this->terms[i]->print_unicode(os, 1);
-    }
-    return;
 }
 
 
@@ -387,7 +306,12 @@ Expr Mul::integrate(const std::string& var) const{
             return std::make_shared<Mul>(Vec<Expr>{number(n), F})->simplify();
         }
     }
-    return std::make_shared<FuncCall>("∫_"+var, this->factors); // fallback
+    auto self = this->simplify();
+    Vec<Expr> exprs{};
+    for(auto& expr: this->factors){
+        exprs.push_back(expr->integrate(var)->simplify());
+    }
+    return std::make_shared<Mul>(exprs); // fallback
 }
 
 // -*-
@@ -428,14 +352,12 @@ Expr Mul::factor(const std::string& var) const{
     //! @todo
     return;
 }
-Expr Mul::groebner(const Vec<Expr>& exprs) const{
-    //! @todo
-    return;
-}
+
 Expr Mul::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return;
 }
+
 Vec<f64> Mul::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
     return;
@@ -447,23 +369,6 @@ f64 Mul::limit(const std::string& var, f64 val, f64 eps) const{
 
 f64 Mul::eval(const std::string& var, f64 val) const{
     //! @todo
-    return;
-}
-
-Box Mul::to_box(void) const{
-    //! @todo
-    return;
-}
-Box Mul::to_box_prec(int parent_prec) const{
-    //! @todo
-    return;
-}
-void Mul::print_unicode(std::ostream& os, int prec) const{
-    CREOLA_UNUSED(prec);
-    for(size_t i=0; i < this->factors.size(); ++i){
-        if(i > 0){ os << "*"; } // or just "" for implicit multiplication
-        this->factors[i]->print_unicode(os, 2);
-    }
     return;
 }
 
@@ -510,8 +415,37 @@ Expr Pow::diff(const std::string& var) const{
 }
 
 Expr Pow::integrate(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    // ∫ b^e dx
+    // (1) typeof(e) == Number && (typeof(b) = Symbol && b == var)
+    //      ∫ f^n dx = 1/(n+1) x^(n+1)
+    // (2) typeof(b) == Number && (typeof(e) == Symbol && e == var)
+    //      ∫ b^x dx = b^x/ln(b)
+    // (3)  fallback
+    auto b = std::dynamic_pointer_cast<Symbol>(this->base);
+    auto e = std::dynamic_pointer_cast<Number>(this->expo);
+    if(b && e && b->name==var){
+        auto n = e->value + 1;
+        auto ans = std::make_shared<Mul>(Vec<Expr>{
+            number(1.0/n),
+            std::make_shared<Pow>(symbol(var), number(n))
+        });
+        return ans->simplify();
+    }
+    auto xb = std::dynamic_pointer_cast<Number>(this->base);
+    auto xe = std::dynamic_pointer_cast<Symbol>(this->expo);
+    if(xb && xe && xe->name==var){// lhs * rhs where lhs = 1/ln(b) and rhs = b^var
+        auto lhs = number(1.0/std::log(xb->value));
+        auto rhs = std::make_shared<Pow>(
+            number(xb->value), symbol(var)
+        );
+        auto ans = std::make_shared<Mul>(Vec<Expr>{lhs, rhs});
+        return ans->simplify();
+    }
+    // fallback
+    // ∫base^expo dvar
+    return std::make_shared<FuncCall>("∫_"+var, Vec<Expr>{
+        std::make_shared<Pow>(this->base, this->expo)->simplify()
+    });
 }
 
 Expr Pow::expand(void) const{
@@ -539,10 +473,7 @@ Expr Pow::factor(const std::string& var) const{
     //! @todo
     return nullptr;
 }
-Expr Pow::groebner(const Vec<Expr>& exprs) const{
-    //! @todo
-    return nullptr;
-}
+
 Expr Pow::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return nullptr;
@@ -559,24 +490,6 @@ f64 Pow::limit(const std::string& var, f64 val, f64 eps) const{
 f64 Pow::eval(const std::string& var, f64 val) const{
     //! @todo
     return 0.0L;
-}
-
-Box Pow::to_box(void) const{
-    //! @todo
-    return Box();
-}
-Box Pow::to_box_prec(int parent_prec) const{
-    //! @todo
-    return Box();
-}
-
-// -*-
-void Pow::print_unicode(std::ostream& os, int prec) const{
-    CREOLA_UNUSED(prec);
-    this->base->print_unicode(os, 3);
-    os << "^";
-    this->expo->print_unicode(os, 3);
-    return;
 }
 
 
@@ -668,10 +581,6 @@ Expr FuncCall::factor(const std::string& var) const{
     //! @todo
     return nullptr;
 }
-Expr FuncCall::groebner(const Vec<Expr>& exprs) const{
-    //! @todo
-    return nullptr;
-}
 Expr FuncCall::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
     return nullptr;
@@ -690,28 +599,21 @@ f64 FuncCall::eval(const std::string& var, f64 val) const{
     return 0.0;
 }
 
-Box FuncCall::to_box(void) const{
-    //! @todo
-    return Box();
-}
-Box FuncCall::to_box_prec(int parent_prec) const{
-    //! @todo
-    return Box();
-}
-
-void FuncCall::print_unicode(std::ostream& os, int prec=0) const{
-    CREOLA_UNUSED(prec);
-    os << this->name << "(";
-    for(size_t i=0; i < args.size(); ++i){
-        if(i > 0){ os << ", "; }
-        this->args[i]->print_unicode(os, 0);
-    }
-    os << ")";
-}
 
 // ----------------------------------
 // --- High level elper functions ---
 // ----------------------------------
+
+/*
+std::ostream& operator<<(std::ostream& os, const Number& rhs);
+std::ostream& operator<<(std::ostream& os, const Symbol& rhs);
+std::ostream& operator<<(std::ostream& os, const Neg& rhs);
+std::ostream& operator<<(std::ostream& os, const Add& rhs);
+std::ostream& operator<<(std::ostream& os, const Mul& rhs);
+std::ostream& operator<<(std::ostream& os, const Pow& rhs);
+std::ostream& operator<<(std::ostream& os, const FuncCall& rhs);
+*/
+
 Expr simplify(const Expr& expr){
     return expr->simplify();
 }

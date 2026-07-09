@@ -18,6 +18,7 @@
 namespace creola::core{
 //
 // -
+
 /*
 Table of Derivatives:
 --------------------
@@ -115,36 +116,213 @@ static const std::unordered_map<std::string, MFunc> MFUNCS_TABLE = {
     {"sqrt", _creola_sqrt},
     {"cbrt", _creola_cbrt},
     {"exp", _creola_exp},
-    {"ln", creola_ln},
+    {"ln", _creola_ln},
 };
+
 
 // -*-
 struct ExprBase;
 using Expr = Shared<ExprBase>;
 
+// -*- Display::display -*-
+struct Display{
+    explicit Display() = default;
+    virtual ~Display() = default;
+    virtual void display(std::ostream& os, int prec=0) const = 0;
+};
+
+// -* Simplifier::simplify -*-
+struct Simplifier: Display{
+    explicit Simplifier(const ExprBase* expr)
+    : m_expr{expr} {}
+    virtual ~Simplifier() = default;
+
+    virtual Expr simplify(void) const = 0;
+
+private:
+    const ExprBase* m_expr;
+};
+
+// -*- Factorizer::factor -*-
+struct Factorizer: Display{
+    explicit Factorizer(const ExprBase* expr): m_expr{expr}
+    {}
+
+    virtual ~Factorizer() = default;
+
+    virtual Expr factor(const std::string& var) const = 0;
+
+private:
+    const ExprBase* m_expr;
+};
+
+// -*- Expander::expand -*-
+struct Expander: Display{
+    explicit Expander(const ExprBase* expr): m_expr{expr}
+    {}
+
+    virtual ~Expander() = default;
+
+    virtual Expr expand(void) const = 0;
+
+private:
+    const ExprBase* m_expr;
+};
+
+// -*- Integrator::integrate -*-
+struct Integrator: Display {
+    explicit Integrator(const ExprBase* expr)
+    : m_expr{expr}, m_var{"x"}
+    {}
+    virtual ~Integrator() = default;
+
+    virtual Expr integrate(const std::string& var) const = 0;
+    void update_integrate_config(const std::string& var){
+        this->m_var = var;
+    }
+
+
+private:
+    const ExprBase* m_expr;
+    std::string m_var;
+};
+
+// -*- Differentiator::diff -*-
+struct Differentiator: Display{
+    explicit Differentiator(const ExprBase* expr)
+    {}
+    virtual ~Differentiator() = default;
+
+    virtual Expr diff(const std::string& var) const = 0;
+
+    void update_diff_var(const std::string& var){
+        this->m_var = var;
+    }
+
+private:
+    const ExprBase* m_expr;
+    std::string m_var;
+};
+
+// -*- Series::taylor -*-
+struct Series: Display{
+    explicit Series(const ExprBase* expr)
+    : m_expr{expr}, m_var{"x"}
+    , m_val{std::numeric_limits<f64>::max()}
+    , m_order{std::numeric_limits<int>::max()}
+    {}
+
+    virtual ~Series() = default;
+
+    virtual Expr taylor(const std::string& var, f64 val, int n) const = 0;
+    void update_series_config(const std::string& var, f64 val, int order){
+        this->m_var = var;
+        this->m_val = val;
+        this->m_order = order;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Series& series);
+
+private:
+    const ExprBase* m_expr;
+    std::string m_var;
+    f64 m_val;
+    int m_order;
+};
+
+// -*- LimitFinder::limit -*-
+struct LimitFinder: Display{
+    explicit LimitFinder(const ExprBase* expr)
+    : m_expr{expr}, m_var{"x"}
+    , m_val{std::numeric_limits<f64>::max()}
+    , m_eps{1e-6}
+    {}
+
+    virtual ~LimitFinder() = default;
+
+    virtual f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const = 0;
+
+    void update_limit_config(const std::string& var, f64 val, f64 eps){
+        this->m_var = var;
+        this->m_val = val;
+        this->m_eps = eps;
+    }
+
+
+private:
+    const ExprBase* m_expr;
+    std::string m_var;
+    f64 m_val;
+    f64 m_eps;
+};
+
+// -*- RootsFinder::roots -*-
+struct RootsFinder: Display {
+    explicit RootsFinder(const ExprBase* expr)
+    : m_expr{expr}, m_var{"x"}
+    , m_vmin{std::numeric_limits<f64>::max()}
+    , m_vmax{std::numeric_limits<f64>::min()}
+    , m_samples{100}
+    {}
+    virtual ~RootsFinder() = default;
+
+    virtual Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const = 0;
+    void update_roots_config(const std::string& var, f64 vmin, f64 vmax, int samples){
+        this->m_var = var;
+        this->m_vmin = vmin;
+        this->m_vmax = vmax;
+        this->m_samples = samples;
+    }
+
+private:
+    const ExprBase* m_expr;
+    std::string m_var;
+    f64 m_vmin;
+    f64 m_vmax;
+    int m_samples;
+};
+
+
 enum class ExprKind {
     Number, Symbol, Add, Mul, Pow, Neg, FuncCall,
 };
 
-struct ExprBase : std::enable_shared_from_this<ExprBase> {
-    explicit ExprBase(ExprKind kind): m_kind{kind}{}
-    virtual ~ExprBase() = default;
 
-    virtual Expr simplify(void) const = 0;
-    virtual Expr diff(const std::string& var) const = 0;
-    virtual Expr integrate(const std::string& var) const = 0;
-    virtual Expr expand(void) const = 0;
-    virtual Expr factor(const std::string& var) const = 0;
-    virtual Expr groebner(const Vec<Expr>& exprs) const = 0;
-    virtual Expr taylor(const std::string& var, f64 val, int n) const = 0;
-    virtual Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const = 0;
-    virtual f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const = 0;
+
+// Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
+struct ExprBase:
+    Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
+    LimitFinder, RootsFinder,
+    std::enable_shared_from_this<ExprBase> {
+    explicit ExprBase(ExprKind kind)
+    : Simplifier(this)
+    , Factorizer(this) 
+    , Expander(this)
+    , Integrator(this)
+    , Differentiator(this)
+    , Series(this)
+    , LimitFinder(this)
+    , RootsFinder(this)
+    , m_kind{kind}{}
+    virtual ~ExprBase() = default;
 
     virtual f64 eval(const std::string& var, f64 val) const = 0;
 
-    virtual Box to_box(void) const = 0;
+    // virtual void display(std::ostream& os, int prec=0) const = 0;
+    // virtual Expr simplify(void) const = 0;
+    // virtual Expr diff(const std::string& var) const = 0;
+    // virtual Expr integrate(const std::string& var) const = 0;
+    // virtual Expr expand(void) const = 0;
+    // virtual Expr factor(const std::string& var) const = 0;
+    // virtual Expr taylor(const std::string& var, f64 val, int n) const = 0;
+    // virtual Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const = 0;
+    // virtual f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const = 0;
+
+    // virtual void print_unicode(std::ostream& os, int prec=0) const = 0;
+
+    // virtual Expr groebner(const Vec<Expr>& exprs) const = 0;
+    /* virtual Box to_box(void) const = 0;
     virtual Box to_box_prec(int parent_prec) const = 0;
-    virtual void print_unicode(std::ostream& os, int prec=0) const = 0;
 
     int precedence(void) const{
         switch (m_kind){
@@ -163,10 +341,13 @@ struct ExprBase : std::enable_shared_from_this<ExprBase> {
         }
 
         return 0;
-    }
+    } */
+
 
 protected:
     ExprKind m_kind;
+
+    virtual void display(const ExprBase& expr, std::ostream& os, int prec) const = 0;
 };
 
 // -*-
@@ -180,17 +361,25 @@ struct Number : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factor(const std::string& var) const override;
-    Expr groebner(const Vec<Expr>& exprs) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    Box to_box(void) const override;
-    Box to_box_prec(int parent_prec) const override;
-    void print_unicode(std::ostream& os, int prec=0) const override;
+    void display(std::ostream& os, int prec=0) const override{
+        CREOLA_UNUSED(prec);
+        os << *this;
+    }
+
+    // Expr groebner(const Vec<Expr>& exprs) const override;
+    // Box to_box(void) const override;
+    // Box to_box_prec(int parent_prec) const override;
+
+protected:
+    void display(const ExprBase& expr, std::ostream& os, int prec) const override;
 };
+
 
 // -*-
 struct Symbol : public ExprBase{
@@ -203,16 +392,20 @@ struct Symbol : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factor(const std::string& var) const override;
-    Expr groebner(const Vec<Expr>& exprs) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    Box to_box(void) const override;
-    Box to_box_prec(int parent_prec) const override;
-    void print_unicode(std::ostream& os, int prec=0) const override;
+    void display(std::ostream& os, int prec=0) const override{
+        CREOLA_UNUSED(prec);
+        os << *this;
+    }
+
+    // Expr groebner(const Vec<Expr>& exprs) const override;
+    // Box to_box(void) const override;
+    // Box to_box_prec(int parent_prec) const override;
 };
 
 // -*-
@@ -226,16 +419,20 @@ struct Neg : ExprBase {
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factor(const std::string& var) const override;
-    Expr groebner(const Vec<Expr>& exprs) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    Box to_box(void) const override;
-    Box to_box_prec(int parent_prec) const override;
-    void print_unicode(std::ostream& os, int prec=0) const override;
+    void display(std::ostream& os, int prec=0) const override{
+        CREOLA_UNUSED(prec);
+        os << "-" << *this;
+    }
+
+    // Expr groebner(const Vec<Expr>& exprs) const override;
+    // Box to_box(void) const override;
+    // Box to_box_prec(int parent_prec) const override;
 };
 
 // -*-
@@ -250,16 +447,26 @@ struct Add : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factor(const std::string& var) const override;
-    Expr groebner(const Vec<Expr>& exprs) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    Box to_box(void) const override;
-    Box to_box_prec(int parent_prec) const override;
-    void print_unicode(std::ostream& os, int prec=0) const override;
+    void display(std::ostream& os, int prec=0) const override{
+        CREOLA_UNUSED(prec);
+        os << *this;
+        /* for(size_t i=0; i < this->terms.size(); ++i){
+            if (i > 0){
+                os << " + ";
+            }
+            this->terms[i]->display(os, 1);
+        } */
+    }
+
+    // Expr groebner(const Vec<Expr>& exprs) const override;
+    // Box to_box(void) const override;
+    // Box to_box_prec(int parent_prec) const override;
 };
 
 // -*-
@@ -274,16 +481,24 @@ struct Mul : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factor(const std::string& var) const override;
-    Expr groebner(const Vec<Expr>& exprs) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    Box to_box(void) const override;
-    Box to_box_prec(int parent_prec) const override;
-    void print_unicode(std::ostream& os, int prec=0) const override;
+    void display(std::ostream& os, int prec=0) const override{
+        CREOLA_UNUSED(prec);
+        os << *this;
+        /* for(size_t i=0; i < this->factors.size(); ++i){
+            if(i > 0){ os << "*"; } // or just "" for implicit multiplication
+            this->factors[i]->display(os, 2);
+        } */
+    }
+
+    // Expr groebner(const Vec<Expr>& exprs) const override;
+    // Box to_box(void) const override;
+    // Box to_box_prec(int parent_prec) const override;
 };
 
 // -*-
@@ -299,16 +514,23 @@ struct Pow : public ExprBase {
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factor(const std::string& var) const override;
-    Expr groebner(const Vec<Expr>& exprs) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    Box to_box(void) const override;
-    Box to_box_prec(int parent_prec) const override;
-    void print_unicode(std::ostream& os, int prec=0) const override;
+    void display(std::ostream& os, int prec=0) const override{
+        CREOLA_UNUSED(prec);
+        os << *this;
+        /* this->base->display(os, 3);
+        os << "^";
+        this->expo->display(os, 3); */
+    }
+
+    // Expr groebner(const Vec<Expr>& exprs) const override;
+    // Box to_box(void) const override;
+    // Box to_box_prec(int parent_prec) const override;
 };
 
 // -*-
@@ -324,22 +546,40 @@ struct FuncCall : ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factor(const std::string& var) const override;
-    Expr groebner(const Vec<Expr>& exprs) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
+    void display(std::ostream& os, int prec=0) const override{
+        CREOLA_UNUSED(prec);
+        os << *this;
 
-    Box to_box(void) const override;
-    Box to_box_prec(int parent_prec) const override;
-    void print_unicode(std::ostream& os, int prec=0) const override;
+        /* os << this->name << "(";
+        for(size_t i=0; i < args.size(); ++i){
+            if(i > 0){ os << ", "; }
+            this->args[i]->display(os, 0);
+        }
+        os << ")"; */
+    }
+
+    // Expr groebner(const Vec<Expr>& exprs) const override;
+    // Box to_box(void) const override;
+    // Box to_box_prec(int parent_prec) const override;
 };
 
 
 // ------------------------
 // -*- Helper functions -*-
 // ------------------------
+std::ostream& operator<<(std::ostream& os, const Number& rhs);
+std::ostream& operator<<(std::ostream& os, const Symbol& rhs);
+std::ostream& operator<<(std::ostream& os, const Neg& rhs);
+std::ostream& operator<<(std::ostream& os, const Add& rhs);
+std::ostream& operator<<(std::ostream& os, const Mul& rhs);
+std::ostream& operator<<(std::ostream& os, const Pow& rhs);
+std::ostream& operator<<(std::ostream& os, const FuncCall& rhs);
+
 inline Expr number(f64 val){
     return std::make_shared<Number>(val);
 }
