@@ -105,8 +105,7 @@ f64 Symbol::limit(const std::string& var, f64 val, f64 eps) const{
 }
 
 f64 Symbol::eval(const std::string& var, f64 val) const{
-    //! @todo
-    return 0.0;
+    return (this->name==var) ? val : 0.0;
 }
 
 // ---------------------------
