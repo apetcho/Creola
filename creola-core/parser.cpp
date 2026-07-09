@@ -67,13 +67,15 @@ void Tokenizer::skip_whitespace(void){
 
 // ---
 Parser::Parser(std::string&& src)
-: m_tokenizer{std::move(src)}
-{
-    //! @todo
+: m_tokenizer{std::move(src)}{
+    this->m_curTok = this->m_tokenizer.next();
 }
+
 core::Expr Parser::parse(void){
     //! @todo
 }
+
+
 void Parser::consume(TokenKind kind){
     //! @todo
 }
@@ -88,16 +90,6 @@ core::Expr Parser::parse_term(void){
 }
 
 /*
-// -*-
-class Tokenizer final {
-public:
-~Tokenizer() = default;
-
-private:
-    std::string m_src;
-    size_t m_pos;
-};
-
 // -*-
 class Parser{
 public:

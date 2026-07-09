@@ -22,6 +22,8 @@ struct Token{
     std::string text;
     long double num;
 
+    Token(): kind(TokenKind::End), text{""}, num{std::numeric_limits<f64>::max()}{}
+    
     Token(TokenKind kind, const std::string& lexme, f64 val=std::numeric_limits<f64>::max())
     : kind{kind}, text{lexme}, num{val}
     {}
@@ -44,6 +46,8 @@ private:
 // -*-
 class Parser{
 public:
+    Parser(): m_tokenizer{""}, m_curTok{Token(TokenKind::End, "")}
+    {}
     explicit Parser(std::string&& src);
     core::Expr parse(void); // parse_expr
     void consume(TokenKind kind);
