@@ -384,7 +384,6 @@ f64 Mul::eval(const std::string& var, f64 val) const{
 // ----------------------
 // --- Pow Expression ---
 // ----------------------
-
 Expr Pow::simplify(void) const{
     auto b = this->base->simplify();
     auto e = this->expo->simplify();
@@ -496,8 +495,9 @@ f64 Pow::limit(const std::string& var, f64 val, f64 eps) const{
 }
 
 f64 Pow::eval(const std::string& var, f64 val) const{
-    //! @todo
-    return 0.0L;
+    auto b = this->base->eval(var, val);
+    auto e = this->expo->eval(var, val);
+    return std::pow(b, e);
 }
 
 
