@@ -143,7 +143,22 @@ core::Expr Parser::parse_pow(void){
     }
 }
 core::Expr Parser::parse_term(void){
-    //! @todo
+    auto lhs = this->parse_pow();
+    while(this->match(TokenKind::Star) || this->match(TokenKind::Slash)){
+        auto op = this->m_curTok.kind;
+        this->consume(op);
+        auto rhs = this->parse_pow();
+        if(op==TokenKind::Star){
+            lhs = std::make_shared<core::Mul>(Vec<core::Expr>{lhs, rhs});
+        }else{
+            lhs = std::make_shared<core::Mul>(Vec<core::Expr>{
+                lhs,
+                std::make_shared<core::Pow>(rhs, core::number(-1.0))
+            });
+        }
+    }
+
+    return std::move(lhs);
 }
 
 /*
