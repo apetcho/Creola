@@ -504,7 +504,6 @@ f64 Pow::eval(const std::string& var, f64 val) const{
 // ---------------------------
 // --- FuncCall Expression ---
 // ---------------------------
-
 Expr FuncCall::simplify(void) const{
     Vec<Expr> argv{};
     argv.reserve(this->args.size());
@@ -660,7 +659,20 @@ f64 FuncCall::limit(const std::string& var, f64 val, f64 eps) const{
 }
 
 f64 FuncCall::eval(const std::string& var, f64 val) const{
-    //! @todo
+    if(this->name=="sin"){ return std::sin(this->args[0]->eval(var, val)); }
+    if(this->name=="cos"){ return std::cos(this->args[0]->eval(var, val)); }
+    if(this->name=="tan"){ return std::tan(this->args[0]->eval(var, val)); }
+    if(this->name=="asin"){ return std::asin(this->args[0]->eval(var, val)); }
+    if(this->name=="acos"){ return std::acos(this->args[0]->eval(var, val)); }
+    if(this->name=="atan"){ return std::atan(this->args[0]->eval(var, val)); }
+    if(this->name=="sinh"){ return std::sinh(this->args[0]->eval(var, val)); }
+    if(this->name=="cosh"){ return std::cosh(this->args[0]->eval(var, val)); }
+    if(this->name=="tanh"){ return std::tanh(this->args[0]->eval(var, val)); }
+    if(this->name=="asinh"){ return std::asinh(this->args[0]->eval(var, val)); }
+    if(this->name=="acosh"){ return std::acosh(this->args[0]->eval(var, val)); }
+    if(this->name=="atanh"){ return std::atanh(this->args[0]->eval(var, val)); }
+    if(this->name=="exp"){ return std::exp(this->args[0]->eval(var, val)); }
+    if(this->name=="sqrt"){ return std::sqrt(this->args[0]->eval(var, val)); }
     return 0.0;
 }
 
