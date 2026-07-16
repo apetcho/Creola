@@ -906,11 +906,19 @@ Expr Creola::diff_sin(Expr expr, const std::string& var){
     })->simplify();
 }
 
+// ∫ sin(x) dx = -cos(x)
 Expr Creola::integrate_sin(Expr expr, const std::string& var){
-    //! @todo
-    return nullptr;
+    auto sym = std::dynamic_pointer_cast<Symbol>(expr);
+    if(sym && sym->name == var){
+        return std::make_shared<Neg>(
+            std::make_shared<FuncCall>("cos", Vec<Expr>{Creola::symbol(var)})
+        )->simplify();
+    }
+    // sin(expr) dvar
+    return std::make_shared<FuncCall>("∫_" + var, Vec<Expr>{expr});
 }
 
+// -*-
 Expr Creola::diff_cos(Expr expr, const std::string& var){
     auto dx = expr->diff(var);
     return std::make_shared<Mul>(Vec<Expr>{
@@ -1045,7 +1053,7 @@ Expr Creola::integrate_cbrt(Expr expr, const std::string& var){
 Expr Creola::diff_exp(Expr expr, const std::string& var){
     auto dx = expr->diff(var);
     return std::make_shared<Mul>(Vec<Expr>{
-        std::make_shared<FuncCall>("sin", Vec<Expr>{expr}),
+        std::make_shared<FuncCall>("exp", Vec<Expr>{expr}),
         dx
     })->simplify();
 }
@@ -1054,10 +1062,16 @@ Expr Creola::integrate_exp(Expr expr, const std::string& var){
     //! @todo
     return nullptr;
 }
+
 Expr Creola::diff_ln(Expr expr, const std::string& var){
-    //! @todo
-    return nullptr;
+    auto dx = expr->diff(var);
+    return std::make_shared<Mul>(Vec<Expr>{
+        std::make_shared<Pow>(expr, Creola::number(-1)),
+        dx
+    })->simplify();
 }
+
+
 Expr Creola::integrate_ln(Expr expr, const std::string& var){
     //! @todo
     return nullptr;
