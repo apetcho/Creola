@@ -610,7 +610,7 @@ Expr integrate(const Expr& expr, const std::string& var);
 f64 eval(const Expr& expr, const std::string& var, f64 val);
 Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=200);
 Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
-f64 limit(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
+f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps=1e-6);
 
 
 // // -*-

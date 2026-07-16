@@ -781,9 +781,11 @@ Expr taylor(const Expr& expr, const std::string& var, f64 val, int n){
 }
 
 // -
-f64 limit(const Expr& expr, const std::string& var, f64 val, int max_iter=5){
-    //! @todo
-    return;
+f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps){
+    // very base: we'll approximate limits numerically from left/right
+    auto left = expr->eval(var, val-eps);
+    auto right = expr->eval(var, val+eps);
+    return 0.5*(left + right);
 }
 
 
