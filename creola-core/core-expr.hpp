@@ -613,18 +613,18 @@ Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
 f64 limit(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
 
 
-// -*-
-struct FunctionDef{
-    std::string param;
-    Expr body;
-};
+// // -*-
+// struct FunctionDef{
+//     std::string param;
+//     Expr body;
+// };
 
-// -*-
-HashMap<std::string, Expr> VARS;
-HashMap<std::string, FunctionDef> FUNCTIONS;
+// // -*-
+// HashMap<std::string, Expr> VARS;
+// HashMap<std::string, FunctionDef> FUNCTIONS;
 
-Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
-Expr apply_user_fun(const std::string& name, const Vec<Expr>& args);
+// Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
+// Expr apply_user_fun(const std::string& name, const Vec<Expr>& args);
 
 // helper
 bool is_fraction(const Expr& expr, Expr& numerator, Expr& denominator);

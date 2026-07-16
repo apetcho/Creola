@@ -110,6 +110,7 @@ f64 Symbol::limit(const std::string& var, f64 val, f64 eps) const{
 }
 
 f64 Symbol::eval(const std::string& var, f64 val) const{
+    //! @todo: should through 'RuntimeError: undefined symbol `${var}`'
     return (this->name==var) ? val : 0.0;
 }
 
@@ -721,9 +722,38 @@ f64 eval(const Expr& expr, const std::string& var, f64 val){
     return;
 }
 Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin, f64 vmax, int samples){
-    //! @todo
-    return;
+    constexpr int MAX_ITERATION = 60;
+    Vec<f64> ans{};
+    f64 step = (vmax - vmin)/samples;
+    f64 x0 = vmin;
+    f64 f0 = expr->eval(var, x0);
+    for(int i=1; i <= samples; i++){
+        auto x1 = vmin + i + step;
+        auto f1 = expr->eval(var, x1);
+        if(f0 == 0.0){ ans.push_back(x0); }
+        if(f0 * f1 < 0){
+            // bisection method
+            auto lo = x0;
+            auto hi = x1;
+            for(int j=0; j < MAX_ITERATION; j++){
+                auto mid = 0.5 * (lo - hi);
+                auto fmid = expr->eval(var, mid);
+                if(f0*fmid <= 0){
+                    hi = mid;
+                    f1 = fmid;
+                }else{
+                    lo = mid;
+                    f0 = fmid;
+                }
+            }
+            ans.push_back(0.5*(lo+hi));
+        }
+        x0 = x1;
+        f0 = f1;
+    }
+    return ans;
 }
+
 Expr taylor(const Expr& expr, const std::string& var, f64 val, int n){
     //! @todo
     return;
