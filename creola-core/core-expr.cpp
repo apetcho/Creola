@@ -754,10 +754,33 @@ Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin, f64 vmax, int
     return ans;
 }
 
+// -*-
 Expr taylor(const Expr& expr, const std::string& var, f64 val, int n){
-    //! @todo
-    return;
+    auto series = number(0);
+    auto current = expr;
+    for(int k=0; k <= n; ++k){
+        auto coeff = current->eval(var, val) / std::tgamma(k+1.0); // k!
+        Expr term{};
+        if(k==0){ term = number(coeff); }
+        else{
+            term = std::make_shared<Mul>(Vec<Expr>{
+                number(coeff),
+                std::make_shared<Pow>(
+                    std::make_shared<Add>(Vec<Expr>{
+                        symbol(var), number(-val)
+                    }),
+                    number(k)
+                )
+            });
+        }
+        series = std::make_shared<Add>(Vec<Expr>{series, term})->simplify();
+        current = current->diff(var)->simplify();
+    }
+
+    return series->simplify();
 }
+
+// -
 f64 limit(const Expr& expr, const std::string& var, f64 val, int max_iter=5){
     //! @todo
     return;
