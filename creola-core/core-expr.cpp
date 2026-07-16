@@ -907,8 +907,12 @@ Expr Creola::diff_sin(Expr expr, const std::string& var){
 }
 
 Expr Creola::integrate_sin(Expr expr, const std::string& var){
-    //! @todo
-    return nullptr;
+    auto dx = expr->diff(var);
+    return std::make_shared<Mul>(Vec<Expr>{
+        Creola::number(-1),
+        std::make_shared<FuncCall>("sin", Vec<Expr>{expr}),
+        dx
+    })->simplify();
 }
 
 Expr Creola::diff_cos(Expr expr, const std::string& var){
