@@ -8,8 +8,73 @@
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola::core{
-//
+namespace creola{
+// -*-
+
+std::unordered_map<std::string, UnaryMathFun> Creola::UNARY_MATH_FUNCTIONS = {
+    {"sin", Creola::sin},
+    {"cos", Creola::cos},
+    {"tan", Creola::tan},
+    {"asin", Creola::asin},
+    {"acos", Creola::acos},
+    {"atan", Creola::atan},
+
+    {"sinh", Creola::sinh},
+    {"cosh", Creola::cosh},
+    {"tanh", Creola::tanh},
+    {"asinh", Creola::asinh},
+    {"acosh", Creola::acosh},
+    {"atanh", Creola::atanh},
+
+    {"sqrt", Creola::sqrt},
+    {"cbrt", Creola::cbrt},
+    {"exp", Creola::exp},
+    {"ln", Creola::ln},
+};
+
+std::unordered_map<std::string, Func> Creola::COMMON_DIFF_TABLE = {
+    {"sin", Creola::diff_sin},
+    {"cos", Creola::diff_cos},
+    {"tan", Creola::diff_tan},
+    {"asin", Creola::diff_asin},
+    {"acos", Creola::diff_acos},
+    {"atan", Creola::diff_atan},
+
+    {"sinh", Creola::diff_sinh},
+    {"cosh", Creola::diff_cosh},
+    {"tanh", Creola::diff_tanh},
+    {"asinh", Creola::diff_asinh},
+    {"acosh", Creola::diff_acosh},
+    {"atanh", Creola::diff_atanh},
+
+    {"sqrt", Creola::diff_sqrt},
+    {"cbrt", Creola::diff_cbrt},
+    {"exp", Creola::diff_exp},
+    {"ln", Creola::diff_ln},
+};
+
+std::unordered_map<std::string, Func> Creola::COMMON_INTEGRATION_TABLE = {
+    {"sin", Creola::integrate_sin},
+    {"cos", Creola::integrate_cos},
+    {"tan", Creola::integrate_tan},
+    {"asin", Creola::integrate_asin},
+    {"acos", Creola::integrate_acos},
+    {"atan", Creola::integrate_atan},
+
+    {"sinh", Creola::integrate_sinh},
+    {"cosh", Creola::integrate_cosh},
+    {"tanh", Creola::integrate_tanh},
+    {"asinh", Creola::integrate_asinh},
+    {"acosh", Creola::integrate_acosh},
+    {"atanh", Creola::integrate_atanh},
+
+    {"sqrt", Creola::integrate_sqrt},
+    {"cbrt", Creola::integrate_cbrt},
+    {"exp", Creola::integrate_exp},
+    {"ln", Creola::integrate_ln},
+};
+
+
 // -------------------------
 // --- Number Expression ---
 // -------------------------
@@ -26,7 +91,10 @@ Expr Number::diff(const std::string& var) const{
 // -*-
 Expr Number::integrate(const std::string& var) const{
     // ∫ c dx = c x
-    return std::make_shared<Mul>(Vec<Expr>{number(this->value), symbol(var)});
+    return std::make_shared<Mul>(Vec<Expr>{
+        Creola::number(this->value),
+        Creola::symbol(var)
+    });
 }
 
 // -*-
@@ -35,20 +103,24 @@ Expr Number::expand(void) const{
 }
 
 Expr Number::factor(const std::string& var) const{
-    //! @todo
-    return nullptr;
+    //! @todo: implement integer factorization here.
+    //! @note: Hard-coded for now
+    return Creola::number(this->value);
 }
 
 Expr Number::taylor(const std::string& var, f64 val, int n) const{
-    //! @todo
-    return nullptr;
+    //! @todo: 
+    //! @note: Hard-coded for now
+    return Creola::number(this->value);
 }
 Vec<f64> Number::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
+    //! @note: Hard-coded for now
     return {};
 }
 f64 Number::limit(const std::string& var, f64 val, f64 eps=1e-6) const{
     //! @todo
+    //! @note: probably throw a `RuntimeError`
     return 0.0;
 }
 
@@ -75,12 +147,12 @@ Expr Symbol::integrate(const std::string& var) const{
     // ∫ sym dx => (sym == var) ? 1/2 x^2 : sym x 
     Expr ans = nullptr;
     if(this->name==var){
-        auto c = number(0.5);
-        auto x2 = std::make_shared<Pow>(symbol(var), number(2.0));
+        auto c = Creola::number(0.5);
+        auto x2 = std::make_shared<Pow>(Creola::symbol(var), Creola::number(2.0));
         ans = std::make_shared<Mul>(Vec<Expr>{c, x2});
     }else{
-        auto sym = symbol(this->name);
-        auto x = symbol(var);
+        auto sym = Creola::symbol(this->name);
+        auto x = Creola::symbol(var);
         ans = std::make_shared<Mul>(Vec<Expr>{sym, x});
     }
     return std::move(ans->simplify());
@@ -102,10 +174,12 @@ Expr Symbol::taylor(const std::string& var, f64 val, int n) const{
 }
 Vec<f64> Symbol::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
+    //! @note: Hard-coded for now
     return {};
 }
 f64 Symbol::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
+    //! @note: Hard-coded for now
     return 0.0;
 }
 
@@ -120,7 +194,7 @@ f64 Symbol::eval(const std::string& var, f64 val) const{
 Expr Neg::simplify(void) const{
     auto expr = this->arg->simplify();
     if (auto num = std::dynamic_pointer_cast<Number>(expr)){
-        return number(-num->value);
+        return Creola::number(-num->value);
     }
     return std::make_shared<Neg>(expr);
 }
@@ -150,10 +224,12 @@ Expr Neg::taylor(const std::string& var, f64 val, int n) const{
 }
 Vec<f64> Neg::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
+    //! @note: Hard-coded for now
     return {};
 }
 f64 Neg::limit(const std::string& var, f64 val, f64 eps=1e-6) const{
     //! @todo
+    //! @note: Hard-coded for now
     return 0.0;
 }
 
@@ -182,8 +258,8 @@ Expr Add::simplify(void) const{
         }
     }
 
-    if (std::fabsl(acc) != 0.0L){ result.push_back(number(acc)); }
-    if (result.empty()){ return number(0); }
+    if (std::fabsl(acc) != 0.0L){ result.push_back(Creola::number(acc)); }
+    if (result.empty()){ return Creola::number(0); }
     if (result.size() == 1) { return result[0]; }
     return std::make_shared<Add>(result);
 }
@@ -233,10 +309,12 @@ Expr Add::taylor(const std::string& var, f64 val, int n) const{
 
 Vec<f64> Add::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
+    //! @note: Hard-coded for now
     return {};
 }
 f64 Add::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
+    //! @note: Hard-coded for now
     return 0.0;
 }
 
@@ -266,11 +344,11 @@ Expr Mul::simplify(void) const{
         }
     }
 
-    if(acc == 0.0L){ return number(0.0L); }
+    if(acc == 0.0L){ return Creola::number(0.0L); }
     if(acc != 1.0L || result.empty()){
-        result.push_back(number(acc));
+        result.push_back(Creola::number(acc));
     }
-    if(result.empty()){ return number(1.0L); }
+    if(result.empty()){ return Creola::number(1.0L); }
     if(result.size()==1){ return result[0]; }
 
     return std::make_shared<Mul>(result);
@@ -308,13 +386,13 @@ Expr Mul::integrate(const std::string& var) const{
         if(num){
             auto n = num->value;
             auto F = this->factors[1]->integrate(var)->simplify();
-            return std::make_shared<Mul>(Vec<Expr>{number(n), F})->simplify();
+            return std::make_shared<Mul>(Vec<Expr>{Creola::number(n), F})->simplify();
         }
         num = std::dynamic_pointer_cast<Number>(this->factors[1]);
         if(num){
             auto n = num->value;
             auto F = this->factors[0]->integrate(var)->simplify();
-            return std::make_shared<Mul>(Vec<Expr>{number(n), F})->simplify();
+            return std::make_shared<Mul>(Vec<Expr>{Creola::number(n), F})->simplify();
         }
     }
     auto self = this->simplify();
@@ -327,7 +405,7 @@ Expr Mul::integrate(const std::string& var) const{
 
 // -*-
 Expr Mul::expand(void) const{
-    if(this->factors.empty()){ return number(1.0L); }
+    if(this->factors.empty()){ return Creola::number(1.0L); }
     Expr acc = this->factors[0]->expand();
     for(size_t i=1; i < this->factors.size(); ++i){
         Expr next = this->factors[i]->expand();
@@ -371,10 +449,12 @@ Expr Mul::taylor(const std::string& var, f64 val, int n) const{
 
 Vec<f64> Mul::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
+    //! @note: Hard-coded for now
     return;
 }
 f64 Mul::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
+    //! @note: Hard-coded for now
     return;
 }
 
@@ -395,7 +475,7 @@ Expr Pow::simplify(void) const{
     auto e = this->expo->simplify();
     if(auto num = std::dynamic_pointer_cast<Number>(e)){
         if(num->value == 1.0L){ return b; }
-        if(num->value == 0.0L){ return number(1.0L); }
+        if(num->value == 0.0L){ return Creola::number(1.0L); }
     }
     return std::make_shared<Pow>(b, e);
 }
@@ -405,10 +485,10 @@ Expr Pow::diff(const std::string& var) const{
     //! Only handle power with numeric exponent: (f^n)' = n f^(n-1) f'
     auto num = std::dynamic_pointer_cast<Number>(this->expo);
     if(num){
-        auto _expo = number(num->value-1);
+        auto _expo = Creola::number(num->value-1);
         auto fprime = this->base->diff(var);
         return std::make_shared<Mul>(Vec<Expr>{
-            number(num->value),
+            Creola::number(num->value),
             std::make_shared<Pow>(this->base, _expo),
             fprime
         })->simplify();
@@ -419,7 +499,7 @@ Expr Pow::diff(const std::string& var) const{
     auto fprime = this->base->diff(var);
     auto term1 = std::make_shared<Mul>(Vec<Expr>{gprime, ln_f});
     auto term2 = std::make_shared<Mul>(Vec<Expr>{
-        this->expo, fprime, std::make_shared<Pow>(this->base, number(-1))
+        this->expo, fprime, std::make_shared<Pow>(this->base, Creola::number(-1))
     });
     auto sum = std::make_shared<Add>(Vec<Expr>{term1, term2});
     return std::make_shared<Mul>(
@@ -439,17 +519,17 @@ Expr Pow::integrate(const std::string& var) const{
     if(b && e && b->name==var){
         auto n = e->value + 1;
         auto ans = std::make_shared<Mul>(Vec<Expr>{
-            number(1.0/n),
-            std::make_shared<Pow>(symbol(var), number(n))
+            Creola::number(1.0/n),
+            std::make_shared<Pow>(Creola::symbol(var), Creola::number(n))
         });
         return ans->simplify();
     }
     auto xb = std::dynamic_pointer_cast<Number>(this->base);
     auto xe = std::dynamic_pointer_cast<Symbol>(this->expo);
     if(xb && xe && xe->name==var){// lhs * rhs where lhs = 1/ln(b) and rhs = b^var
-        auto lhs = number(1.0/std::log(xb->value));
+        auto lhs = Creola::number(1.0/std::log(xb->value));
         auto rhs = std::make_shared<Pow>(
-            number(xb->value), symbol(var)
+            Creola::number(xb->value), Creola::symbol(var)
         );
         auto ans = std::make_shared<Mul>(Vec<Expr>{lhs, rhs});
         return ans->simplify();
@@ -474,7 +554,7 @@ Expr Pow::expand(void) const{
         return std::make_shared<Pow>(this->base->expand(), this->expo->expand());
     }
 
-    Expr acc = number(1);
+    Expr acc = Creola::number(1);
     for(i64 i=0; i < k; i++){
         acc = std::make_shared<Mul>(Vec<Expr>{acc, this->base})->expand();
     }
@@ -493,10 +573,12 @@ Expr Pow::taylor(const std::string& var, f64 val, int n) const{
 }
 Vec<f64> Pow::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
+    //! @note: Hard-coded for now
     return {};
 }
 f64 Pow::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
+    //! @note: Hard-coded for now
     return 0.0L;
 }
 
@@ -520,11 +602,16 @@ Expr FuncCall::simplify(void) const{
         auto num = std::dynamic_pointer_cast<Number>(argv[0]);
         if(num){
             f64 val = num->value;
-            auto entry = MFUNCS_TABLE.find(this->name);
-            if(entry != MFUNCS_TABLE.end()){
-                auto ans = entry->second(val);
-                return number(ans);
+            //auto entry = MFUNCS_TABLE.find(this->name);
+            auto node = Creola::UNARY_MATH_FUNCTIONS.find(this->name);
+            if(node != Creola::UNARY_MATH_FUNCTIONS.end()){
+                return node->second(val);
             }
+            // if(entry != MFUNCS_TABLE.end()){
+            //     auto ans = entry->second(val);
+                
+            //     return number(ans);
+            // }
         }
     }
 
@@ -534,7 +621,7 @@ Expr FuncCall::simplify(void) const{
 // -*-
 Expr FuncCall::diff(const std::string& var) const{
     if(this->args.size() != 1){
-        return number(0.0); // keep it simple
+        return Creola::number(0.0); // keep it simple
     }
     auto x = this->args[0];
     auto dx = x->diff(var);
@@ -550,7 +637,7 @@ Expr FuncCall::diff(const std::string& var) const{
     if(name=="cos"){
         return std::make_shared<Mul>(
             Vec<Expr>{
-                number(-1.0),
+                Creola::number(-1.0),
                 std::make_shared<FuncCall>("sin", Vec<Expr>{x}),
                 dx
             }
@@ -566,7 +653,7 @@ Expr FuncCall::diff(const std::string& var) const{
 
     if(name=="ln"){
         return std::make_shared<Mul>(
-            Vec<Expr>{std::make_shared<Pow>(x, number(-1.0)), dx}
+            Vec<Expr>{std::make_shared<Pow>(x, Creola::number(-1.0)), dx}
         )->simplify();
     }
 
@@ -577,6 +664,7 @@ Expr FuncCall::diff(const std::string& var) const{
     return std::make_shared<FuncCall>(this->name + "'", Vec<Expr>{x, dx});
 }
 
+// -*-
 Expr FuncCall::integrate(const std::string& var) const{
     if(this->name=="sin"){
         //! @todo
@@ -637,7 +725,7 @@ Expr FuncCall::integrate(const std::string& var) const{
     return nullptr;
 }
 
-
+// -*-
 Expr FuncCall::expand(void) const{
     Vec<Expr> argv{};
     argv.reserve(this->args.size());
@@ -647,23 +735,34 @@ Expr FuncCall::expand(void) const{
     return std::make_shared<FuncCall>(this->name, argv);
 }
 
+// -*-
 Expr FuncCall::factor(const std::string& var) const{
     //! @todo
     return nullptr;
 }
+
+// -*-
 Expr FuncCall::taylor(const std::string& var, f64 val, int n) const{
     //! @todo
+    //! @note: Hard-coded for now
     return nullptr;
 }
+
+// -*-
 Vec<f64> FuncCall::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
     //! @todo
+    //! @note: Hard-coded for now
     return {};
 }
+
+// -*-
 f64 FuncCall::limit(const std::string& var, f64 val, f64 eps) const{
     //! @todo
+    //! @note: Hard-coded for now
     return 0.0;
 }
 
+// -*-
 f64 FuncCall::eval(const std::string& var, f64 val) const{
     if(this->name=="sin"){ return std::sin(this->args[0]->eval(var, val)); }
     if(this->name=="cos"){ return std::cos(this->args[0]->eval(var, val)); }
@@ -697,31 +796,35 @@ std::ostream& operator<<(std::ostream& os, const Pow& rhs);
 std::ostream& operator<<(std::ostream& os, const FuncCall& rhs);
 */
 
-Expr simplify(const Expr& expr){
+Expr Creola::simplify(const Expr& expr){
     return expr->simplify();
 }
 
-Expr diff(const Expr& expr, const std::string& var){
+Expr Creola::diff(const Expr& expr, const std::string& var){
     return expr->diff(var);
 }
 
-Expr expand(const Expr& expr){
+Expr Creola::expand(const Expr& expr){
     return expr->expand();
 }
 
-Expr factor(const Expr& expr, const std::string& var){
-    //! @todo
-    return;
+// -*-
+Expr Creola::factor(const Expr& expr, const std::string& var){
+    return expr->factor(var);
 }
-Expr integrate(const Expr& expr, const std::string& var){
-    //! @todo
-    return;
+
+// -*-
+Expr Creola::integrate(const Expr& expr, const std::string& var){
+    return expr->integrate(var);
 }
-f64 eval(const Expr& expr, const std::string& var, f64 val){
-    //! @todo
-    return;
+
+// -
+f64 Creola::eval(const Expr& expr, const std::string& var, f64 val){
+    return expr->eval(var, val);
 }
-Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin, f64 vmax, int samples){
+
+// -
+Vec<f64> Creola::roots(const Expr& expr, const std::string& var, f64 vmin, f64 vmax, int samples){
     constexpr int MAX_ITERATION = 60;
     Vec<f64> ans{};
     f64 step = (vmax - vmin)/samples;
@@ -755,21 +858,21 @@ Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin, f64 vmax, int
 }
 
 // -*-
-Expr taylor(const Expr& expr, const std::string& var, f64 val, int n){
-    auto series = number(0);
+Expr Creola::taylor(const Expr& expr, const std::string& var, f64 val, int n){
+    auto series = Creola::number(0);
     auto current = expr;
     for(int k=0; k <= n; ++k){
         auto coeff = current->eval(var, val) / std::tgamma(k+1.0); // k!
         Expr term{};
-        if(k==0){ term = number(coeff); }
+        if(k==0){ term =Creola::number(coeff); }
         else{
             term = std::make_shared<Mul>(Vec<Expr>{
-                number(coeff),
+                Creola::number(coeff),
                 std::make_shared<Pow>(
                     std::make_shared<Add>(Vec<Expr>{
-                        symbol(var), number(-val)
+                        Creola::symbol(var), Creola::number(-val)
                     }),
-                    number(k)
+                    Creola::number(k)
                 )
             });
         }
@@ -781,14 +884,177 @@ Expr taylor(const Expr& expr, const std::string& var, f64 val, int n){
 }
 
 // -
-f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps){
+f64 Creola::limit(const Expr& expr, const std::string& var, f64 val, f64 eps){
     // very base: we'll approximate limits numerically from left/right
     auto left = expr->eval(var, val-eps);
     auto right = expr->eval(var, val+eps);
     return 0.5*(left + right);
 }
 
+// -----------------------------------------------------
+// -*- INTERNAL DIFF & INTEGRATE OF COMMON FUNCTIONS -*-
+// -----------------------------------------------------
+// -*---------------------------*-
+// -*- Trigonometric functions -*-
+// -*---------------------------*-
+// -*- Sin, Cos, Tan, Asin, Acos, Atan -*-
+Expr Creola::diff_sin(Expr expr, const std::string& var){
+    auto dx = expr->diff(var);
+    return std::make_shared<Mul>(Vec<Expr>{
+        std::make_shared<FuncCAll>("cos", Vec<Expr>{expr}),
+        dx
+    })->simplify();
+}
+
+Expr Creola::integrate_sin(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
+Expr Creola::diff_cos(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_cos(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
+Expr Creola::diff_tan(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_tan(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
+Expr Creola::diff_asin(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_asin(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
+Expr Creola::diff_acos(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_acos(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
+Expr Creola::diff_atan(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_atan(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
+// -*-----------------------------------------*-
+// -*- Hyperbolic functions                  -*-
+// -*- Sinh, Cosh, Tanh, Asinh, Acosh, Atanh -*-
+// -*-----------------------------------------*-
+Expr Creola::diff_sinh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_sinh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_cosh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_cosh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_tanh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_tanh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_asinh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_asinh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_acosh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_acosh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_atanh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_atanh(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
+// -*------------------------*-
+// -*- Power functions      -*-
+// -*- Pow, Sqrt, Cbrt, Exp -*-
+// -*------------------------*-
+Expr Creola::diff_pow(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_pow(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_sqrt(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_sqrt(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_cbrt(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_cbrt(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_exp(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_exp(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::diff_ln(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+Expr Creola::integrate_ln(Expr expr, const std::string& var){
+    //! @todo
+    return nullptr;
+}
+
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola::core                                 -*-
+}//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-

@@ -49,7 +49,7 @@ public:
     Parser(): m_tokenizer{""}, m_curTok{Token(TokenKind::End, "")}
     {}
     explicit Parser(std::string&& src);
-    core::Expr parse(void); // parse_expr
+    Expr parse(void); // parse_expr
 
 private:
     Tokenizer m_tokenizer;
@@ -60,9 +60,9 @@ private:
     bool match(TokenKind kind){
         return this->m_curTok.kind==kind;
     }
-    core::Expr parse_primary(void);
-    core::Expr parse_pow(void);
-    core::Expr parse_term(void);
+    Expr parse_primary(void);
+    Expr parse_pow(void);
+    Expr parse_term(void);
 };
 
 

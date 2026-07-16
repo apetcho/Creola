@@ -15,7 +15,7 @@
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola::core{
+namespace creola{
 //
 // -
 
@@ -64,65 +64,6 @@ Notations:
  cot(x) = 1/tan(x) = cos(x)/sin(x) = csc(x)/sec(x) 
 
 */
-// -*- Common Math functions mapping
-enum class MathFunc{
-    // Trigonometric functions
-    Sin, Cos, Tan, Asin, Acos, Atan,
-    // Hyperbolic functions
-    Sinh, Cosh, Tanh, Asinh, Acosh, Atanh,
-    // Power functions
-    Pow, Sqrt, Cbrt, Exp,
-    // ...
-};
-
-using MFunc = std::function<f64(f64)>;
-
-// -*-
-static inline f64 _creola_sin(f64 x){ return std::sin(x); }
-static inline f64 _creola_cos(f64 x){ return std::cos(x); }
-static inline f64 _creola_tan(f64 x){ return std::tan(x); }
-static inline f64 _creola_asin(f64 x){ return std::asin(x); }
-static inline f64 _creola_acos(f64 x){ return std::acos(x); }
-static inline f64 _creola_atan(f64 x){ return std::atan(x); }
-
-static inline f64 _creola_sinh(f64 x){ return std::sinh(x); }
-static inline f64 _creola_cosh(f64 x){ return std::cosh(x); }
-static inline f64 _creola_tanh(f64 x){ return std::tanh(x); }
-static inline f64 _creola_asinh(f64 x){ return std::asinh(x); }
-static inline f64 _creola_acosh(f64 x){ return std::acosh(x); }
-static inline f64 _creola_atanh(f64 x){ return std::atanh(x); }
-
-static inline f64 _creola_sqrt(f64 x){ return std::sqrt(x); }
-static inline f64 _creola_cbrt(f64 x){ return std::cbrt(x); }
-static inline f64 _creola_exp(f64 x){ return std::exp(x); }
-static inline f64 _creola_ln(f64 x){ return std::log(x); }
-
-
-static const std::unordered_map<std::string, MFunc> MFUNCS_TABLE = {
-    {"sin", _creola_sin},
-    {"cos", _creola_cos},
-    {"tan", _creola_tan},
-    {"asin", _creola_asin},
-    {"acos", _creola_acos},
-    {"atan", _creola_atan},
-
-    {"sinh", _creola_sinh},
-    {"cosh", _creola_cosh},
-    {"tanh", _creola_tanh},
-    {"asinh", _creola_asinh},
-    {"acosh", _creola_acosh},
-    {"atanh", _creola_atanh},
-
-    {"sqrt", _creola_sqrt},
-    {"cbrt", _creola_cbrt},
-    {"exp", _creola_exp},
-    {"ln", _creola_ln},
-};
-
-
-// -*-
-struct ExprBase;
-using Expr = Shared<ExprBase>;
 
 // -*- Display::display -*-
 struct Display{
@@ -248,7 +189,6 @@ struct LimitFinder: Display{
         this->m_eps = eps;
     }
 
-
 private:
     const ExprBase* m_expr;
     std::string m_var;
@@ -287,9 +227,7 @@ enum class ExprKind {
     Number, Symbol, Add, Mul, Pow, Neg, FuncCall,
 };
 
-
-
-// Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
+// -*- Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
 struct ExprBase:
     Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
     LimitFinder, RootsFinder,
@@ -308,16 +246,7 @@ struct ExprBase:
 
     virtual f64 eval(const std::string& var, f64 val) const = 0;
 
-    // virtual void display(std::ostream& os, int prec=0) const = 0;
-    // virtual Expr simplify(void) const = 0;
-    // virtual Expr diff(const std::string& var) const = 0;
-    // virtual Expr integrate(const std::string& var) const = 0;
-    // virtual Expr expand(void) const = 0;
-    // virtual Expr factor(const std::string& var) const = 0;
-    // virtual Expr taylor(const std::string& var, f64 val, int n) const = 0;
-    // virtual Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const = 0;
-    // virtual f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const = 0;
-
+    
     // virtual void print_unicode(std::ostream& os, int prec=0) const = 0;
 
     // virtual Expr groebner(const Vec<Expr>& exprs) const = 0;
@@ -580,44 +509,6 @@ std::ostream& operator<<(std::ostream& os, const Mul& rhs);
 std::ostream& operator<<(std::ostream& os, const Pow& rhs);
 std::ostream& operator<<(std::ostream& os, const FuncCall& rhs);
 
-inline Expr number(f64 val){
-    return std::make_shared<Number>(val);
-}
-
-inline Expr symbol(const std::string& var){
-    return std::make_shared<Symbol>(var);
-}
-
-inline bool is_zero(const Expr& expr){
-    auto num = std::dynamic_pointer_cast<Number>(expr);
-    return (num && std::fabsl(num->value==0.0L));
-}
-
-inline bool is_one(const Expr& expr){
-    auto num = std::dynamic_pointer_cast<Number>(expr);
-    return (num && std::fabsl(num->value - 1.0L)==0.0L);
-}
-
-
-// -----------------------------------
-// -*- High level helper functions -*-
-// -----------------------------------
-Expr simplify(const Expr& expr);
-Expr diff(const Expr& expr, const std::string& var);
-Expr expand(const Expr& expr);
-Expr factor(const Expr& expr, const std::string& var);
-Expr integrate(const Expr& expr, const std::string& var);
-f64 eval(const Expr& expr, const std::string& var, f64 val);
-Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=200);
-Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
-f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps=1e-6);
-
-
-// // -*-
-// struct FunctionDef{
-//     std::string param;
-//     Expr body;
-// };
 
 // // -*-
 // HashMap<std::string, Expr> VARS;
@@ -626,21 +517,154 @@ f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps=1e-6);
 // Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
 // Expr apply_user_fun(const std::string& name, const Vec<Expr>& args);
 
-// helper
-bool is_fraction(const Expr& expr, Expr& numerator, Expr& denominator);
+// // helper
+// bool is_fraction(const Expr& expr, Expr& numerator, Expr& denominator);
 
 
-enum class LimitKind {
-    Finite, PosInf, NegInf, NaN,
+// enum class LimitKind {
+//     Finite, PosInf, NegInf, NaN,
+// };
+
+// LimitKind classify_value(f64 val);
+// LimitKind classify_at(const Expr& expr, const std::string& var, f64 val);
+
+// // L'Hôpital-based limit
+// Expr limit_symbolic(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
+
+
+// -*-
+struct FuncionDef{
+    std::string param; // univariate function
+    Expr body;
 };
 
-LimitKind classify_value(f64 val);
-LimitKind classify_at(const Expr& expr, const std::string& var, f64 val);
+// -*-
+class Creola final {
+public:
+    // - handle_line()
+    void run(const std::string& src);
+    // - parse_expression_only()
+    Expr parse(const std::string& src);
 
-// L'Hôpital-based limit
-Expr limit_symbolic(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
+private:
+    // user-defined variables & functions
+    HashMap<std::string, Expr> m_vars;
+    HashMap<std::string, FuncionDef> m_funcs;
 
+    // -
+    Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
+    // apply_user_func ==> apply 
+    Expr apply(const std::string& name, const Vec<Expr>& args);
+
+public:
+    static std::unordered_map<std::string, UnaryMathFun> UNARY_MATH_FUNCTIONS;
+    static std::unordered_map<std::string, Func> COMMON_DIFF_TABLE;
+    static std::unordered_map<std::string, Func> COMMON_INTEGRATION_TABLE;
+
+    static inline Expr number(f64 val){
+        return std::make_shared<Number>(val);
+    }
+
+    static inline Expr symbol(const std::string& var){
+        return std::make_shared<Symbol>(var);
+    }
+
+    static inline bool is_zero(const Expr& expr){
+        auto num = std::dynamic_pointer_cast<Number>(expr);
+        return (num && std::fabsl(num->value==0.0L));
+    }
+
+    static inline bool is_one(const Expr& expr){
+        auto num = std::dynamic_pointer_cast<Number>(expr);
+        return (num && std::fabsl(num->value - 1.0L)==0.0L);
+    }
+
+    // -----------------------------------
+    // -*- High level helper functions -*-
+    // -----------------------------------
+    static Expr simplify(const Expr& expr);
+    static Expr diff(const Expr& expr, const std::string& var);
+    static Expr expand(const Expr& expr);
+    static Expr factor(const Expr& expr, const std::string& var);
+    static Expr integrate(const Expr& expr, const std::string& var);
+    static f64 eval(const Expr& expr, const std::string& var, f64 val);
+    static Vec<f64> roots(const Expr& expr, const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=200);
+    static Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
+    static f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps=1e-6);
+
+
+private:
+    static inline Expr sin(f64 x){ return number(std::sin(x)); }
+    static inline Expr cos(f64 x){ return number(std::cos(x)); }
+    static inline Expr tan(f64 x){ return number(std::tan(x)); }
+    static inline Expr asin(f64 x){ return number(std::asin(x)); }
+    static inline Expr acos(f64 x){ return number(std::acos(x)); }
+    static inline Expr atan(f64 x){ return number(std::atan(x)); }
+
+    static inline Expr sinh(f64 x){ return number(std::sinh(x)); }
+    static inline Expr cosh(f64 x){ return number(std::cosh(x)); }
+    static inline Expr tanh(f64 x){ return number(std::tanh(x)); }
+    static inline Expr asinh(f64 x){ return number(std::asinh(x)); }
+    static inline Expr acosh(f64 x){ return number(std::acosh(x)); }
+    static inline Expr atanh(f64 x){ return number(std::atanh(x)); }
+
+    static inline Expr sqrt(f64 x){ return number(std::sqrt(x)); }
+    static inline Expr cbrt(f64 x){ return number(std::cbrt(x)); }
+    static inline Expr exp(f64 x){ return number(std::exp(x)); }
+    static inline Expr ln(f64 x){ return number(std::log(x)); }
+
+    // -*---------------------------*-
+    // -*- Trigonometric functions -*-
+    // -*---------------------------*-
+    // -*- Sin, Cos, Tan, Asin, Acos, Atan -*-
+    static Expr diff_sin(Expr expr, const std::string& var);
+    static Expr integrate_sin(Expr expr, const std::string& var);
+
+    static Expr diff_cos(Expr expr, const std::string& var);
+    static Expr integrate_cos(Expr expr, const std::string& var);
+
+    static Expr diff_tan(Expr expr, const std::string& var);
+    static Expr integrate_tan(Expr expr, const std::string& var);
+
+    static Expr diff_asin(Expr expr, const std::string& var);
+    static Expr integrate_asin(Expr expr, const std::string& var);
+
+    static Expr diff_acos(Expr expr, const std::string& var);
+    static Expr integrate_acos(Expr expr, const std::string& var);
+
+    static Expr diff_atan(Expr expr, const std::string& var);
+    static Expr integrate_atan(Expr expr, const std::string& var);
+    
+    // Hyperbolic functions
+    // -*- Sinh, Cosh, Tanh, Asinh, Acosh, Atanh -*-
+    static Expr diff_sinh(Expr expr, const std::string& var);
+    static Expr integrate_sinh(Expr expr, const std::string& var);
+    static Expr diff_cosh(Expr expr, const std::string& var);
+    static Expr integrate_cosh(Expr expr, const std::string& var);
+    static Expr diff_tanh(Expr expr, const std::string& var);
+    static Expr integrate_tanh(Expr expr, const std::string& var);
+    static Expr diff_asinh(Expr expr, const std::string& var);
+    static Expr integrate_asinh(Expr expr, const std::string& var);
+    static Expr diff_acosh(Expr expr, const std::string& var);
+    static Expr integrate_acosh(Expr expr, const std::string& var);
+    static Expr diff_atanh(Expr expr, const std::string& var);
+    static Expr integrate_atanh(Expr expr, const std::string& var);
+
+
+    // Power functions
+    // -*- Pow, Sqrt, Cbrt, Exp -*-
+    static Expr diff_pow(Expr expr, const std::string& var);
+    static Expr integrate_pow(Expr expr, const std::string& var);
+    static Expr diff_sqrt(Expr expr, const std::string& var);
+    static Expr integrate_sqrt(Expr expr, const std::string& var);
+    static Expr diff_cbrt(Expr expr, const std::string& var);
+    static Expr integrate_cbrt(Expr expr, const std::string& var);
+    static Expr diff_exp(Expr expr, const std::string& var);
+    static Expr integrate_exp(Expr expr, const std::string& var);
+    static Expr diff_ln(Expr expr, const std::string& var);
+    static Expr integrate_ln(Expr expr, const std::string& var);
+};
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola::core                                 -*-
+}//-*- end::namespace::creola.                                      -*-
 // -*----------------------------------------------------------------*-

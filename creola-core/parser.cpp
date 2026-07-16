@@ -73,18 +73,18 @@ Parser::Parser(std::string&& src)
     this->m_curTok = this->m_tokenizer.next();
 }
 
-core::Expr Parser::parse(void){
+Expr Parser::parse(void){
     auto lhs = this->parse_term();
     while(this->match(TokenKind::Plus) || this->match(TokenKind::Minus)){
         auto op = this->m_curTok.kind;
         this->consume(op);
         auto rhs = this->parse_term();
         if(op == TokenKind::Plus){
-            lhs = std::make_shared<core::Add>(Vec<core::Expr>{lhs, rhs});
+            lhs = std::make_shared<Add>(Vec<Expr>{lhs, rhs});
         }else{
-            lhs = std::make_shared<core::Add>(Vec<core::Expr>{
+            lhs = std::make_shared<Add>(Vec<Expr>{
                 lhs,
-                std::make_shared<core::Neg>(rhs)
+                std::make_shared<Neg>(rhs)
             });
         }
     }
@@ -106,18 +106,18 @@ void Parser::expect(TokenKind kind){
 }
 
 
-core::Expr Parser::parse_primary(void){
+Expr Parser::parse_primary(void){
     if(this->match(TokenKind::Number)){
         auto val = this->m_curTok.num;
         this->consume(TokenKind::Number);
-        return core::number(val);
+        return number(val);
     }
     if(this->match(TokenKind::Ident)){
         auto name = this->m_curTok.text;
         this->consume(TokenKind::Ident);
         if(this->match(TokenKind::LParen)){
             this->consume(TokenKind::LParen);
-            Vec<core::Expr> args{};
+            Vec<Expr> args{};
             if(!this->match(TokenKind::RParen)){
                 while(true){
                     args.push_back(this->parse());
@@ -130,9 +130,9 @@ core::Expr Parser::parse_primary(void){
             }
             this->expect(TokenKind::RParen);
             this->consume(TokenKind::RParen);
-            return std::make_shared<core::FuncCall>(name, args);
+            return std::make_shared<FuncCall>(name, args);
         }
-        return core::symbol(name);
+        return symbol(name);
     }
     if(this->match(TokenKind::LParen)){
         this->consume(TokenKind::LParen);
@@ -143,50 +143,39 @@ core::Expr Parser::parse_primary(void){
     }
     if(this->match(TokenKind::Minus)){
         this->consume(TokenKind::Minus);
-        return std::make_shared<core::Neg>(this->parse_primary());
+        return std::make_shared<Neg>(this->parse_primary());
     }
 
     throw std::runtime_error("invalid primary");
 }
 
-core::Expr Parser::parse_pow(void){
+Expr Parser::parse_pow(void){
     auto lhs = this->parse_primary();
     while(this->match(TokenKind::Caret)){
         this->consume(TokenKind::Caret);
         auto rhs = this->parse_primary();
-        lhs = std::make_shared<core::Pow>(lhs, rhs);
+        lhs = std::make_shared<Pow>(lhs, rhs);
     }
 }
-core::Expr Parser::parse_term(void){
+
+Expr Parser::parse_term(void){
     auto lhs = this->parse_pow();
     while(this->match(TokenKind::Star) || this->match(TokenKind::Slash)){
         auto op = this->m_curTok.kind;
         this->consume(op);
         auto rhs = this->parse_pow();
         if(op==TokenKind::Star){
-            lhs = std::make_shared<core::Mul>(Vec<core::Expr>{lhs, rhs});
+            lhs = std::make_shared<Mul>(Vec<Expr>{lhs, rhs});
         }else{
-            lhs = std::make_shared<core::Mul>(Vec<core::Expr>{
+            lhs = std::make_shared<Mul>(Vec<Expr>{
                 lhs,
-                std::make_shared<core::Pow>(rhs, core::number(-1.0))
+                std::make_shared<Pow>(rhs, number(-1.0))
             });
         }
     }
 
     return std::move(lhs);
 }
-
-/*
-// -*-
-class Parser{
-public:
-private:
-Tokenizer m_tokenizer;
-Token m_curTok;
-
-
-};
-*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
