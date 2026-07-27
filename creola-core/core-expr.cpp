@@ -929,8 +929,12 @@ Expr Creola::diff_cos(Expr expr, const std::string& var){
 }
 
 Expr Creola::integrate_cos(Expr expr, const std::string& var){
-    //! @todo
-    return nullptr;
+    auto sym = std::dynamic_pointer_cast<Symbol>(expr);
+    if(sym && sym->name == var){
+        return std::make_shared<FuncCall>("sin", Vec<Expr>{expr})->simplify();
+    }
+    // cos(expr) dvar
+    return std::make_shared<FuncCall>("∫_" + var, Vec<Expr>{expr});
 }
 
 Expr Creola::diff_tan(Expr expr, const std::string& var){
