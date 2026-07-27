@@ -73,10 +73,16 @@ std::unordered_map<std::string, Func> Creola::COMMON_INTEGRATION_TABLE = {
 
 // - handle_line()
 void Creola::run(const std::string& src){}
-// - parse_expression_only()
-Expr Creola::parse(const std::string& src){}
+
 // -
 */
+
+// - parse_expression_only()
+Expr Creola::parse(const std::string& src){
+    Parser parser(src);
+    return parser.parse()->simplify();
+}
+
 
 // -*-
 Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& val){
