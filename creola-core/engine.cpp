@@ -76,9 +76,48 @@ void Creola::run(const std::string& src){}
 // - parse_expression_only()
 Expr Creola::parse(const std::string& src){}
 // -
-Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& val){}
-
 */
+
+// -*-
+Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& val){
+    if(auto _ = std::dynamic_point_cast<Number>(expr)){ return expr; }
+    if(auto sym = std::dynamic_point_cast<Symbol>(expr)){
+        return sym->name == var? val: expr;
+    }
+
+    if(auto ptr = std::dynamic_point_cast<Add>(expr)){
+        Vec<Expr> terms{};
+        for(auto& term: ptr->terms){
+            terms.push_back(this->substitute(term, var, val));
+        }
+        return std::make_shared<Add>(terms)->simplify();
+    }
+    if(auto ptr = std::dynamic_point_cast<Mul>(expr)){
+        Vec<Expr> factors{};
+        for(auto& factor: ptr->factors){
+            factos.push_back(this->substitute(factor, var, val));
+        }
+        return std::make_shared<Mul>(factors)->simplify();
+    }
+    if(auto ptr = std::dynamic_point_cast<Pow>(expr)){        
+        return std::make_shared<Pow>(
+            this->substitute(ptr->base, var, val),
+            this->substitute(ptr->expo, var, val)
+        )->simplify();
+    }
+    if(auto ptr = std::dynamic_point_cast<FuncCall>(expr)){  
+        Vec<Expr> argv{};
+        for(auto& arg: ptr->args){
+            argv.push_back(this->substitute(arg, var, val));
+        }  
+        return std::make_shared<FuncCall>(ptr->name, argv)->simplify();
+    }
+    if(auto ptr = std::dynamic_point_cast<Neg>(expr)){
+        return std::make_shared<Neg>(this->substitute(ptr->arg, var, val));
+    }
+
+    return expr;
+}
 
 // apply_user_func ==> apply 
 Expr Creola::apply(const std::string& name, const Vec<Expr>& args){
