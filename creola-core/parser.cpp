@@ -7,7 +7,7 @@
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
 // -*----------------------------------------------------------------*-
-namespace creola::lexer{
+namespace creola{
 //
 Tokenizer::Tokenizer(std::string&& src)
 : m_src{std::move(src)}, m_pos{0}
@@ -100,10 +100,11 @@ void Parser::consume(TokenKind kind){
     }
 }
 
-void Parser::expect(TokenKind kind){
+void Parser::expect(TokenKind kind, const char* msg){
     if(!this->match(kind)){
-        throw std::runtime_error("unexpected token");
+        throw std::runtime_error(msg);
     }
+    this->consume(kind);
 }
 
 
@@ -129,8 +130,8 @@ Expr Parser::parse_primary(void){
                     }
                 }
             }
-            this->expect(TokenKind::RParen);
-            this->consume(TokenKind::RParen);
+            this->expect(TokenKind::RParen, "expected ')'");
+            //this->consume(TokenKind::RParen);
             return std::make_shared<FuncCall>(name, args);
         }
         return Creola::symbol(name);
@@ -138,8 +139,8 @@ Expr Parser::parse_primary(void){
     if(this->match(TokenKind::LParen)){
         this->consume(TokenKind::LParen);
         auto expr = this->parse();
-        this->expect(TokenKind::RParen);
-        this->consume(TokenKind::RParen);
+        this->expect(TokenKind::RParen, "expected ')'");
+        //this->consume(TokenKind::RParen);
         return std::move(expr);
     }
     if(this->match(TokenKind::Minus)){

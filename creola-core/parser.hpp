@@ -6,7 +6,7 @@
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
 // -*----------------------------------------------------------------*-
-namespace creola::lexer{
+namespace creola{
 //
 
 enum class TokenKind{
@@ -20,7 +20,7 @@ enum class TokenKind{
 struct Token{
     TokenKind kind;
     std::string text;
-    long double num;
+    f64 num;
 
     Token(): kind(TokenKind::End), text{""}, num{std::numeric_limits<f64>::max()}{}
 
@@ -50,16 +50,18 @@ public:
     {}
     explicit Parser(std::string&& src);
     Expr parse(void); // parse_expr
+    const Token& current(void) const { return this->m_curTok; }
+
+    void consume(TokenKind kind);
+    bool match(TokenKind kind){
+        return this->m_curTok.kind==kind;
+    }
+    void expect(TokenKind kind, const char* msg);
 
 private:
     Tokenizer m_tokenizer;
     Token m_curTok;
     
-    void consume(TokenKind kind);
-    void expect(TokenKind kind);
-    bool match(TokenKind kind){
-        return this->m_curTok.kind==kind;
-    }
     Expr parse_primary(void);
     Expr parse_pow(void);
     Expr parse_term(void);
