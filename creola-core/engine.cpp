@@ -69,6 +69,28 @@ std::unordered_map<std::string, Func> Creola::COMMON_INTEGRATION_TABLE = {
     {"ln", Creola::integrate_ln},
 };
 
+/*
+
+// - handle_line()
+void Creola::run(const std::string& src){}
+// - parse_expression_only()
+Expr Creola::parse(const std::string& src){}
+// -
+Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& val){}
+
+*/
+
+// apply_user_func ==> apply 
+Expr Creola::apply(const std::string& name, const Vec<Expr>& args){
+    auto entry = this->m_funcs.find(name);
+    if(entry == this->m_funcs.end()){ return nullptr; }
+    if(args.size() != 1){ return nullptr; }
+    return this->substitute(
+        entry->second.body, entry->second.body, args[0]
+    )->simplify();
+}
+
+// -*-
 Expr Creola::simplify(const Expr& expr){
     return expr->simplify();
 }
@@ -158,7 +180,7 @@ Expr Creola::taylor(const Expr& expr, const std::string& var, f64 val, int n){
 
 // -
 f64 Creola::limit(const Expr& expr, const std::string& var, f64 val, f64 eps){
-    // very base: we'll approximate limits numerically from left/right
+    // very basic: we'll approximate limits numerically from left/right
     auto left = expr->eval(var, val-eps);
     auto right = expr->eval(var, val+eps);
     return 0.5*(left + right);
