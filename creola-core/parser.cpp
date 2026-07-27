@@ -1,4 +1,5 @@
-#include "parser.hpp"
+#include "creola.hpp"
+
 #include<cctype>
 #include<stdexcept>
 
@@ -110,7 +111,7 @@ Expr Parser::parse_primary(void){
     if(this->match(TokenKind::Number)){
         auto val = this->m_curTok.num;
         this->consume(TokenKind::Number);
-        return number(val);
+        return Creola::number(val);
     }
     if(this->match(TokenKind::Ident)){
         auto name = this->m_curTok.text;
@@ -132,7 +133,7 @@ Expr Parser::parse_primary(void){
             this->consume(TokenKind::RParen);
             return std::make_shared<FuncCall>(name, args);
         }
-        return symbol(name);
+        return Creola::symbol(name);
     }
     if(this->match(TokenKind::LParen)){
         this->consume(TokenKind::LParen);
@@ -169,7 +170,7 @@ Expr Parser::parse_term(void){
         }else{
             lhs = std::make_shared<Mul>(Vec<Expr>{
                 lhs,
-                std::make_shared<Pow>(rhs, number(-1.0))
+                std::make_shared<Pow>(rhs, Creola::number(-1.0))
             });
         }
     }
