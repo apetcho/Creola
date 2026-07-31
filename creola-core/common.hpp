@@ -6,6 +6,12 @@
 #include<unordered_map>
 #include<map>
 
+#define CREOLA_USE_READLINE
+#ifdef CREOLA_USE_READLINE
+#include<readline/readline.h>
+#include<readline/history.h>
+#endif
+
 #define CREOLA_UNUSED(arg)  (void)arg
 
 // -*----------------------------------------------------------------*-

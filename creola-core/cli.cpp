@@ -77,3 +77,66 @@ private:
 // -*----------------------------------------------------------------*-
 };//-*- end::namespace::creola                                      -*-
 // -*----------------------------------------------------------------*-
+
+// -----------------------------
+// -*- M A I N   D R I V E R -*-
+// -----------------------------
+int main(int argc, char** argv){
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    std::cerr << "Creola COMPUTER ALGEBRA SYSTEM\n\n";
+    std::cerr << "BUILTIN COMMANDS\:n";
+    std::cerr << " - simplify\n";
+    std::cerr << " - diff\n";
+    std::cerr << " - expand\n";
+    std::cerr << " - integrate\n";
+    std::cerr << " - taylor\n";
+    std::cerr << " - limit\n";
+    std::cerr << " - roots\n";
+
+    const std::string example = R"CREOLA(
+        creola>> let x = 2
+        creaol>> fun f(x) = x^2 + 1
+        creaol>> diff(f(x), x)
+    )CREOLA";
+    std::cerr << "\nExample:\n";
+    std::cerr << example << std::endl;
+
+    creola::Creola creola;
+
+#ifdef CREOLA_USE_READLINE
+    while(true){
+        char* input = ::readline("creaola>> ");
+        if(!input){ continue; }
+        std::string src(input);
+        std::free(input);
+        if(src=="quit" || src=="exit"){ break; }
+        ::add_history(src.c_str());
+        
+        try{
+            creola.run(src);
+        }catch(std::exception& err){
+            std::cerr << "Error: " << err.what() << std::endl;
+        }catch(...){
+            std::cerr << "Error: unknown error encountered." << std::endl;
+        }
+    }
+#else
+    std::string src{};
+    while(true){
+        std::cout << "creola>> ";
+        if(!std::getline(std::cin, src)){ continue; }
+        if(src=="quit" || src=="exit"){ break; }
+        try{
+            creola.run(src);
+        }catch(std::exception& err){
+            std::cerr << "Error: " << err.what() << std::endl;
+        }catch(...){
+            std::cerr << "Error: unknown error encountered." << std::endl;
+        }
+    }
+#endif
+
+    return EXIT_SUCCESS;
+}
