@@ -9,8 +9,8 @@
 // -*----------------------------------------------------------------*-
 namespace creola{
 //
-Tokenizer::Tokenizer(std::string&& src)
-: m_src{std::move(src)}, m_pos{0}
+Tokenizer::Tokenizer(const std::string& src)
+: m_src{src}, m_pos{0}
 {}
 
 Token Tokenizer::next(void){

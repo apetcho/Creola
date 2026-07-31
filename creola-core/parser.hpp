@@ -32,7 +32,7 @@ struct Token{
 // -*-
 class Tokenizer final {
 public:
-    explicit Tokenizer(std::string&& src);
+    explicit Tokenizer(const std::string& src);
 
     ~Tokenizer() = default;
     Token next(void);
