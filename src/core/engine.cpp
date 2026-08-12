@@ -7,7 +7,9 @@
 // -*----------------------------------------------------------------*-
 namespace creola::core{
 //
-
+std::mutex Creola::app_mtx;
+Shared<Creola> Creola::app = std::make_shared<Creola>();
+// -
 std::unordered_map<std::string, UnaryMathFun> Creola::UNARY_MATH_FUNCTIONS = {
     {"sin", Creola::sin},
     {"cos", Creola::cos},
@@ -96,9 +98,6 @@ bool Creola::is_one(const Expr& expr){
     Number num{0.0};
     Creola::as(expr, num);
     return num.value()==1.0;
-
-    // auto num = std::dynamic_pointer_cast<Number>(expr);
-    // return (num && std::fabsl(num->value() - 1.0L)==0.0L);
 }
 
 // -*-
@@ -154,7 +153,7 @@ void Creola::run(const std::string& src){
         parser.consume(TokenKind::Equal);
         auto expr = parser.parse()->simplify();
         this->m_vars[name] = expr;
-        std::cout << "Defined '" << name << "' = " << *expr << std::endl;
+        Creola::println(std::cout, "Defined '", name, "' = ", expr);
         return;
     }
     if(parser.match(TokenKind::KwFun)){
@@ -184,8 +183,7 @@ void Creola::run(const std::string& src){
         parser.consume(TokenKind::Equal);
         auto body = parser.parse()->simplify();
         this->m_funcs[fname] = {param, body};
-        std::cout << "Defined fun: " << fname << "(" << param << ") = ";
-        std::cout << *body << std::endl;
+        Creola::println(std::cout, "Defined fun: '", fname, "(", param, ") = ", body);
         return;
     }
     // command like `simplify(...)`, `diff(...)`, `taylor(...)`, ...
@@ -199,13 +197,13 @@ void Creola::run(const std::string& src){
                 auto expr = parser.parse();
                 parser.expect(TokenKind::RParen, "simplify: missing ')'");
                 expr = Creola::simplify(expr);
-                std::cout << "===> " << *expr << std::endl;
+                Creola::println(std::cout, "===> ", expr);
                 return;
             }
             if(cmd == "expand"){
                 auto expr = Creola::expand(parser.parse());
                 parser.expect(TokenKind::RParen, "expand: missing ')'");
-                std::cout << "===> " << *expr << std::endl;
+                Creola::println(std::cout, "===> ", expr);
                 return;
             }
             if(cmd == "diff"){
@@ -219,9 +217,8 @@ void Creola::run(const std::string& src){
                 parser.consume(TokenKind::Ident);
                 parser.expect(TokenKind::RParen, "diff: missing ')'");
                 auto result = Creola::diff(expr, var);
-                std::cout << "===> " << *result << std::endl;
+                Creola::println(std::cout, "===> ", result);
                 return;
-
             }
             if(cmd == "integrate"){
                 // integrate(expr, var)
@@ -234,7 +231,7 @@ void Creola::run(const std::string& src){
                 parser.consume(TokenKind::Ident);
                 parser.expect(TokenKind::RParen, "integrate: missing ')'");
                 auto result = Creola::integrate(expr, var);
-                std::cout << "===> " << *result << std::endl;
+                Creola::println(std::cout, "===> ", result);
                 return;
             }
             if(cmd == "taylor"){
@@ -260,7 +257,7 @@ void Creola::run(const std::string& src){
                 parser.consume(TokenKind::Number);
                 parser.expect(TokenKind::RParen, "taylor: missing ')'");
                 auto result = Creola::taylor(expr, var, center, order);
-                std::cout << "===> " << *result << std::endl;
+                Creola::println(std::cout, "===> ", result);
                 return;
             }
             if(cmd == "limit"){
@@ -280,7 +277,7 @@ void Creola::run(const std::string& src){
                 parser.consume(TokenKind::Number);
                 parser.expect(TokenKind::RParen, "limit: missing ')'");
                 auto result = Creola::limit(expr, var, val);
-                std::cout << "===> " << result << std::endl;
+                Creola::println(std::cout, "===> ", result);
                 return;
             }
             if(cmd == "roots"){
@@ -294,12 +291,13 @@ void Creola::run(const std::string& src){
                 parser.consume(TokenKind::Ident);
                 parser.expect(TokenKind::RParen, "roots: missing ')'");
                 auto result = Creola::roots(expr, var);
-                std::cout << "===> { ";
+                //std::cout << "===> { ";
+                Creola::print(std::cout, "===> { ");
                 for(size_t i=0; i < result.size(); ++i){
                     if(i > 0){ std::cout << ", "; }
-                    std::cout << result[i];
+                    Creola::print(std::cout, result[i]);
                 }
-                std::cout << "}" << std::endl;
+                Creola::println(std::cout, "}");
                 return;
             }
             //! @todo implement `factor' command
@@ -695,10 +693,71 @@ void Creola::visit(std::ostream& os, const FuncCall& expr, int prec) const{
 }
 
 // -*-
-void Creola::display(std::ostream& os, const ExprBase& expr, [[maybe_unused]] int prec){
+void Creola::display(std::ostream& os, const Number& expr, [[maybe_unused]] int prec){
     std::lock_guard<std::mutex> lock(Creola::app_mtx);
     os << expr;
-    //expr.print(*Creola::app, os, prec);
+}
+
+// -*-
+void Creola::display(std::ostream& os, const Symbol& expr, [[maybe_unused]] int prec){
+    std::lock_guard<std::mutex> lock(Creola::app_mtx);
+    os << expr;
+}
+
+// -*-
+void Creola::display(std::ostream& os, const Add& expr, [[maybe_unused]] int prec){
+    std::lock_guard<std::mutex> lock(Creola::app_mtx);
+    os << expr;
+}
+
+// -*-
+void Creola::display(std::ostream& os, const Mul& expr, [[maybe_unused]] int prec){
+    std::lock_guard<std::mutex> lock(Creola::app_mtx);
+    os << expr;
+}
+
+// -*-
+void Creola::display(std::ostream& os, const Pow& expr, [[maybe_unused]] int prec){
+    std::lock_guard<std::mutex> lock(Creola::app_mtx);
+    os << expr;
+}
+
+// -*-
+void Creola::display(std::ostream& os, const Neg& expr, [[maybe_unused]] int prec){
+    std::lock_guard<std::mutex> lock(Creola::app_mtx);
+    os << expr;
+}
+
+// -*-
+void Creola::display(std::ostream& os, const FuncCall& expr, [[maybe_unused]] int prec){
+    std::lock_guard<std::mutex> lock(Creola::app_mtx);
+    os << expr;
+}
+
+
+// -*-
+void Creola::display(std::ostream& os, const Expr& expr, [[maybe_unused]] int prec){
+    if(auto num = std::dynamic_pointer_cast<Number>(expr)){
+        Creola::display(os, *num, prec);
+    }
+    if(auto sym = std::dynamic_pointer_cast<Symbol>(expr)){
+        Creola::display(os, *sym, prec);
+    }
+    if(auto add = std::dynamic_pointer_cast<Add>(expr)){
+        Creola::display(os, *add, prec);
+    }
+    if(auto mul = std::dynamic_pointer_cast<Mul>(expr)){
+        Creola::display(os, *mul, prec);
+    }
+    if(auto pow = std::dynamic_pointer_cast<Pow>(expr)){
+        Creola::display(os, *pow, prec);
+    }
+    if(auto neg = std::dynamic_pointer_cast<Neg>(expr)){
+        Creola::display(os, *neg, prec);
+    }
+    if(auto fcall = std::dynamic_pointer_cast<FuncCall>(expr)){
+        Creola::display(os, *fcall, prec);
+    }
 }
 
 // -*-

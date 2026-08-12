@@ -741,14 +741,15 @@ std::ostream& operator<<(std::ostream& os, const Symbol& sym){
 // -
 std::ostream& operator<<(std::ostream& os, const Neg& neg){
     os << "-";
-    Creola::display(os, *neg.rhs());
+    Creola::display(os, neg.rhs());
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const Add& add){
     for(size_t i=0; i < add.terms().size(); ++i){
         if (i > 0){ os << " + "; }
-        os << *add.terms()[i];
+        //os << *add.terms()[i];
+        Creola::display(os, add.terms()[i]);
     }
     return os;
 }
@@ -757,15 +758,18 @@ std::ostream& operator<<(std::ostream& os, const Add& add){
 std::ostream& operator<<(std::ostream& os, const Mul& mul){
     for(size_t i=0; i < mul.factors().size(); ++i){
         if (i > 0){ os << "*"; }
-        os << *mul.factors()[i];
+        //os << *mul.factors()[i];
+        Creola::display(os, mul.factors()[i]);
     }
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const Pow& pow){
-    os << *pow.base();
+    //os << *pow.base();
+    Creola::display(os, pow.base());
     os << "^";
-    os << *pow.expo();
+    //os << *pow.expo();
+    Creola::display(os, pow.expo());
     return os;
 }
 
@@ -773,7 +777,8 @@ std::ostream& operator<<(std::ostream& os, const FuncCall& fcall){
     os << fcall.name() << "(";
     for(size_t i=0; i < fcall.args().size(); ++i){
         if(i > 0){ os << ", "; }
-        os << *fcall.args()[i];
+        // os << *fcall.args()[i];
+        Creola::display(os, fcall.args()[i]);
     }
     os << ")";
     return os; 

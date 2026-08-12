@@ -54,7 +54,7 @@ void Repl::run(void){
     std::cin.tie(nullptr);
 
     std::cerr << "Creola COMPUTER ALGEBRA SYSTEM\n\n";
-    std::cerr << "BUILTIN COMMANDS\:n";
+    std::cerr << "BUILTIN COMMANDS:\n";
     std::cerr << " - simplify\n";
     std::cerr << " - diff\n";
     std::cerr << " - expand\n";

@@ -76,7 +76,6 @@ struct Simplifier {
 
 private:
     const ExprBase* m_expr;
-    friend class Creola;
 };
 
 // -*- Factorizer::factor -*-
@@ -90,7 +89,6 @@ struct Factorizer{
 
 private:
     const ExprBase* m_expr;
-    friend class Creola;
 };
 
 // -*- Expander::expand -*-
@@ -104,7 +102,6 @@ struct Expander{
 
 private:
     const ExprBase* m_expr;
-    friend class Creola;
 };
 
 // -*- Integrator::integrate -*-
@@ -123,7 +120,6 @@ struct Integrator {
 private:
     const ExprBase* m_expr;
     std::string m_var;
-    friend class Creola;
 };
 
 // -*- Differentiator::diff -*-
@@ -141,7 +137,6 @@ struct Differentiator {
 private:
     const ExprBase* m_expr;
     std::string m_var;
-    friend class Creola;
 };
 
 // -*- Series::taylor -*-
@@ -161,14 +156,13 @@ struct Series {
         this->m_order = order;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Series& series);
+    //friend std::ostream& operator<<(std::ostream& os, const Series& series);
 
 private:
     const ExprBase* m_expr;
     std::string m_var;
     f64 m_val;
     int m_order;
-    friend class Creola;
 };
 
 // -*- LimitFinder::limit -*-
@@ -194,7 +188,6 @@ private:
     std::string m_var;
     f64 m_val;
     f64 m_eps;
-    friend class Creola;
 };
 
 // -*- RootsFinder::roots -*-
@@ -221,8 +214,6 @@ private:
     f64 m_vmin;
     f64 m_vmax;
     int m_samples;
-
-    friend class Creola;
 };
 
 

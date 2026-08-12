@@ -2,6 +2,8 @@
 
 #include "creola/core/expr.hpp"
 #include "creola/core/pprint.hpp"
+
+#include<iostream>
 #include<mutex>
 
 // -*----------------------------------------------------------------*-
@@ -23,7 +25,46 @@ public:
     static Shared<Creola> app;
     static std::mutex app_mtx;
 
-    static void display(std::ostream& os, const ExprBase& expr, [[maybe_unused]] int prec=0);
+    static void display(std::ostream& os, const Number& expr, [[maybe_unused]] int prec=0);
+    static void display(std::ostream& os, const Symbol& expr, [[maybe_unused]] int prec=0);
+    static void display(std::ostream& os, const Add& expr, [[maybe_unused]] int prec=0);
+    static void display(std::ostream& os, const Mul& expr, [[maybe_unused]] int prec=0);
+    static void display(std::ostream& os, const Pow& expr, [[maybe_unused]] int prec=0);
+    static void display(std::ostream& os, const Neg& expr, [[maybe_unused]] int prec=0);
+    static void display(std::ostream& os, const FuncCall& expr, [[maybe_unused]] int prec=0);
+
+    static void display(std::ostream& os, const Expr& expr, [[maybe_unused]] int prec=0);
+
+    // -
+    static void print(std::ostream& os){}
+    
+    static void print(std::ostream& os, const Expr& expr){
+        Creola::display(os, expr);
+    }
+    
+    template <typename T, typename... Args>
+    static void print(std::ostream& os, T first, Args... rest) {
+        os << first << " ";
+        Creola::print(os, first);
+        Creola::print(os, rest...);
+    }
+    
+    static void println(){}
+    static void println(std::ostream& os){
+        os << std::endl;
+    }
+    
+    static void println(std::ostream& os, const Expr& expr){
+        Creola::display(os, expr);
+        os << std::endl;
+    }
+    
+    template <typename T, typename... Args>
+    static void println(std::ostream& os, T first, Args... rest) {
+        Creola::print(os, first);
+        Creola::println(os, rest...);
+        //os << std::endl;
+    }
 
     void visit(std::ostream& os, const Number& expr, int prec=0) const override;
     void visit(std::ostream& os, const Symbol& expr, int prec=0) const override;

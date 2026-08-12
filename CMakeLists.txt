@@ -22,7 +22,54 @@ add_library(creola
     ${CREOLA_SOURCE_DIR}/core/engine.cpp
 )
 
+# add_library(Creola::Creola INTERFACE IMPORTED)
+# set_target_properties(
+#     Creola::Creola
+#     PROPERTIES
+#     IMPORTED_LIBNAME "creola"
+#     INTERFACE_INCLUDE_DIRECTORIES "${CREOLA_INCLUDE_DIR}"
+# )
+
+add_subdirectory(src/cli)
+
 #[[
+
+# -*- creola-cli -*-
+
+.. code-block:: cmake
+
+    find_package(Armadillo REQUIRED)
+
+    if(Armadillo_FOUND AND NOT TARGET Armadillo::Armadillo)
+        add_library(Armadillo::Armadillo INTERFACE IMPORTED)
+        set_target_properties(
+            Armadillo::Armadillo
+            PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${ARMADILLO_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${ARMADILLO_INCLUDE_DIRS}"
+        )
+    endif()
+
+    add_executable(foo foo.cc)
+    target_link_libraries(foo PRIVATE Armadillo::Armadillo)
+
+-----------
+
+    # Find backward-compatibility interface for Pspell.
+    find_path(
+        ASPELL_PSPELL_INCLUDE_DIR
+        NAMES pspell.h
+        PATH_SUFFIXES pspell
+        DOC "Directory containing <pspell.h> BC interface header"
+    )
+    mark_as_advanced(ASPELL_PSPELL_INCLUDE_DIR)
+
+    find_library(
+        ASPELL_LIBRARY
+        NAMES aspell aspell-15 libaspell-15 libaspell
+        DOC "The path to the Aspell library."
+    )
+    mark_as_advanced(ASPELL_LIBRARY)
 
 
 
