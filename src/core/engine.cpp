@@ -1,9 +1,11 @@
-#include "creola.hpp"
+#include "creola/core/engine.hpp"
+#include "creola/core/parser.hpp"
+#include<stdexcept>
 
 // -*----------------------------------------------------------------*-
-// -*- begin::namespace::creola                                     -*-
+// -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 
 std::unordered_map<std::string, UnaryMathFun> Creola::UNARY_MATH_FUNCTIONS = {
@@ -68,6 +70,71 @@ std::unordered_map<std::string, Func> Creola::COMMON_INTEGRATION_TABLE = {
     {"exp", Creola::integrate_exp},
     {"ln", Creola::integrate_ln},
 };
+
+// -*-
+Expr Creola::number(f64 val){
+    return std::make_shared<Number>(val);
+}
+
+// -*-
+Expr Creola::symbol(const std::string& var){
+    return std::make_shared<Symbol>(var);
+}
+
+// -*-
+bool Creola::is_zero(const Expr& expr){
+    Number num{0.0};
+    Creola::as(expr, num);
+    return num.value()==0.0;
+
+    // auto num = std::dynamic_pointer_cast<Number>(expr);
+    // return (num && std::fabsl(num->value()==0.0L));
+}
+
+// -*-
+bool Creola::is_one(const Expr& expr){
+    Number num{0.0};
+    Creola::as(expr, num);
+    return num.value()==1.0;
+
+    // auto num = std::dynamic_pointer_cast<Number>(expr);
+    // return (num && std::fabsl(num->value() - 1.0L)==0.0L);
+}
+
+// -*-
+bool Creola::is_number_expr(const Expr& expr){
+    return expr->kind()==ExprKind::NUM;
+}
+
+// -*-
+bool Creola::is_symbol_expr(const Expr& expr){
+    return expr->kind()==ExprKind::SYM;
+}
+
+// -*-
+bool Creola::is_neg_expr(const Expr& expr){
+    return expr->kind()==ExprKind::NEG;
+}
+
+// -*-
+bool Creola::is_add_expr(const Expr& expr){
+    return expr->kind()==ExprKind::ADD;
+}
+
+// -*-
+bool Creola::is_mul_expr(const Expr& expr){
+    return expr->kind()==ExprKind::MUL;
+}
+
+// -*-
+bool Creola::is_pow_expr(const Expr& expr){
+    return expr->kind()==ExprKind::POW;
+}
+
+// -*-
+bool Creola::is_call_expr(const Expr& expr){
+    return expr->kind()==ExprKind::CALL;
+}
 
 // - handle_line()
 void Creola::run(const std::string& src){
@@ -163,7 +230,7 @@ void Creola::run(const std::string& src){
                 if(!parser.match(TokenKind::Ident)){
                     throw std::runtime_error("integrate: expected variable.");
                 }
-                auto var. = parser.current().text;
+                auto var = parser.current().text;
                 parser.consume(TokenKind::Ident);
                 parser.expect(TokenKind::RParen, "integrate: missing ')'");
                 auto result = Creola::integrate(expr, var);
@@ -199,19 +266,19 @@ void Creola::run(const std::string& src){
             if(cmd == "limit"){
                 // limit(expr, var, val)
                 auto expr = parser.parse();
-                parser.expect(TokenKind::Comma);
+                parser.expect(TokenKind::Comma, "limit: missing ','");
                 if(!parser.match(TokenKind::Ident)){
                     throw std::runtime_error("limit: expected variable");
                 }
                 auto var = parser.current().text;
                 parser.consume(TokenKind::Ident);
-                parser.expect(TokenKind::Comma);
+                parser.expect(TokenKind::Comma, "limit: missing ','");
                 if(!parser.match(TokenKind::Number)){
                     throw std::runtime_error("limit: expected a number (i.e the point where the limit is evaluated.)");
                 }
                 auto val = parser.current().num;
                 parser.consume(TokenKind::Number);
-                parser.expect(TokenKind::RParen);
+                parser.expect(TokenKind::RParen, "limit: missing ')'");
                 auto result = Creola::limit(expr, var, val);
                 std::cout << "===> " << result << std::endl;
                 return;
@@ -219,28 +286,29 @@ void Creola::run(const std::string& src){
             if(cmd == "roots"){
                 // roots(expr, var, [vmin], [vmax])
                 auto expr = parser.parse();
-                parser.expect(TokenKind::Comma);
+                parser.expect(TokenKind::Comma, "roots: missing ','");
                 if(!parser.match(TokenKind::Ident)){
                     throw std::runtime_error("roots: expected variable");
                 }
                 auto var = parser.current().text;
                 parser.consume(TokenKind::Ident);
-                parser.expect(TokenKind::RParen);
+                parser.expect(TokenKind::RParen, "roots: missing ')'");
                 auto result = Creola::roots(expr, var);
                 std::cout << "===> { ";
-                for(size_t i=0; i result.size(); ++i){
+                for(size_t i=0; i < result.size(); ++i){
                     if(i > 0){ std::cout << ", "; }
                     std::cout << result[i];
                 }
                 std::cout << "}" << std::endl;
                 return;
             }
+            //! @todo implement `factor' command
         }
     }
 
     // default: just parse without evaluating the expression
     auto expr = parser.parse()->simplify();
-    expr->display(std::cout);
+    expr->print(*Creola::app, std::cout, 0);
     std::cout << std::endl;
 }
 
@@ -254,40 +322,41 @@ Expr Creola::parse(const std::string& src){
 
 // -*-
 Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& val){
-    if(auto _ = std::dynamic_point_cast<Number>(expr)){ return expr; }
-    if(auto sym = std::dynamic_point_cast<Symbol>(expr)){
-        return sym->name == var? val: expr;
+    //if(auto _ = std::dynamic_point_cast<Number>(expr)){ return expr; }
+    if(Creola::is_number_expr(expr)){ return expr; }
+    if(auto sym = std::dynamic_pointer_cast<Symbol>(expr)){
+        return sym->name() == var? val: expr;
     }
 
-    if(auto ptr = std::dynamic_point_cast<Add>(expr)){
+    if(auto ptr = std::dynamic_pointer_cast<Add>(expr)){
         Vec<Expr> terms{};
-        for(auto& term: ptr->terms){
+        for(auto& term: ptr->terms()){
             terms.push_back(this->substitute(term, var, val));
         }
         return std::make_shared<Add>(terms)->simplify();
     }
-    if(auto ptr = std::dynamic_point_cast<Mul>(expr)){
+    if(auto ptr = std::dynamic_pointer_cast<Mul>(expr)){
         Vec<Expr> factors{};
-        for(auto& factor: ptr->factors){
-            factos.push_back(this->substitute(factor, var, val));
+        for(auto& factor: ptr->factors()){
+            factors.push_back(this->substitute(factor, var, val));
         }
         return std::make_shared<Mul>(factors)->simplify();
     }
-    if(auto ptr = std::dynamic_point_cast<Pow>(expr)){        
+    if(auto ptr = std::dynamic_pointer_cast<Pow>(expr)){        
         return std::make_shared<Pow>(
-            this->substitute(ptr->base, var, val),
-            this->substitute(ptr->expo, var, val)
+            this->substitute(ptr->base(), var, val),
+            this->substitute(ptr->expo(), var, val)
         )->simplify();
     }
-    if(auto ptr = std::dynamic_point_cast<FuncCall>(expr)){  
+    if(auto ptr = std::dynamic_pointer_cast<FuncCall>(expr)){  
         Vec<Expr> argv{};
-        for(auto& arg: ptr->args){
-            argv.push_back(this->substitute(arg, var, val));
+        for(auto& expr: ptr->args()){
+            argv.push_back(this->substitute(expr, var, val));
         }  
-        return std::make_shared<FuncCall>(ptr->name, argv)->simplify();
+        return std::make_shared<FuncCall>(ptr->name(), argv)->simplify();
     }
-    if(auto ptr = std::dynamic_point_cast<Neg>(expr)){
-        return std::make_shared<Neg>(this->substitute(ptr->arg, var, val));
+    if(auto ptr = std::dynamic_pointer_cast<Neg>(expr)){
+        return std::make_shared<Neg>(this->substitute(ptr->rhs(), var, val));
     }
 
     return expr;
@@ -299,7 +368,7 @@ Expr Creola::apply(const std::string& name, const Vec<Expr>& args){
     if(entry == this->m_funcs.end()){ return nullptr; }
     if(args.size() != 1){ return nullptr; }
     return this->substitute(
-        entry->second.body, entry->second.body, args[0]
+        entry->second.body, entry->second.param, args[0]
     )->simplify();
 }
 
@@ -318,7 +387,7 @@ Expr Creola::expand(const Expr& expr){
 
 // -*-
 Expr Creola::factor(const Expr& expr, const std::string& var){
-    return expr->factor(var);
+    return expr->factorize(var);
 }
 
 // -*-
@@ -417,7 +486,7 @@ Expr Creola::diff_sin(Expr expr, const std::string& var){
 // ∫ sin(x) dx = -cos(x)
 Expr Creola::integrate_sin(Expr expr, const std::string& var){
     auto sym = std::dynamic_pointer_cast<Symbol>(expr);
-    if(sym && sym->name == var){
+    if(sym && sym->name() == var){
         return std::make_shared<Neg>(
             std::make_shared<FuncCall>("cos", Vec<Expr>{Creola::symbol(var)})
         )->simplify();
@@ -438,7 +507,7 @@ Expr Creola::diff_cos(Expr expr, const std::string& var){
 
 Expr Creola::integrate_cos(Expr expr, const std::string& var){
     auto sym = std::dynamic_pointer_cast<Symbol>(expr);
-    if(sym && sym->name == var){
+    if(sym && sym->name() == var){
         return std::make_shared<FuncCall>("sin", Vec<Expr>{expr})->simplify();
     }
     // cos(expr) dvar
@@ -589,7 +658,105 @@ Expr Creola::integrate_ln(Expr expr, const std::string& var){
     return nullptr;
 }
 
+// -*-
+void Creola::visit(std::ostream& os, const Number& expr, int prec) const{
+    Creola::display(os, expr, prec);
+}
+
+// -*-
+void Creola::visit(std::ostream& os, const Symbol& expr, int prec) const{
+    CREOLA_UNUSED(prec);
+    Creola::display(os, expr, prec);
+}
+
+// -*-
+void Creola::visit(std::ostream& os, const Neg& expr, int prec) const{
+    Creola::display(os, expr, prec);
+}
+
+// -*-
+void Creola::visit(std::ostream& os, const Add& expr, int prec) const{
+    Creola::display(os, expr, prec);
+}
+
+// -*-
+void Creola::visit(std::ostream& os, const Mul& expr, int prec) const{
+    Creola::display(os, expr, prec);
+}
+
+// -*-
+void Creola::visit(std::ostream& os, const Pow& expr, int prec) const{
+    Creola::display(os, expr, prec);
+}
+
+// -*-
+void Creola::visit(std::ostream& os, const FuncCall& expr, int prec) const{
+    Creola::display(os, expr, prec);
+}
+
+// -*-
+void Creola::display(std::ostream& os, const ExprBase& expr, [[maybe_unused]] int prec){
+    std::lock_guard<std::mutex> lock(Creola::app_mtx);
+    os << expr;
+    //expr.print(*Creola::app, os, prec);
+}
+
+// -*-
+void Creola::as(Expr expr, Number& num){
+    if(Creola::is_number_expr(expr)){
+        num = *dynamic_cast<Number*>(expr.get());
+    }
+    throw std::runtime_error("TypeError: expected number expression");
+}
+
+// -*-
+void Creola::as(Expr expr, Symbol& sym){
+    if(Creola::is_symbol_expr(expr)){
+        sym = *dynamic_cast<Symbol*>(expr.get());
+    }
+    throw std::runtime_error("TypeError: expected symbol expression");
+}
+
+// -*-
+void Creola::as(Expr expr, Neg& neg){
+    if(Creola::is_number_expr(expr)){
+        neg = *dynamic_cast<Neg*>(expr.get());
+    }
+    throw std::runtime_error("TypeError: expected negate expression");
+}
+
+// -*-
+void Creola::as(Expr expr, Add& add){
+    if(Creola::is_number_expr(expr)){
+        add = *dynamic_cast<Add*>(expr.get());
+    }
+    throw std::runtime_error("TypeError: expected add expression");
+}
+
+// -*-
+void Creola::as(Expr expr, Mul& mul){
+    if(Creola::is_number_expr(expr)){
+        mul = *dynamic_cast<Mul*>(expr.get());
+    }
+    throw std::runtime_error("TypeError: expected mul expression.");
+}
+
+// -*-
+void Creola::as(Expr expr, Pow& pow){
+    if(Creola::is_number_expr(expr)){
+        pow = *dynamic_cast<Pow*>(expr.get());
+    }
+    throw std::runtime_error("TypeError: expected power expression.");
+}
+
+// -*-
+void Creola::as(Expr expr, FuncCall& fcall){
+    if(Creola::is_number_expr(expr)){
+        fcall = *dynamic_cast<FuncCall*>(expr.get());
+    }
+    throw std::runtime_error("TypeError: expected function-call expression");
+}
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola                                       -*-
+}//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-

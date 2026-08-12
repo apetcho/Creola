@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.20)
+project(Creola LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CREOLA_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(CREOLA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+set(CREOLA_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(CREOLA_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
+
+message("CREOLA_INCLUDE_DIR: ${CREOLA_INCLUDE_DIR}")
+message("CREOLA_SOURCE_DIR: ${CREOLA_SOURCE_DIR}")
+message("CREOLA_LIBRARY_DIR: ${CREOLA_LIBRARY_DIR}")
+message("CREOLA_SOURCE_DIR: ${CREOLA_BINARY_DIR}")
+
+include_directories(${CREOLA_INCLUDE_DIR})
+
+add_library(creola
+    ${CREOLA_SOURCE_DIR}/core/parser.cpp
+    ${CREOLA_SOURCE_DIR}/core/expr.cpp
+    ${CREOLA_SOURCE_DIR}/core/engine.cpp
+)
+
+#[[
+
+
+
+#]]

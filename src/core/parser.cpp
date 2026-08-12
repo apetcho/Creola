@@ -1,13 +1,14 @@
-#include "creola.hpp"
+#include "creola/core/parser.hpp"
+#include "creola/core/engine.hpp"
 
 #include<cctype>
 #include<stdexcept>
 
 
 // -*----------------------------------------------------------------*-
-// -*- begin::namespace::creola                                     -*-
+// -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 Tokenizer::Tokenizer(const std::string& src)
 : m_src{src}, m_pos{0}
@@ -69,8 +70,8 @@ void Tokenizer::skip_whitespace(void){
 }
 
 // ---
-Parser::Parser(std::string&& src)
-: m_tokenizer{std::move(src)}{
+Parser::Parser(const std::string& src)
+: m_tokenizer{src}{
     this->m_curTok = this->m_tokenizer.next();
 }
 
@@ -158,6 +159,8 @@ Expr Parser::parse_pow(void){
         auto rhs = this->parse_primary();
         lhs = std::make_shared<Pow>(lhs, rhs);
     }
+
+    return lhs;
 }
 
 Expr Parser::parse_term(void){
@@ -180,5 +183,5 @@ Expr Parser::parse_term(void){
 }
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola                                       -*-
+}//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-

@@ -1,12 +1,12 @@
 #pragma once
 
 #include<string>
-#include "core-expr.hpp"
+#include "creola/core/expr.hpp"
 
 // -*----------------------------------------------------------------*-
-// -*- begin::namespace::creola                                     -*-
+// -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 
 enum class TokenKind{
@@ -48,7 +48,7 @@ class Parser{
 public:
     Parser(): m_tokenizer{""}, m_curTok{Token(TokenKind::End, "")}
     {}
-    explicit Parser(std::string&& src);
+    explicit Parser(const std::string& src);
     Expr parse(void); // parse_expr
     const Token& current(void) const { return this->m_curTok; }
 
@@ -69,5 +69,5 @@ private:
 
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola                                       -*-
+}//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-

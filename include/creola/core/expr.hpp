@@ -1,7 +1,8 @@
 #pragma once
 
-#include "common.hpp"
-#include "pprint.hpp"
+#include "creola/core/common.hpp"
+#include "creola/core/pprint.hpp"
+#include "creola/core/engine.hpp"
 
 #include<functional>
 #include<unordered_map>
@@ -15,7 +16,7 @@
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 // -
 
@@ -65,15 +66,8 @@ Notations:
 
 */
 
-// -*- Display::display -*-
-struct Display{
-    explicit Display() = default;
-    virtual ~Display() = default;
-    virtual void display(std::ostream& os, int prec=0) const = 0;
-};
-
 // -* Simplifier::simplify -*-
-struct Simplifier: Display{
+struct Simplifier {
     explicit Simplifier(const ExprBase* expr)
     : m_expr{expr} {}
     virtual ~Simplifier() = default;
@@ -82,23 +76,25 @@ struct Simplifier: Display{
 
 private:
     const ExprBase* m_expr;
+    friend class Creola;
 };
 
 // -*- Factorizer::factor -*-
-struct Factorizer: Display{
+struct Factorizer{
     explicit Factorizer(const ExprBase* expr): m_expr{expr}
     {}
 
     virtual ~Factorizer() = default;
 
-    virtual Expr factor(const std::string& var) const = 0;
+    virtual Expr factorize(const std::string& var) const = 0;
 
 private:
     const ExprBase* m_expr;
+    friend class Creola;
 };
 
 // -*- Expander::expand -*-
-struct Expander: Display{
+struct Expander{
     explicit Expander(const ExprBase* expr): m_expr{expr}
     {}
 
@@ -108,10 +104,11 @@ struct Expander: Display{
 
 private:
     const ExprBase* m_expr;
+    friend class Creola;
 };
 
 // -*- Integrator::integrate -*-
-struct Integrator: Display {
+struct Integrator {
     explicit Integrator(const ExprBase* expr)
     : m_expr{expr}, m_var{"x"}
     {}
@@ -126,10 +123,11 @@ struct Integrator: Display {
 private:
     const ExprBase* m_expr;
     std::string m_var;
+    friend class Creola;
 };
 
 // -*- Differentiator::diff -*-
-struct Differentiator: Display{
+struct Differentiator {
     explicit Differentiator(const ExprBase* expr)
     {}
     virtual ~Differentiator() = default;
@@ -143,10 +141,11 @@ struct Differentiator: Display{
 private:
     const ExprBase* m_expr;
     std::string m_var;
+    friend class Creola;
 };
 
 // -*- Series::taylor -*-
-struct Series: Display{
+struct Series {
     explicit Series(const ExprBase* expr)
     : m_expr{expr}, m_var{"x"}
     , m_val{std::numeric_limits<f64>::max()}
@@ -169,10 +168,11 @@ private:
     std::string m_var;
     f64 m_val;
     int m_order;
+    friend class Creola;
 };
 
 // -*- LimitFinder::limit -*-
-struct LimitFinder: Display{
+struct LimitFinder {
     explicit LimitFinder(const ExprBase* expr)
     : m_expr{expr}, m_var{"x"}
     , m_val{std::numeric_limits<f64>::max()}
@@ -194,10 +194,11 @@ private:
     std::string m_var;
     f64 m_val;
     f64 m_eps;
+    friend class Creola;
 };
 
 // -*- RootsFinder::roots -*-
-struct RootsFinder: Display {
+struct RootsFinder {
     explicit RootsFinder(const ExprBase* expr)
     : m_expr{expr}, m_var{"x"}
     , m_vmin{std::numeric_limits<f64>::max()}
@@ -220,17 +221,15 @@ private:
     f64 m_vmin;
     f64 m_vmax;
     int m_samples;
+
+    friend class Creola;
 };
 
-
-enum class ExprKind {
-    Number, Symbol, Add, Mul, Pow, Neg, FuncCall,
-};
 
 // -*- Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
 struct ExprBase:
-    Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
-    LimitFinder, RootsFinder,
+    Simplifier, Factorizer, Expander, Integrator,
+    Differentiator, Series, LimitFinder, RootsFinder,
     std::enable_shared_from_this<ExprBase> {
     explicit ExprBase(ExprKind kind)
     : Simplifier(this)
@@ -244,7 +243,8 @@ struct ExprBase:
     , m_kind{kind}{}
     virtual ~ExprBase() = default;
 
-    virtual f64 eval(const std::string& var, f64 val) const = 0;
+    virtual f64 eval( const std::string& var, f64 val) const = 0;
+    virtual void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const = 0;
 
     
     // virtual void print_unicode(std::ostream& os, int prec=0) const = 0;
@@ -272,229 +272,247 @@ struct ExprBase:
         return 0;
     } */
 
+    ExprKind kind(void) const { return this->m_kind; }
 
 protected:
     ExprKind m_kind;
-
-    virtual void display(const ExprBase& expr, std::ostream& os, int prec) const = 0;
 };
 
 // -*-
-struct Number : public ExprBase{
-    f64 value;
+struct Number : public ExprBase {
     explicit Number(f64 val)
-    : ExprBase{ExprKind::Number}, value{val}{}
+    : ExprBase{ExprKind::NUM}, m_value{val}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
-    Expr factor(const std::string& var) const override;
+    Expr factorize(const std::string& var) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    void display(std::ostream& os, int prec=0) const override{
-        CREOLA_UNUSED(prec);
-        os << *this;
+    // -*-
+    void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const override{
+        visitor.visit(os, *this, prec);
     }
 
     // Expr groebner(const Vec<Expr>& exprs) const override;
     // Box to_box(void) const override;
     // Box to_box_prec(int parent_prec) const override;
 
-protected:
-    void display(const ExprBase& expr, std::ostream& os, int prec) const override;
+    const f64& value(void) const{ return this->m_value; }
+    f64& value(void){ return this->m_value; }
+
+private:
+    f64 m_value;
 };
 
 
 // -*-
 struct Symbol : public ExprBase{
-    std::string name;
     explicit Symbol(const std::string& name)
-    : ExprBase{ExprKind::Symbol}, name{std::move(name)} {}
+    : ExprBase{ExprKind::SYM}, m_name{std::move(name)} {}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
-    Expr factor(const std::string& var) const override;
+    Expr factorize(const std::string& var) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    void display(std::ostream& os, int prec=0) const override{
-        CREOLA_UNUSED(prec);
-        os << *this;
+    // -*-
+    void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const override{
+        visitor.visit(os, *this, prec);
     }
 
     // Expr groebner(const Vec<Expr>& exprs) const override;
     // Box to_box(void) const override;
     // Box to_box_prec(int parent_prec) const override;
+
+    std::string& name(void){ return this->m_name; }
+    const std::string& name(void) const { return this->m_name; }
+
+private:
+    std::string m_name;
 };
 
 // -*-
-struct Neg : ExprBase {
-    Expr arg;
-
-    explicit Neg(Expr expr): ExprBase{ExprKind::Neg}, arg{std::move(expr)}{}
+struct Neg : public ExprBase {
+    explicit Neg(Expr expr)
+    : ExprBase{ExprKind::NEG}, m_rhs{std::move(expr)}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
-    Expr factor(const std::string& var) const override;
+    Expr factorize(const std::string& var) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    void display(std::ostream& os, int prec=0) const override{
-        CREOLA_UNUSED(prec);
-        os << "-" << *this;
+    // -*-
+    void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const override{
+        visitor.visit(os, *this, prec);
     }
 
     // Expr groebner(const Vec<Expr>& exprs) const override;
     // Box to_box(void) const override;
     // Box to_box_prec(int parent_prec) const override;
+
+    Expr& rhs(void){ return this->m_rhs; }
+    const Expr& rhs(void) const { return this->m_rhs; }
+
+private:
+    Expr m_rhs;
 };
 
 // -*-
 struct Add : public ExprBase{
-    std::vector<Expr> terms;
-
-    explicit Add(std::vector<Expr> exprs)
-    : ExprBase{ExprKind::Add}, terms{std::move(exprs)}{}
+    explicit Add(Vec<Expr> exprs)
+    : ExprBase{ExprKind::ADD}
+    , m_terms{std::move(exprs)}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
-    Expr factor(const std::string& var) const override;
+    Expr factorize(const std::string& var) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    void display(std::ostream& os, int prec=0) const override{
-        CREOLA_UNUSED(prec);
-        os << *this;
-        /* for(size_t i=0; i < this->terms.size(); ++i){
-            if (i > 0){
-                os << " + ";
-            }
-            this->terms[i]->display(os, 1);
-        } */
+    // -*-
+    void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const override{
+        visitor.visit(os, *this, prec);
     }
 
     // Expr groebner(const Vec<Expr>& exprs) const override;
     // Box to_box(void) const override;
     // Box to_box_prec(int parent_prec) const override;
+
+    Vec<Expr>& terms(void){ return this->m_terms; }
+    const Vec<Expr>& terms(void) const { return this->m_terms; }
+
+private:
+    Vec<Expr> m_terms;
 };
 
 // -*-
 struct Mul : public ExprBase{
-    std::vector<Expr> factors;
-
-    explicit Mul(std::vector<Expr> exprs)
-    : ExprBase{ExprKind::Mul}, factors{std::move(exprs)}{}
+    explicit Mul(Vec<Expr> exprs)
+    : ExprBase{ExprKind::MUL}
+    , m_factors{exprs}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
-    Expr factor(const std::string& var) const override;
+    Expr factorize(const std::string& var) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    void display(std::ostream& os, int prec=0) const override{
-        CREOLA_UNUSED(prec);
-        os << *this;
-        /* for(size_t i=0; i < this->factors.size(); ++i){
-            if(i > 0){ os << "*"; } // or just "" for implicit multiplication
-            this->factors[i]->display(os, 2);
-        } */
+    // -*-
+    void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const override{
+        visitor.visit(os, *this, prec);
     }
 
     // Expr groebner(const Vec<Expr>& exprs) const override;
     // Box to_box(void) const override;
     // Box to_box_prec(int parent_prec) const override;
+
+    Vec<Expr>& factors(void){ return this->m_factors; }
+    const Vec<Expr>& factors(void) const { return this->m_factors; }
+
+private:
+    Vec<Expr> m_factors;
 };
 
 // -*-
 struct Pow : public ExprBase {
-    Expr base;
-    Expr expo;
-
     explicit Pow(Expr b, Expr e)
-    : ExprBase{ExprKind::Pow}, base{std::move(b)}, expo{std::move(e)}{}
+    : ExprBase{ExprKind::POW}
+    , m_base{std::move(b)}
+    , m_expo{std::move(e)}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
-    Expr factor(const std::string& var) const override;
+    Expr factorize(const std::string& var) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
 
-    void display(std::ostream& os, int prec=0) const override{
-        CREOLA_UNUSED(prec);
-        os << *this;
-        /* this->base->display(os, 3);
-        os << "^";
-        this->expo->display(os, 3); */
+    // -*-
+    void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const override{
+        visitor.visit(os, *this, prec);
     }
 
     // Expr groebner(const Vec<Expr>& exprs) const override;
     // Box to_box(void) const override;
     // Box to_box_prec(int parent_prec) const override;
+
+    Expr& base(void){ return this->m_base; }
+    Expr& expo(void){ return this->m_expo; }
+    const Expr& base(void) const{ return this->m_base; }
+    const Expr& expo(void) const{ return this->m_expo; }
+
+private:
+    Expr m_base;
+    Expr m_expo;
 };
 
 // -*-
-struct FuncCall : ExprBase{
-    std::string name;
-    Vec<Expr> args;
-
+struct FuncCall : public ExprBase{
     explicit FuncCall(std::string n, Vec<Expr> a)
-    : ExprBase{ExprKind::FuncCall}, name{std::move(n)}, args{std::move(a)}{}
+    : ExprBase{ExprKind::CALL}
+    , m_name{std::move(n)}
+    , m_args{std::move(a)}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
-    Expr factor(const std::string& var) const override;
+    Expr factorize(const std::string& var) const override;
     Expr taylor(const std::string& var, f64 val, int n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
     f64 eval(const std::string& var, f64 val) const override;
-    void display(std::ostream& os, int prec=0) const override{
-        CREOLA_UNUSED(prec);
-        os << *this;
 
-        /* os << this->name << "(";
-        for(size_t i=0; i < args.size(); ++i){
-            if(i > 0){ os << ", "; }
-            this->args[i]->display(os, 0);
-        }
-        os << ")"; */
+    // -*-
+    void print(PrintVisitor& visitor, std::ostream& os, [[maybe_unused]] int prec) const override{
+        visitor.visit(os, *this, prec);
     }
 
     // Expr groebner(const Vec<Expr>& exprs) const override;
     // Box to_box(void) const override;
     // Box to_box_prec(int parent_prec) const override;
+
+    std::string& name(void){ return this->m_name; }
+    Vec<Expr>& args(void){ return this->m_args; }
+    const std::string& name(void) const{ return this->m_name; }
+    const Vec<Expr>& args(void) const{ return this->m_args; }
+
+private:
+    std::string m_name;
+    Vec<Expr> m_args;
 };
 
 
@@ -532,13 +550,6 @@ std::ostream& operator<<(std::ostream& os, const FuncCall& rhs);
 // Expr limit_symbolic(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
 
 
-// -*-
-struct FuncionDef{
-    std::string param; // univariate function
-    Expr body;
-};
-
-
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola.                                      -*-
+}//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-

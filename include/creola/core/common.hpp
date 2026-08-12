@@ -1,4 +1,5 @@
 #pragma once
+
 #include<memory>
 #include<vector>
 #include<cstdint>
@@ -6,18 +7,12 @@
 #include<unordered_map>
 #include<map>
 
-#define CREOLA_USE_READLINE
-#ifdef CREOLA_USE_READLINE
-#include<readline/readline.h>
-#include<readline/history.h>
-#endif
-
 #define CREOLA_UNUSED(arg)  (void)arg
 
 // -*----------------------------------------------------------------*-
-// -*- begin::namespace::creola                                     -*-
+// -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola {
+namespace creola::core {
 // -
 
 template<typename T>
@@ -54,6 +49,17 @@ enum class MathFunc{
 using UnaryMathFun = std::function<Expr(f64)>;
 using Func = std::function<Expr(Expr, const std::string&)>;
 
+// -*-
+struct FunctionDef {
+    std::string param; // univariate function
+    Expr body;
+};
+
+// -*-
+enum class ExprKind {
+    NUM, SYM, ADD, MUL, POW, NEG, CALL,
+};
+
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola                                       -*-
+}//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-

@@ -2,4 +2,11 @@
 /.vscode
 /sandbox
 /build
+<<<<<<< HEAD
 /old_unfinished
+=======
+/creola-core
+/creola-cli
+/creola-desktop
+/creola-web
+>>>>>>> 56b259b (Refactor creola project structure and build the static library creola.)

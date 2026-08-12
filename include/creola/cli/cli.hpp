@@ -1,5 +1,5 @@
 #pragma once
-#include "../creola-core/creola.hpp"
+#include "creola/creola.hpp"
 
 // -*------------------------------------------------------------------------*-
 // -*- begin::namespace::creola::cli                                        -*-

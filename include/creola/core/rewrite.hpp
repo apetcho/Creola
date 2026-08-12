@@ -1,13 +1,13 @@
 #pragma once
 
-#include "common.hpp"
-#include "expr.hpp"
+#include "creola/core/common.hpp"
+#include "creola/core/expr.hpp"
 
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 
 using MatchEnv = HashMap<std::string, Expr>;

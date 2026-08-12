@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.hpp"
-#include "expr.hpp"
-#include "poly.hpp"
+#include "creola/core/common.hpp"
+#include "creola/core/expr.hpp"
+#include "creola/core/poly.hpp"
 
 //! @note: Implement a simplified Gröbner factorization
 /*
@@ -25,7 +25,7 @@ factorization (e.g. via splitting ideals).
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core{
 //
 
 struct Monomial{

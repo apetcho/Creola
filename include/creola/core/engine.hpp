@@ -1,53 +1,75 @@
 #pragma once
 
-#include "core-expr.hpp"
+#include "creola/core/expr.hpp"
+#include "creola/core/pprint.hpp"
+#include<mutex>
 
 // -*----------------------------------------------------------------*-
-// -*- begin::namespace::creola                                     -*-
+// -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
-namespace creola{
+namespace creola::core {
 //
 
 // -*-
-class Creola final {
+class Creola final : public PrintVisitor {
 public:
+
     // - handle_line()
     void run(const std::string& src);
     // - parse_expression_only()
     Expr parse(const std::string& src);
 
+    // -
+    static Shared<Creola> app;
+    static std::mutex app_mtx;
+
+    static void display(std::ostream& os, const ExprBase& expr, [[maybe_unused]] int prec=0);
+
+    void visit(std::ostream& os, const Number& expr, int prec=0) const override;
+    void visit(std::ostream& os, const Symbol& expr, int prec=0) const override;
+    void visit(std::ostream& os, const Neg& expr, int prec=0) const override;
+    void visit(std::ostream& os, const Add& expr, int prec=0) const override;
+    void visit(std::ostream& os, const Mul& expr, int prec=0) const override;
+    void visit(std::ostream& os, const Pow& expr, int prec=0) const override;
+    void visit(std::ostream& os, const FuncCall& expr, int prec=0) const override;
+
 private:
     // user-defined variables & functions
     HashMap<std::string, Expr> m_vars;
-    HashMap<std::string, FuncionDef> m_funcs;
+    HashMap<std::string, FunctionDef> m_funcs;
 
     // -
     Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
     // apply_user_func ==> apply 
     Expr apply(const std::string& name, const Vec<Expr>& args);
 
+    // -*-
+    static bool is_number_expr(const Expr& expr);
+    static bool is_symbol_expr(const Expr& expr);
+    static bool is_neg_expr(const Expr& expr);
+    static bool is_add_expr(const Expr& expr);
+    static bool is_mul_expr(const Expr& expr);
+    static bool is_pow_expr(const Expr& expr);
+    static bool is_call_expr(const Expr& expr);
+
+    // -
+    static void as(Expr expr, Number& num);
+    static void as(Expr expr, Symbol& num);
+    static void as(Expr expr, Neg& num);
+    static void as(Expr expr, Add& num);
+    static void as(Expr expr, Mul& num);
+    static void as(Expr expr, Pow& num);
+    static void as(Expr expr, FuncCall& num);
+
 public:
     static std::unordered_map<std::string, UnaryMathFun> UNARY_MATH_FUNCTIONS;
     static std::unordered_map<std::string, Func> COMMON_DIFF_TABLE;
     static std::unordered_map<std::string, Func> COMMON_INTEGRATION_TABLE;
 
-    static inline Expr number(f64 val){
-        return std::make_shared<Number>(val);
-    }
-
-    static inline Expr symbol(const std::string& var){
-        return std::make_shared<Symbol>(var);
-    }
-
-    static inline bool is_zero(const Expr& expr){
-        auto num = std::dynamic_pointer_cast<Number>(expr);
-        return (num && std::fabsl(num->value==0.0L));
-    }
-
-    static inline bool is_one(const Expr& expr){
-        auto num = std::dynamic_pointer_cast<Number>(expr);
-        return (num && std::fabsl(num->value - 1.0L)==0.0L);
-    }
+    static Expr number(f64 val);
+    static Expr symbol(const std::string& var);
+    static bool is_zero(const Expr& expr);
+    static bool is_one(const Expr& expr);
 
     // -----------------------------------
     // -*- High level helper functions -*-
@@ -136,5 +158,5 @@ private:
 };
 
 // -*----------------------------------------------------------------*-
-}//-*- end::namespace::creola                                       -*-
+}//-*- end::namespace::creola::core                                  -*-
 // -*----------------------------------------------------------------*-

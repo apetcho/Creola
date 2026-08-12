@@ -1,4 +1,4 @@
-#include "creola-cli.hpp"
+#include "creola/cli/cli.hpp"
 
 #define CREOLA_USE_READLINE
 #ifdef CREOLA_USE_READLINE
@@ -114,12 +114,3 @@ void Repl::run(void){
 // -*-------------------------------------------------------------------------*-
 }//-*- end::namespace::creola::cli                                           -*-
 // -*-------------------------------------------------------------------------*-
-
-// -----------------------------
-// -*- M A I N   D R I V E R -*-
-// -----------------------------
-int main(int argc, char** argv){
-    creola::cli::Repl repl;
-    repl.run();
-    return EXIT_SUCCESS;
-}
