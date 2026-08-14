@@ -74,6 +74,8 @@ std::unordered_map<std::string, Func> Creola::COMMON_INTEGRATION_TABLE = {
     {"ln", Creola::integrate_ln},
 };
 
+std::string Creola::ps1 = "creola> ";
+std::string Creola::ps2 = " =====> ";
 std::set<std::string> Creola::keywords;
 std::set<std::string> Creola::builtin_commands;
 
@@ -987,9 +989,19 @@ void Creola::process_keyword(const std::string& src){
     }
 }
 
-//! @todo implement the helper method `handle_let()`
+// -
 void Creola::handle_keyword_let(const std::string& src){
-    //! @todo
+    Parser parset(src);
+    parser.expect(TokenKind::KwLet, "expected `let` keyword.");
+    parser.consume(TokenKind::KwLet);
+    parser.expect(TokenKind::Ident, "expected and identifier");
+    auto var = parser.current().text;
+    parser.consume(TokenKind::Ident);
+    parser.expect(TokenKind::Equal, "expected `=' after variable name.");
+    parser.consume(TokenKind::Equal);
+    auto expr = parser.parse()->simplify();
+    this->m_vars[name] = expr;
+    Creola::println(std::cout, Creola::ps2, name, " = ", expr);
 }
 
 //! @todo implement the helper method `handle_fun()`

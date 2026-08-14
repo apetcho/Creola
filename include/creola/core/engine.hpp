@@ -108,6 +108,8 @@ public:
     static std::unordered_map<std::string, Func> COMMON_DIFF_TABLE;
     static std::unordered_map<std::string, Func> COMMON_INTEGRATION_TABLE;
 
+    static std::string ps1;
+    static std::string ps2;
     static std::set<std::string> keywords;
     static std::set<std::string> builtin_commands;
     static void define_keywords(void);
@@ -249,7 +251,17 @@ private:
      */
     void process_keyword(const std::string& src);
 
-    //! @brief implement the helper method `handle_let()`
+    /**
+     * @brief Parse let statement
+     * 
+     * Handle let statement and update Creola::m_vars dictionary.
+     * 
+     * @code{.cpp}
+     * auto src = "let x = 3";
+     * @endcode
+     * 
+     * @param src 
+     */
     void handle_keyword_let(const std::string& src);
 
     //! @brief implement the helper method `handle_fun()`
