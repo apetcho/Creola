@@ -264,7 +264,11 @@ private:
      */
     void handle_keyword_let(const std::string& src);
 
-    //! @brief implement the helper method `handle_fun()`
+    /**
+     * @brief Parse the `fun` statement.
+     * 
+     * @param src 
+     */
     void handle_keyword_fun(const std::string& src);
 
     //! @brief implement the helper method `handle_simplify()`

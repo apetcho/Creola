@@ -1,6 +1,7 @@
 #include "creola/core/engine.hpp"
 #include "creola/core/parser.hpp"
 #include<stdexcept>
+#include<sstream>
 #include<set>
 
 // -*----------------------------------------------------------------*-
@@ -992,7 +993,7 @@ void Creola::process_keyword(const std::string& src){
 // -
 void Creola::handle_keyword_let(const std::string& src){
     Parser parset(src);
-    parser.expect(TokenKind::KwLet, "expected `let` keyword.");
+    parser.expect(TokenKind::KwLet, "expected the keyword `let`.");
     parser.consume(TokenKind::KwLet);
     parser.expect(TokenKind::Ident, "expected and identifier");
     auto var = parser.current().text;
@@ -1004,9 +1005,42 @@ void Creola::handle_keyword_let(const std::string& src){
     Creola::println(std::cout, Creola::ps2, name, " = ", expr);
 }
 
-//! @todo implement the helper method `handle_fun()`
+// -
 void Creola::handle_keyword_fun(const std::string& src){
-    //! @todo
+    Parser parser(src);
+    parser.expect(TokenKind::KwFun, "expected the keyword `fun`.");
+    parser.consume(TokenKind::KwFun);
+    // get the function name (.ie funcname) int form "<name>(params)"
+    parser.expect(TokenKind::Ident, "expected and identifier");
+    auto name = parser.current().text;
+    parser.consume(TokenKind::Ident);
+    parser.expect(TokenKind::LParen, "expected '('");
+    parser.consume(TokenKind::LParen);
+    Vec<std::string> params{};
+    while(parser.current().kind != TokenKind::RParen){
+        parser.expect(TokenKind::Ident, "expected function parameter to be a symbol.");
+        auto param = parser.current().text;
+        params.push_back(param);
+        parser.consume(TokenKind::Ident);
+        if(parser.current().kind == TokenKind::Comma){
+            parser.consume(TokenKind::Comma);
+        }
+    }
+    parser.expect(TokenKind::RParen, "expected ')'");
+    parser.consume(TokenKind::RParen);
+    std::ostringstream oss;
+    oss << name << "(";
+    for(usize i=0; i < params.size(); ++i){
+        if(i > 0){ oss << ", "; }
+        oss << params[i];
+    }
+    oss << ")";
+    auto funcname = oss.str();
+    parser.expect(TokenKind::Equal, "expected '='");
+    parser.consume(TokenKind::Equal);
+    auto expr = parser.parse();
+    this->m_funcs[funcname] = expr;
+    Creola::println(std::cout, Creola::ps2, funcname, " = ", expr);
 }
 
 //! @todo implement the helper method `handle_simplify()`
