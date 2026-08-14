@@ -1056,9 +1056,25 @@ void Creola::handle_command_simplify(const std::string& src){
     Creola::println(std::cout, Creola::ps2, expr);
 }
 
-//! @todo implement the helper method `handle_diff()`
+// -
 void Creola::handle_command_diff(const std::string& src){
-    //! @todo
+    // diff(expr, var)
+    auto code = this->trim_command(src, "diff"); // "(expr)"
+    Parser parser(code);
+    parser.expect(TokenKind::LParen, "expected '('");
+    parser.consume(TokenKind::LParen);
+    auto expr = parser.parse();
+    parser.expect(TokenKind::Comma, "expected ','");
+    parser.consume(TokenKind::Comma);
+
+    parser.expect(TokenKind::Ident, "expected a variable name");
+    auto var = parser.current().text;
+    parser.consume(TokenKind::Ident);
+    parser.expect(TokenKind::RParen, "expected ')'");
+    parser.consume(TokenKind::RParen);
+
+    auto result = expr->diff(var);
+    Creola::println(std::cout, Creola::ps2, result);
 }
 
 //! @todo implement the helper method `handle_integrate()`
