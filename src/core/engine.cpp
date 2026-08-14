@@ -1,6 +1,7 @@
 #include "creola/core/engine.hpp"
 #include "creola/core/parser.hpp"
 #include<stdexcept>
+#include<set>
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -72,6 +73,25 @@ std::unordered_map<std::string, Func> Creola::COMMON_INTEGRATION_TABLE = {
     {"exp", Creola::integrate_exp},
     {"ln", Creola::integrate_ln},
 };
+
+std::set<std::string> Creola::keywords;
+std::set<std::string> Creola::builtin_commands;
+
+// -
+void Creola::define_keywords(void){
+    Creola::keywords = {
+        "let", "fun",
+    };
+}
+
+void Creola::define_builtin_commands(void){
+    Creola::builtin_commands = {
+        "simplify", "diff", "integrate", "taylor",
+        "expand", "factor", "limit", "greobner",
+        "rewrite", "roots", "solve", "solve_system",
+        //"equation", "system",
+    };
+}
 
 // -*-
 Expr Creola::number(f64 val){
@@ -829,7 +849,7 @@ void Creola::as(Expr expr, Number& num){
     if(Creola::is_number_expr(expr)){
         num = *dynamic_cast<Number*>(expr.get());
     }
-    throw std::runtime_error("TypeError: expected number expression");
+    throw CreolaError("TypeError: expected number expression");
 }
 
 // -*-
@@ -837,7 +857,7 @@ void Creola::as(Expr expr, Symbol& sym){
     if(Creola::is_symbol_expr(expr)){
         sym = *dynamic_cast<Symbol*>(expr.get());
     }
-    throw std::runtime_error("TypeError: expected symbol expression");
+    throw CreolaError("TypeError: expected symbol expression");
 }
 
 // -*-
@@ -845,7 +865,7 @@ void Creola::as(Expr expr, Neg& neg){
     if(Creola::is_number_expr(expr)){
         neg = *dynamic_cast<Neg*>(expr.get());
     }
-    throw std::runtime_error("TypeError: expected negate expression");
+    throw CreolaError("TypeError: expected negate expression");
 }
 
 // -*-
@@ -853,7 +873,7 @@ void Creola::as(Expr expr, Add& add){
     if(Creola::is_number_expr(expr)){
         add = *dynamic_cast<Add*>(expr.get());
     }
-    throw std::runtime_error("TypeError: expected add expression");
+    throw CreolaError("TypeError: expected add expression");
 }
 
 // -*-
@@ -861,7 +881,7 @@ void Creola::as(Expr expr, Mul& mul){
     if(Creola::is_number_expr(expr)){
         mul = *dynamic_cast<Mul*>(expr.get());
     }
-    throw std::runtime_error("TypeError: expected mul expression.");
+    throw CreolaError("TypeError: expected mul expression.");
 }
 
 // -*-
@@ -869,7 +889,7 @@ void Creola::as(Expr expr, Pow& pow){
     if(Creola::is_number_expr(expr)){
         pow = *dynamic_cast<Pow*>(expr.get());
     }
-    throw std::runtime_error("TypeError: expected power expression.");
+    throw CreolaError("TypeError: expected power expression.");
 }
 
 // -*-
@@ -877,95 +897,176 @@ void Creola::as(Expr expr, FuncCall& fcall){
     if(Creola::is_number_expr(expr)){
         fcall = *dynamic_cast<FuncCall*>(expr.get());
     }
-    throw std::runtime_error("TypeError: expected function-call expression");
+    throw CreolaError("TypeError: expected function-call expression");
 }
 
-// ----------------------
-// -*- IMPLEMENTATION OF HELPER METHODS -*-
-// ----------------------
-//! @todo implement the helper method `trim_command(src)`
+// ------------------------------------------------------------------
+// -*- IMPLEMENTATION OF HELPER METHODS                           -*-
+// ------------------------------------------------------------------
 std::string Creola::trim_command(const std::string& src, const char* cmd){
     auto prefix = std::string(cmd);
     return creola::ltrim(src, prefix);
 }
 
-//! @todo implement the helper method `process_command()`
+// -
 void Creola::process_command(const std::string& src){
-    //! @todo
+    const auto& _commands = Creola::builtin_commands;
+    auto commands = Vec<std::string>(_commands.cbegin(), _commands.cend());
+
+    auto run_cmd = [this](const std::string& cmd){};
+    for(auto& cmd: commands){
+        if(cmd=="simplify"){
+            this->handle_command_simplify(src);
+            break;
+        }
+        if(cmd=="diff"){
+            this->handle_command_diff(src);
+            break;
+        }
+        if(cmd=="integrate"){
+            this->handle_command_integrate(src);
+            break;
+        }
+        if(cmd=="taylor"){
+            this->handle_command_taylor(src);
+            break;
+        }
+        if(cmd=="expand"){
+            this->handle_command_expand(src);
+            break;
+        }
+        if(cmd=="factor"){
+            this->handle_command_factor(src);
+            break;
+        }
+        if(cmd=="limit"){
+            this->handle_command_limit(src);
+            break;
+        }
+        if(cmd=="groebner"){
+            this->handle_command_groebner(src);
+            break;
+        }
+        if(cmd=="rewrite"){
+            this->handle_command_rewrite(src);
+            break;
+        }
+        if(cmd=="roots"){
+            this->handle_command_roots(src);
+            break;
+        }
+        if(cmd=="solve"){
+            this->handle_command_solve(src);
+            break;
+        }
+        if(cmd=="solve_system"){
+            this->handle_command_solve_system(src);
+            break;
+        }
+        if(cmd=="partfrac"){
+            this->handle_command_partfrac(src);
+            break;
+        }
+        if(cmd=="equation"){
+            this->handle_command_equation(src);
+            break;
+        }
+        if(cmd=="system"){
+            this->handle_command_system(src);
+            break;
+        }
+    }
+}
+
+// -
+void Creola::process_keyword(const std::string& src){
+    if(creola::starts_with(src, "left")){
+        this->handle_keyword_let(src);
+    }else{
+        this->handle_keyword_fun(src);
+    }
 }
 
 //! @todo implement the helper method `handle_let()`
-void Creola::handle_keyword_let(const std::string& trimmed_src){
+void Creola::handle_keyword_let(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_fun()`
-void Creola::handle_keyword_fun(const std::string& trimmed_src){
+void Creola::handle_keyword_fun(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_simplify()`
-void Creola::handle_command_simplify(const std::string& trimmed_src){
+void Creola::handle_command_simplify(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_diff()`
-void Creola::handle_command_diff(const std::string& trimmed_src){
+void Creola::handle_command_diff(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_integrate()`
-void Creola::handle_command_integrate(const std::string& trimmed_src){
+void Creola::handle_command_integrate(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_taylor()`
-void Creola::handle_command_taylor(const std::string& trimmed_src){
+void Creola::handle_command_taylor(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_expand()`
-void Creola::handle_command_expand(const std::string& trimmed_src){
+void Creola::handle_command_expand(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_factor()`
-void Creola::handle_command_factor(const std::string& trimmed_src){
+void Creola::handle_command_factor(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_limit()`
-void Creola::handle_command_limit(const std::string& trimmed_src){
+void Creola::handle_command_limit(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_groebner()`
-void Creola::handle_command_groebner(const std::string& trimmed_src){
+void Creola::handle_command_groebner(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_rewrite()`
-void Creola::handle_command_rewrite(const std::string& trimmed_src){
+void Creola::handle_command_rewrite(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_roots()`
-void Creola::handle_command_roots(const std::string& trimmed_src){
+void Creola::handle_command_roots(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_solve()`
-void Creola::handle_command_solve(const std::string& trimmed_src){
+void Creola::handle_command_solve(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_solve_system()`
-void Creola::handle_command_solve_system(const std::string& trimmed_src){
+void Creola::handle_command_solve_system(const std::string& src){
     //! @todo
 }
 
 //! @todo implement the helper method `handle_parfrac()`
-void Creola::handle_command_partfrac(const std::string& trimmed_src){
+void Creola::handle_command_partfrac(const std::string& src){
+    //! @todo
+}
+
+void Creola::handle_command_equation(const std::string& src){
+    //! @todo
+}
+
+void Creola::handle_command_system(const std::string& src){
     //! @todo
 }
 

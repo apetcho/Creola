@@ -5,6 +5,7 @@
 
 #include<iostream>
 #include<mutex>
+#include<set>
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -107,6 +108,11 @@ public:
     static std::unordered_map<std::string, Func> COMMON_DIFF_TABLE;
     static std::unordered_map<std::string, Func> COMMON_INTEGRATION_TABLE;
 
+    static std::set<std::string> keywords;
+    static std::set<std::string> builtin_commands;
+    static void define_keywords(void);
+    static void define_builtin_commands(void);
+
     static Expr number(f64 val);
     static Expr symbol(const std::string& var);
     static bool is_zero(const Expr& expr);
@@ -125,6 +131,15 @@ public:
     static Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
     static f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps=1e-6);
 
+    //! @todo implement the following helper methods
+    static void almost_equal(f64 xnum, f64 ynum, f64 tol=1e-12);
+    static void almost_zero(f64 num, f64 tol=1e-12);
+    static bool is_fraction(const Expr& expr, Expr& num, Expr& den);
+    static Vec<i64> divisors(i64 num);
+
+
+    //! @todo Define default symbols including `→`, `∞`, `ℝ`, etc.
+    
 
 private:
     static inline Expr sin(f64 x){ return number(std::sin(x)); }
@@ -196,6 +211,90 @@ private:
     static Expr integrate_exp(Expr expr, const std::string& var);
     static Expr diff_ln(Expr expr, const std::string& var);
     static Expr integrate_ln(Expr expr, const std::string& var);
+
+    // ----------------------
+    // -*- HELPER METHODS -*-
+    // ----------------------
+    /**
+     * @brief Remove a command `cmd' from the beginning of src.
+     * 
+     * @code[.cpp]
+     * Creola creola;
+     * std::string src = "let x = 10";
+     * auto out = creola.trim_command(src);
+     * std::cout << out << std::endl; // out: x = 10
+     * @endcode 
+     * 
+     * @param src 
+     * @param cmd 
+     * @return std::string 
+     */
+    std::string trim_command(const std::string& src, const char* cmd);
+
+    /**
+     * @brief Process on of the builtin commands.
+     * 
+     * For the set of all builtin command, @see{Creola::builtin_commands}
+     * 
+     * @param src 
+     */
+    void process_command(const std::string& src);
+
+    /**
+     * @brief Parse and evaluate a statement starting with one of the builtin keywords
+     * 
+     * The builtin keyword include "let" and "fun".
+     * 
+     * @param src 
+     */
+    void process_keyword(const std::string& src);
+
+    //! @brief implement the helper method `handle_let()`
+    void handle_keyword_let(const std::string& src);
+
+    //! @brief implement the helper method `handle_fun()`
+    void handle_keyword_fun(const std::string& src);
+
+    //! @brief implement the helper method `handle_simplify()`
+    void handle_command_simplify(const std::string& src);
+
+    //! @brief implement the helper method `handle_diff()`
+    void handle_command_diff(const std::string& src);
+
+    //! @brief implement the helper method `handle_integrate()`
+    void handle_command_integrate(const std::string& src);
+
+    //! @brief implement the helper method `handle_taylor()`
+    void handle_command_taylor(const std::string& src);
+
+    //! @brief implement the helper method `handle_expand()`
+    void handle_command_expand(const std::string& src);
+
+    //! @brief implement the helper method `handle_factor()`
+    void handle_command_factor(const std::string& src);
+
+    //! @brief implement the helper method `handle_limit()`
+    void handle_command_limit(const std::string& src);
+
+    //! @brief implement the helper method `handle_groebner()`
+    void handle_command_groebner(const std::string& src);
+
+    //! @brief implement the helper method `handle_rewrite()`
+    void handle_command_rewrite(const std::string& src);
+
+    //! @brief implement the helper method `handle_roots()`
+    void handle_command_roots(const std::string& src);
+
+    //! @brief implement the helper method `handle_solve()`
+    void handle_command_solve(const std::string& src);
+
+    //! @brief implement the helper method `handle_solve_system()`
+    void handle_command_solve_system(const std::string& src);
+
+    //! @brief implement the helper method `handle_parfrac()`
+    void handle_command_partfrac(const std::string& src);
+    void handle_command_equation(const std::string& src);
+    void handle_command_system(const std::string& src);
 };
 
 // -*----------------------------------------------------------------*-
