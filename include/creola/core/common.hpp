@@ -2,6 +2,7 @@
 
 #include<unordered_map>
 #include<functional>
+#include<stdexcept>
 #include<cstdint>
 #include<memory>
 #include<vector>
@@ -104,6 +105,14 @@ static inline std::string rtrim(const std::string& text){
 static inline std::string trim(const std::string& text){
     return ltrim(rtrim(text));
 }
+
+// -*-
+class CreolaError: public std::runtime_error{
+public:
+    CreolaError(): std::runtime_error("unexpected error found."){}
+    explicit CreolaError(const char* msg): std::runtime_error(msg){}
+    explicit CreolaError(const std::string& msg): std::runtime_error(msg){}
+};
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-
