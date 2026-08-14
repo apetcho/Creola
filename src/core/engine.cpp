@@ -1054,12 +1054,13 @@ Expr Creola::handle_command_simplify(const std::string& src, Vec<Expr>& vecResul
     Parser parser(code);
     parser.expect(TokenKind::LParen, "expected '('");
     parser.consume(TokenKind::LParen);
-    auto expr = parser.parse()->simplify();
+    auto expr = parser.parse();
     parser.expect(TokenKind::RParen, "expected ')'");
     parser.consume(TokenKind::RParen);
+
     //Creola::println(std::cout, Creola::ps2, expr);
 
-    return expr;
+    return this->handle_expr(expr)->simplify();
 }
 
 // -
@@ -1080,16 +1081,10 @@ Expr Creola::handle_command_diff(const std::string& src, Vec<Expr>& vecResult){
     parser.expect(TokenKind::RParen, "expected ')'");
     parser.consume(TokenKind::RParen);
 
-    if(Creola::is_symbol_expr(expr)){
-        Symbol sym{""};
-        Creola::as(expr, sym);
-        auto key = sym.name();
-        this->m_validate_func(name);
-        expr = this->m_funcs[name];
-    }
+    expr = this->handle_expr(expr);
     auto result = expr->diff(var);
     // Creola::println(std::cout, Creola::ps2, result->simplify());
-    return result;
+    return result->simplify();
 }
 
 // -
@@ -1167,23 +1162,17 @@ Expr Creola::handle_command_integrate(const std::string& src, Vec<Expr>& vecResu
     parser.expect(TokenKind::RParen, "expected ')'");
     parser.consume(TokenKind::RParen);
 
-    if(Creola::is_symbol_expr(expr)){
-        Symbol sym{""};
-        Creola::as(expr, sym);
-        auto key = sym.name();
-        this->m_validate_func(name);
-        expr = this->m_funcs[name];
-    }
+    expr = this->handle_expr(expr);
     auto F = expr->integrate(var);
     if(evaled){
         auto func = FuncCall("creola@dummy_func", Vec<Expr>{F});
         auto result = func->eval(func, var, vmax) - func->eval(func, var, vmin);
         //Creola::println(std::cout, Creola::ps2, result->simplify());
-        return result;
+        return result->simplify();
     }
 
     //Creola::println(std::cout, Creola::ps2, F->simplify());
-    return F;
+    return F->simplify();
 }
 
 // -
@@ -1254,22 +1243,28 @@ Expr Creola::handle_command_taylor(const std::string& src, Vec<Expr>& vecResult)
     parser.expect(TokenKind::RParen, "expected ')'.")
     parser.consume(TokenKind::RParen);
 
-    if(Creola::is_symbol_expr(expr)){
-        Symbol sym{""};
-        Creola::as(expr, sym);
-        auto key = sym.name();
-        this->m_validate_func(name);
-        expr = this->m_funcs[name];
-    }
-
+    expr = this->handle_expr(expr);
     auto result = expr->taylor(var, center, order);
     //Creola::println(std::cout, Creola::ps2, result);
-    return result;
+    return result->simplify();
 }
 
-//! @todo implement the helper method `handle_expand()`
+// 
 Expr Creola::handle_command_expand(const std::string& src, Vec<Expr>& vecResult){
-    //! @todo
+    // expand(expr)
+    auto code = this->trim_command(src, "expand");
+    Parser parser(code);
+    parser.expect(TokenKind::LParen, "expected '('.");
+    parser.consume(TokenKind::LParen);
+
+    auto expr = parser.parse();
+
+    parser.expect(TokenKind::RParen, "expected ')'.");
+    parser.consume(TokenKind::RParen);
+
+    expr = this->handle_expr(expr);
+    
+    return expr->expand()->simplify();
 }
 
 //! @todo implement the helper method `handle_factor()`

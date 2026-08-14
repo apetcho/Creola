@@ -97,6 +97,23 @@ private:
         }
     }
 
+    Expr handle_expr(const Expr& expr){
+        if(Creola::is_symbol_expr(expr)){// we have a symbol that represent either a variable or a function name.
+            Symbol sym{""};
+            Creola::as(expr, sym);
+            if(sym.name().find('(')!=std::string::npos){
+                // sym.name() is the name of a function;
+                this->m_validate_func(sym.name());
+                return this->m_funcs[sym.name()];
+            }
+            // otherwise sym.name() is the name of a variable
+            this->m_validate_var(sym.name());
+            return this->m_vars[sym.name()];
+        }
+        // expr is just a freshly constructed expression for raw string.
+        return expr;
+    }
+
     // -
     Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
     // apply_user_func ==> apply 
@@ -292,7 +309,7 @@ private:
     Vec<Expr> handle_keyword_fun(const std::string& src);
 
     /**
-     * @brief Parse the `simplify` command
+     * @brief Parse the `simplify` command expression.
      * 
      * Syntax:
      * -------
@@ -310,7 +327,7 @@ private:
     Expr handle_command_simplify(const std::string& src, Vec<Expr>& vecResult);
 
     /**
-     * @brief Parse the `diff` command.
+     * @brief Parse the `diff` command expression.
      * 
      * Syntax:
      * -------
@@ -328,7 +345,7 @@ private:
     Expr handle_command_diff(const std::string& src, Vec<Expr>& vecResult);
 
     /**
-     * @brief Parse the `integrate` command.
+     * @brief Parse the `integrate` command expression.
      * 
      * Syntax:
      * -------
@@ -340,7 +357,7 @@ private:
     Expr handle_command_integrate(const std::string& src, Vec<Expr>& vecResult);
 
     /**
-     * @brief Parse the `taylor` command.
+     * @brief Parse the `taylor` command expression.
      * 
      * Syntax:
      * ------
@@ -355,7 +372,22 @@ private:
      */
     Expr handle_command_taylor(const std::string& src, Vec<Expr>& vecResult);
 
-    //! @brief implement the helper method `handle_expand()`
+    /**
+     * @brief Parse the `expand` command expression.
+     * 
+     * Syntax:
+     * ------
+     *      expand(expression)
+     * 
+     * Example:
+     * --------
+     *      creola> expand("(x-1)*(x+1)")
+     *      ======> x^2 - 1
+     * 
+     * @param src 
+     * @param vecResult 
+     * @return Expr 
+     */
     Expr handle_command_expand(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_factor()`
