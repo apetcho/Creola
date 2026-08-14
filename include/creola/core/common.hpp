@@ -7,6 +7,7 @@
 #include<memory>
 #include<vector>
 #include<cctype>
+#include<cmath>
 #include<map>
 
 #define CREOLA_UNUSED(arg)  (void)arg
@@ -113,6 +114,24 @@ public:
     explicit CreolaError(const char* msg): std::runtime_error(msg){}
     explicit CreolaError(const std::string& msg): std::runtime_error(msg){}
 };
+
+// some utility functions
+//! @todo implement the following helper methods
+static inline bool almost_equal(f64 xnum, f64 ynum, f64 tol=1e-12){
+    //! @todo
+    return {};
+}
+
+static inline bool almost_zero(f64 num, f64 tol=1e-12){
+    //! @todo
+    return {};
+}
+
+
+static inline Vec<i64> divisors(i64 num){
+    //! @todo
+    return {};
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-

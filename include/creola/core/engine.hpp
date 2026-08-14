@@ -4,6 +4,7 @@
 #include "creola/core/pprint.hpp"
 
 #include<iostream>
+#include<iomanip>
 #include<mutex>
 #include<set>
 
@@ -80,6 +81,22 @@ private:
     HashMap<std::string, Expr> m_vars;
     HashMap<std::string, FunctionDef> m_funcs;
 
+    void validate_var(const std::string& var){
+        if(this->m_vars.find(var)==this->m_vars.end()){
+            std::stringstream ess;
+            ess << "undefined variable " << std::quote(var);
+            throw CreolaError(ess.str());
+        }
+    }
+
+    void validate_func(const std::string& func){
+        if(this->m_funcs.find(func)==this->m_funcs.end()){
+            std::stringstream ess;
+            ess << "undefined function named " << std::quote(var);
+            throw CreolaError(ess.str());
+        }
+    }
+
     // -
     Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
     // apply_user_func ==> apply 
@@ -133,15 +150,11 @@ public:
     static Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
     static f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps=1e-6);
 
-    //! @todo implement the following helper methods
-    static void almost_equal(f64 xnum, f64 ynum, f64 tol=1e-12);
-    static void almost_zero(f64 num, f64 tol=1e-12);
-    static bool is_fraction(const Expr& expr, Expr& num, Expr& den);
-    static Vec<i64> divisors(i64 num);
-
-
     //! @todo Define default symbols including `→`, `∞`, `ℝ`, etc.
-    
+    static bool is_fraction(const Expr& expr, Expr& num, Expr& den){
+        //! @todo
+        return false;
+    }
 
 private:
     static inline Expr sin(f64 x){ return number(std::sin(x)); }
@@ -240,7 +253,7 @@ private:
      * 
      * @param src 
      */
-    void process_command(const std::string& src);
+    Expr process_command(const std::string& src, Vec<Expr>& vecResult);
 
     /**
      * @brief Parse and evaluate a statement starting with one of the builtin keywords
@@ -249,27 +262,34 @@ private:
      * 
      * @param src 
      */
-    void process_keyword(const std::string& src);
+    Vec<Expr> process_keyword(const std::string& src);
 
     /**
      * @brief Parse let statement
      * 
-     * Handle let statement and update Creola::m_vars dictionary.
-     * 
-     * @code{.cpp}
-     * auto src = "let x = 3";
-     * @endcode
+     * Syntax:
+     * -------
+     *      let var = value
      * 
      * @param src 
      */
-    void handle_keyword_let(const std::string& src);
+    Vec<Expr> handle_keyword_let(const std::string& src);
 
     /**
      * @brief Parse the `fun` statement.
      * 
+     * Syntax:
+     * -------
+     *      fun name(params) = expr
+     * 
+     * Example:
+     * -------
+     *      creola> fun f(x) = x^2 + 2x + 1
+     *      ======> f(x) = x^2 + 2x + 1
+     * 
      * @param src 
      */
-    void handle_keyword_fun(const std::string& src);
+    Vec<Expr> handle_keyword_fun(const std::string& src);
 
     /**
      * @brief Parse the `simplify` command
@@ -287,7 +307,7 @@ private:
      * 
      * @param src 
      */
-    void handle_command_simplify(const std::string& src);
+    Expr handle_command_simplify(const std::string& src, Vec<Expr>& vecResult);
 
     /**
      * @brief Parse the `diff` command.
@@ -305,42 +325,65 @@ private:
      * 
      * @param src 
      */
-    void handle_command_diff(const std::string& src);
+    Expr handle_command_diff(const std::string& src, Vec<Expr>& vecResult);
 
-    //! @brief implement the helper method `handle_integrate()`
-    void handle_command_integrate(const std::string& src);
+    /**
+     * @brief Parse the `integrate` command.
+     * 
+     * Syntax:
+     * -------
+     *      (1) integrate(expr, var)
+     *      (2) integrate(expr, var, vmin, vmax)
+     * 
+     * @param src 
+     */
+    Expr handle_command_integrate(const std::string& src, Vec<Expr>& vecResult);
 
-    //! @brief implement the helper method `handle_taylor()`
-    void handle_command_taylor(const std::string& src);
+    /**
+     * @brief Parse the `taylor` command.
+     * 
+     * Syntax:
+     * ------
+     *      taylor(expr, var, center, order)
+     * 
+     * Example:
+     * -------
+     *      creola> taylor(exp(x), x, 0, 3)
+     *      ======> 1 + x + x^2/2 + x^3/6
+     * 
+     * @param src 
+     */
+    Expr handle_command_taylor(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_expand()`
-    void handle_command_expand(const std::string& src);
+    Expr handle_command_expand(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_factor()`
-    void handle_command_factor(const std::string& src);
+    Expr handle_command_factor(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_limit()`
-    void handle_command_limit(const std::string& src);
+    Expr handle_command_limit(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_groebner()`
-    void handle_command_groebner(const std::string& src);
+    Expr handle_command_groebner(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_rewrite()`
-    void handle_command_rewrite(const std::string& src);
+    Expr handle_command_rewrite(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_roots()`
-    void handle_command_roots(const std::string& src);
+    Expr handle_command_roots(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_solve()`
-    void handle_command_solve(const std::string& src);
+    Expr handle_command_solve(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_solve_system()`
-    void handle_command_solve_system(const std::string& src);
+    Expr handle_command_solve_system(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_parfrac()`
-    void handle_command_partfrac(const std::string& src);
-    void handle_command_equation(const std::string& src);
-    void handle_command_system(const std::string& src);
+    Expr handle_command_partfrac(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_equation(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_system(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_factorial(const std::string& src, Vec<Expr>& vecResult);
 };
 
 // -*----------------------------------------------------------------*-

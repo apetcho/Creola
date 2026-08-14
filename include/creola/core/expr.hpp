@@ -149,7 +149,7 @@ struct Series {
 
     virtual ~Series() = default;
 
-    virtual Expr taylor(const std::string& var, f64 val, int n) const = 0;
+    virtual Expr taylor(const std::string& var, f64 val, u32 n) const = 0;
     void update_series_config(const std::string& var, f64 val, int order){
         this->m_var = var;
         this->m_val = val;
@@ -216,6 +216,24 @@ private:
     int m_samples;
 };
 
+/** @todo
+ * (1) Create a module simplifyer.(hpp|cpp) to implement `simplify' API
+ * (2) Create a module factorizer.(hpp|cpp) to implement `factor` API
+ * (3) Create a module expander.(hpp|cpp) to implement `expand` API
+ * (4) Create a module integrator.(hpp|cpp) to implement `integrate` API
+ * (5) Create a module differentiator.(hpp|cpp) to implement `diff` API
+ * (6) Create a module series.(hpp|cpp) to implement `taylor` API
+ * (7) Create a module limit_finder.(hpp|cpp) to implement `limit` API
+ * (8) Create a module roots_finder.(hpp|cpp) to implement `roots` API
+ * (9) Create a module solver.(hpp|cpp) to implement `solve` API
+ * (10) Create a module system_solver.(hpp|cpp) to implement `solve_system` API
+ * (11) Create a module groebner.(hpp|cpp) to implement `groebner` API
+ * (12) Create a module Helper.(hpp|cpp) to implement `help` API
+ * (13) Create a module plotter.(hpp|cpp) to implement `plot` and `surface` APIs
+ * 
+ * -> All of the APIs must derive the PrettyPrinter & ToBox base classes
+ * -> ExprBase class will inherit from PrintVisitor and ToBoxVisitor
+*/
 
 // -*- Simplifier, Factorizer, Expander, Integrator, Differentiator, Series,
 struct ExprBase:
@@ -312,7 +330,7 @@ struct Symbol : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factorize(const std::string& var) const override;
-    Expr taylor(const std::string& var, f64 val, int n) const override;
+    Expr taylor(const std::string& var, f64 val, u32 n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
@@ -344,7 +362,7 @@ struct Neg : public ExprBase {
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factorize(const std::string& var) const override;
-    Expr taylor(const std::string& var, f64 val, int n) const override;
+    Expr taylor(const std::string& var, f64 val, u32 n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
@@ -377,7 +395,7 @@ struct Add : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factorize(const std::string& var) const override;
-    Expr taylor(const std::string& var, f64 val, int n) const override;
+    Expr taylor(const std::string& var, f64 val, u32 n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
@@ -410,7 +428,7 @@ struct Mul : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factorize(const std::string& var) const override;
-    Expr taylor(const std::string& var, f64 val, int n) const override;
+    Expr taylor(const std::string& var, f64 val, u32 n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
@@ -444,7 +462,7 @@ struct Pow : public ExprBase {
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factorize(const std::string& var) const override;
-    Expr taylor(const std::string& var, f64 val, int n) const override;
+    Expr taylor(const std::string& var, f64 val, u32 n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
@@ -481,7 +499,7 @@ struct FuncCall : public ExprBase{
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factorize(const std::string& var) const override;
-    Expr taylor(const std::string& var, f64 val, int n) const override;
+    Expr taylor(const std::string& var, f64 val, u32 n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
