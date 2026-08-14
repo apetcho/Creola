@@ -10,11 +10,6 @@
 namespace creola::core{
 //
 
-class Rational {
-public:
-    explicit Rational(long long num=0, long long d=1);
-
-    static Rational from(long double);
 /*
 Note:
 -----
@@ -64,6 +59,13 @@ int main() {
 }
 */
 
+
+class Rational {
+public:
+    explicit Rational(i64 num=0, i64 d=1);
+
+    static Rational from_float(f64);
+
     Rational operator+(const Rational& rhs) const;
     Rational operator-(const Rational& rhs) const;
     Rational operator*(const Rational& rhs) const;
@@ -72,31 +74,43 @@ int main() {
     bool is_zero(void) const;
     bool is_one(void) const;
 
-    long double to_float(void) const;
+    f64 to_float(void) const;
 
+    f64 numerator(void) const{ return this->m_num; }
+    f64 denominator(void) const { return this->m_den; }
+
+    friend Rational operator+(const Rational& lhs, const Rational& rhs);
+    friend Rational operator-(const Rational& lhs, const Rational& rhs);
+    friend Rational operator*(const Rational& lhs, const Rational& rhs);
+    friend Rational operator/(const Rational& lhs, const Rational& rhs);
 
 private:
-    long long m_num{0LL};   // numerator
-    long long m_den{1LL};   // denominator
+    i64 m_num;  // numerator
+    i64 m_den;  // denominator
 };
 
 // -*-
-class UnivariatePolynomial{
+class Polynomial {
 public:
-    explicit UnivariatePolynomial(const Vec<Rational>& coeffs);
+    explicit Polynomial(const Vec<Rational>& coeffs);
 
-    // - as_polynomial(...)
-    static bool from_expr(const Expr& expr, const std::string& var, UnivariatePolynomial& poly);
+    static bool collect_coefficients(const Expr& expr, const std::string& var, std::map<i32, Rational>& coeffs);
+    static bool as_polynomial(const Expr& expr, const std::string& var, Polynomial& poly);
+    Rational eval(const Rational& val) const;
+    bool find_rational_root(Rational& root);
+    Vec<Polynomial> factor_over_Q();
     Expr to_expr(const std::string& var) const;
 
-    Rational eval(const Rational& val) const;
-    bool find_root(Rational& root) const;
+    static Expr factor(const Expr& expr, const std::string& var); /// XXX: move to Engine
 
+    
     Vec<Vec<Rational>> factor(void) const;
     bool is_quadratic(void) const;
 
+    const Vec<Rational>& coefficient() const { return this->m_coeffs; }
+
 private:
-    std::vector<Rational> m_coeffs;
+    Vec<Rational> m_coeffs;
 
     Vec<i64> divisors(i64 n);
 };

@@ -116,15 +116,23 @@ public:
 };
 
 // some utility functions
-//! @todo implement the following helper methods
 static inline bool almost_equal(f64 xnum, f64 ynum, f64 tol=1e-12){
-    //! @todo
-    return {};
+    if(!std::isfinite(xnum) || !std::isfinite(ynum)){
+        return false;
+    }
+
+    constexpr auto VMIN = std::numeric_limits<f64>::min();
+
+    auto dx = std::abs(xnum-ynum);
+    if(dx <= VMIN){ return true; }
+
+    auto x = std::abs(xnum);
+    auto y = std::abs(ynum);
+    return (dx/std::max(x, y) <= tol);
 }
 
 static inline bool almost_zero(f64 num, f64 tol=1e-12){
-    //! @todo
-    return {};
+    return almost_equal(num, 0.0, tol);
 }
 
 

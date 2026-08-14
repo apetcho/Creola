@@ -40,26 +40,43 @@ struct PrintVisitor {
     virtual void visit(std::ostream& os, const FuncCall& expr, int prec=0) const = 0;
 };
 
-// // - Box type and utilities
-// class Box{
-// public:
-//     explicit Box(const Vec<std::string>& lines={}){}
+/*
+struct ToBoxVisitor{
+    virtual ~BoxVisitor() = default;
 
-//     static Box make_text(const std::string& text){}
-//     static Box make_fraction(const Box& num, const Box& den){}
-//     static Box make_power(const Box& base, const Box& expo){}
-//     static Box make_parens(const Box& inner){}
+    virtual Box to_box(const Symbol& sym) const = 0;
+    virtual Box to_box(const Number& num) const = 0;
+    virtual Box to_box(const Neg& neg) const = 0;
+    virtual Box to_box(const Add& add) const = 0;
+    virtual Box to_box(const Mul& mul) const = 0;
+    virtual Box to_box(const Pow& Pow) const = 0;
+    virtual Box to_box(const FuncCall& sym) const = 0;
+};
 
-//     Box vpad(int top, int bottom) const{}
-//     Box hcat(const Box& rhs) const{}
-//     Box vcat(const Box& rhs) const{}
-//     Box center(usize width) const{}
+*/
 
-// private:
-//     Vec<std::string> m_lines;
-//     usize m_width = 0;
-//     usize m_height = 0;
-// };
+/* 
+// - Box type and utilities
+class Box{
+public:
+    explicit Box(const Vec<std::string>& lines={});
+
+    static Box make_text(const std::string& text);
+    static Box make_fraction(const Box& num, const Box& den);
+    static Box make_power(const Box& base, const Box& expo);
+    static Box make_parens(const Box& inner);
+
+    Box vpad(int top, int bottom) const;
+    Box hcat(const Box& rhs) const;
+    Box vcat(const Box& rhs) const;
+    Box center(usize width) const;
+
+private:
+    Vec<std::string> m_lines;
+    usize m_width = 0;
+    usize m_height = 0;
+};
+*/
 
 
 // -*----------------------------------------------------------------*-

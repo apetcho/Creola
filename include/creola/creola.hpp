@@ -9,7 +9,7 @@
 // #include "creola/core/groebner.hpp"
 // #include "creola/core/numerics.hpp"
 // #include "creola/core/parallel.hpp"
-// #include "creola/core/poly.hpp"
+// #include "creola/core/polynomial.hpp"
 
 // #include "creola/core/profiler.hpp"
 // #include "creola/core/rewrite.hpp"
