@@ -352,6 +352,13 @@ private:
      *      (1) integrate(expr, var)
      *      (2) integrate(expr, var, vmin, vmax)
      * 
+     * Example:
+     * --------
+     *      creola> integrate("x", x)
+     *      ======> 1/2*x^2
+     *      creola> integrate("2*x + y", x)
+     *      ======> x^2 + y
+     * 
      * @param src 
      */
     Expr handle_command_integrate(const std::string& src, Vec<Expr>& vecResult);
@@ -365,7 +372,7 @@ private:
      * 
      * Example:
      * -------
-     *      creola> taylor(exp(x), x, 0, 3)
+     *      creola> taylor("exp(x)", x, 0, 3)
      *      ======> 1 + x + x^2/2 + x^3/6
      * 
      * @param src 
@@ -390,7 +397,24 @@ private:
      */
     Expr handle_command_expand(const std::string& src, Vec<Expr>& vecResult);
 
-    //! @brief implement the helper method `handle_factor()`
+    /**
+     * @brief Parser the command `factor` expression.
+     * 
+     * Syntax:
+     * ------
+     *      factor(expr, var)
+     * 
+     * Example:
+     * --------
+     *      creola> factor("x^2 - 1", x)
+     *      ======> (x-1)(x+1)
+     *      creola> factor("x^2 - 1", y)
+     *      ======> x^2 - 1
+     * 
+     * @param src 
+     * @param vecResult 
+     * @return Expr 
+     */
     Expr handle_command_factor(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_limit()`

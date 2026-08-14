@@ -1252,6 +1252,7 @@ Expr Creola::handle_command_taylor(const std::string& src, Vec<Expr>& vecResult)
 // 
 Expr Creola::handle_command_expand(const std::string& src, Vec<Expr>& vecResult){
     // expand(expr)
+    vecResult = {};
     auto code = this->trim_command(src, "expand");
     Parser parser(code);
     parser.expect(TokenKind::LParen, "expected '('.");
@@ -1263,13 +1264,34 @@ Expr Creola::handle_command_expand(const std::string& src, Vec<Expr>& vecResult)
     parser.consume(TokenKind::RParen);
 
     expr = this->handle_expr(expr);
-    
+
     return expr->expand()->simplify();
 }
 
-//! @todo implement the helper method `handle_factor()`
+// -
 Expr Creola::handle_command_factor(const std::string& src, Vec<Expr>& vecResult){
-    //! @todo
+    // factor(expr, var)
+    vecResult = {};
+    auto code = this->trim_command(src, "factor");
+    Parser parse(code);
+    parser.expect(TokenKind::LParen, "expected '('.");
+    parser.consume(TokenKind::LParen);
+
+    auto expr = parser.parse();
+
+    parser.expect(TokenKind::Comma, "expected ','.");
+    parser.consume(TokenKind::Comma);
+
+    parser.expect(TokenKind::Ident, "expected a varibale name.");
+    auto var = parser.current().text;
+    parser.consume(TokenKind::Ident);
+
+    parser.expect(TokenKind::RParen, "expected ')'.");
+    parser.consume(TokenKind::RParen);
+    
+    expr = this->handle_expr(expr);
+
+    return expr->factor(var)->simplify();
 }
 
 //! @todo implement the helper method `handle_limit()`
