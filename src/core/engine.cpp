@@ -138,18 +138,48 @@ bool Creola::is_call_expr(const Expr& expr){
 // - handle_line()
 void Creola::run(const std::string& src){
     if(src.empty()){ return; }
+    //! @todo: Implement the following algorithm
+    //  (1) trim the left and right whitespaces of `src`
+    //  (2) check if `src` starts-with:
+    //      (a) `let': src = src.substr(3, string::npos) and apply parser.parse_full(src) and evaluate;
+    //      (b) `fun`: src = src.substr(3, string::npos) and apply parser.parse_full(src) and evaluate;
+    //      (c) one of the command {simplify, diff, expand, taylor, integrate, roots, ...}
+    //          then apply `process_command(src)`;
+    //! @todo implement the helper method `trim_command(src)`
+    //! @todo implement the helper method `trim_keyword()`
+    //! @todo implement the helper method `process_command()`
+    //! @todo implement the helper method `starts_with_word(const std::string&, const char*) -> bool`
+    //! @todo implement the helper method `handle_let()`
+    //! @todo implement the helper method `handle_fun()`
+    //! @todo implement the helper method `handle_simplify()`
+    //! @todo implement the helper method `handle_diff()`
+    //! @todo implement the helper method `handle_integrate()`
+    //! @todo implement the helper method `handle_taylor()`
+    //! @todo implement the helper method `handle_expand()`
+    //! @todo implement the helper method `handle_factor()`
+    //! @todo implement the helper method `handle_limit()`
+    //! @todo implement the helper method `handle_groebner()`
+    //! @todo implement the helper method `handle_rewrite()`
+    //! @todo implement the helper method `handle_roots()`
+    //! @todo implement the helper method `handle_solve()`
+    //! @todo implement the helper method `handle_solve_system()`
+    //! @todo implement the helper method `handle_parfrac()`
+    //! @todo implement the helper method `almost_equal()`
+    //! @todo implement the helper method `almost_zero()`
     Parser parser(src);
     if(parser.match(TokenKind::KwLet)){
         // let name = expr
         parser.consume(TokenKind::KwLet);
-        if(!parser.match(TokenKind::Ident)){
-            throw std::runtime_error("Expected identifier after `let'");
-        }
+        parser.expect(TokenKind::Ident, "Expected identifier after `let'");
+        // if(!parser.match(TokenKind::Ident)){
+        //     throw std::runtime_error("Expected identifier after `let'");
+        // }
         auto name = parser.current().text;
         parser.consume(TokenKind::Ident);
-        if(!parser.match(TokenKind::Equal)){
-            throw std::runtime_error("Expected `=' in let statement");
-        }
+        parser.expect(TokenKind::Equal, "Expected `=' in let statement");
+        // if(!parser.match(TokenKind::Equal)){
+        //     throw std::runtime_error("Expected `=' in let statement");
+        // }
         parser.consume(TokenKind::Equal);
         auto expr = parser.parse()->simplify();
         this->m_vars[name] = expr;
@@ -159,27 +189,32 @@ void Creola::run(const std::string& src){
     if(parser.match(TokenKind::KwFun)){
         // fun f(x) = expr
         parser.consume(TokenKind::KwFun);
-        if(!parser.match(TokenKind::Ident)){
-            throw std::runtime_error("Expected function name.");
-        }
+        parser.expect(TokenKind::Ident, "Expected function name after `fun' keyword.");
+        // if(!parser.match(TokenKind::Ident)){
+        //     throw std::runtime_error("Expected function name.");
+        // }
         auto fname = parser.current().text;
         parser.consume(TokenKind::Ident);
-        if(!parser.match(TokenKind::LParen)){
-            throw std::runtime_error("Expected '(' after function name in `fun` statement.");
-        }
+        parser.expect(TokenKind::LParen, "Expected '(' after function name in `fun' statement.");
+        // if(!parser.match(TokenKind::LParen)){
+        //     throw std::runtime_error("Expected '(' after function name in `fun` statement.");
+        // }
         parser.consume(TokenKind::LParen);
-        if(!parser.match(TokenKind::Ident)){
-            throw std::runtime_error("Expected parameter name");
-        }
+        parser.expect(TokenKind::Ident, "Expected parameter name");
+        // if(!parser.match(TokenKind::Ident)){
+        //     throw std::runtime_error("Expected parameter name");
+        // }
         auto param = parser.current().text;
         parser.consume(TokenKind::Ident);
-        if(!parser.match(TokenKind::RParen)){
-            throw std::runtime_error("Expected ')' to close function parameter list.");
-        }
+        parser.expect(TokenKind::RParen, "Expected ')' to close function parameters list.");
+        // if(!parser.match(TokenKind::RParen)){
+        //     throw std::runtime_error("Expected ')' to close function parameter list.");
+        // }
         parser.consume(TokenKind::RParen);
-        if(!parser.match(TokenKind::Equal)){
-            throw std::runtime_error("Expected `=` in function definition");
-        }
+        parser.expect(TokenKind::Equal, "Expected `=' in function function definition after function name.");
+        // if(!parser.match(TokenKind::Equal)){
+        //     throw std::runtime_error("Expected `=` in function definition");
+        // }
         parser.consume(TokenKind::Equal);
         auto body = parser.parse()->simplify();
         this->m_funcs[fname] = {param, body};
@@ -191,125 +226,154 @@ void Creola::run(const std::string& src){
         // `cmd'(...)
         auto cmd = parser.current().text;
         parser.consume(TokenKind::Ident);
-        if(parser.match(TokenKind::LParen)){
-            parser.consume(TokenKind::LParen);
-            if(cmd == "simplify"){
-                auto expr = parser.parse();
-                parser.expect(TokenKind::RParen, "simplify: missing ')'");
-                expr = Creola::simplify(expr);
-                Creola::println(std::cout, "===> ", expr);
-                return;
-            }
-            if(cmd == "expand"){
-                auto expr = Creola::expand(parser.parse());
-                parser.expect(TokenKind::RParen, "expand: missing ')'");
-                Creola::println(std::cout, "===> ", expr);
-                return;
-            }
-            if(cmd == "diff"){
-                // diff(expr, var)
-                auto expr = parser.parse();
-                parser.expect(TokenKind::Comma, "diff: missing ','");
-                if(!parser.match(TokenKind::Ident)){
-                    throw std::runtime_error("diff: expected variable");
-                }
-                auto var = parser.current().text;
-                parser.consume(TokenKind::Ident);
-                parser.expect(TokenKind::RParen, "diff: missing ')'");
-                auto result = Creola::diff(expr, var);
-                Creola::println(std::cout, "===> ", result);
-                return;
-            }
-            if(cmd == "integrate"){
-                // integrate(expr, var)
-                auto expr = parser.parse();
-                parser.expect(TokenKind::Comma, "integrate: missing ','");
-                if(!parser.match(TokenKind::Ident)){
-                    throw std::runtime_error("integrate: expected variable.");
-                }
-                auto var = parser.current().text;
-                parser.consume(TokenKind::Ident);
-                parser.expect(TokenKind::RParen, "integrate: missing ')'");
-                auto result = Creola::integrate(expr, var);
-                Creola::println(std::cout, "===> ", result);
-                return;
-            }
-            if(cmd == "taylor"){
-                // taylor(expr, var, center, order)
-                auto expr = parser.parse();
-                parser.expect(TokenKind::Comma, "taylor: missing ','");
-                if(!parser.match(TokenKind::Ident)){
-                    throw std::runtime_error("taylor: expeted a variable");
-                }
-                auto var = parser.current().text;
-                parser.consume(TokenKind::Ident);
-
-                if(!parser.match(TokenKind::Number)){
-                    throw std::runtime_error("taylor: expected a number (i.e the center)");
-                }
-                auto center = parser.current().num;
-                parser.consume(TokenKind::Number);
-                parser.expect(TokenKind::Comma, "taylor: missing ','");
-                if(!parser.match(TokenKind::Number)){
-                    throw std::runtime_error("taylor: expected a number (i.e the order)");
-                }
-                auto order = static_cast<int>(parser.current().num);
-                parser.consume(TokenKind::Number);
-                parser.expect(TokenKind::RParen, "taylor: missing ')'");
-                auto result = Creola::taylor(expr, var, center, order);
-                Creola::println(std::cout, "===> ", result);
-                return;
-            }
-            if(cmd == "limit"){
-                // limit(expr, var, val)
-                auto expr = parser.parse();
-                parser.expect(TokenKind::Comma, "limit: missing ','");
-                if(!parser.match(TokenKind::Ident)){
-                    throw std::runtime_error("limit: expected variable");
-                }
-                auto var = parser.current().text;
-                parser.consume(TokenKind::Ident);
-                parser.expect(TokenKind::Comma, "limit: missing ','");
-                if(!parser.match(TokenKind::Number)){
-                    throw std::runtime_error("limit: expected a number (i.e the point where the limit is evaluated.)");
-                }
-                auto val = parser.current().num;
-                parser.consume(TokenKind::Number);
-                parser.expect(TokenKind::RParen, "limit: missing ')'");
-                auto result = Creola::limit(expr, var, val);
-                Creola::println(std::cout, "===> ", result);
-                return;
-            }
-            if(cmd == "roots"){
-                // roots(expr, var, [vmin], [vmax])
-                auto expr = parser.parse();
-                parser.expect(TokenKind::Comma, "roots: missing ','");
-                if(!parser.match(TokenKind::Ident)){
-                    throw std::runtime_error("roots: expected variable");
-                }
-                auto var = parser.current().text;
-                parser.consume(TokenKind::Ident);
-                parser.expect(TokenKind::RParen, "roots: missing ')'");
-                auto result = Creola::roots(expr, var);
-                //std::cout << "===> { ";
-                Creola::print(std::cout, "===> { ");
-                for(size_t i=0; i < result.size(); ++i){
-                    if(i > 0){ std::cout << ", "; }
-                    Creola::print(std::cout, result[i]);
-                }
-                Creola::println(std::cout, "}");
-                return;
-            }
-            //! @todo implement `factor' command
+        std::stringstream oss;
+        ss << "Expected '(' after command '" << cmd << "'";
+        parser.expect(TokenKind::LParen, oss.str());
+        //if(parser.match(TokenKind::LParen)){
+        parser.consume(TokenKind::LParen);
+        // --*--
+        if(cmd == "simplify"){
+            auto expr = parser.parse();
+            // parser.expect(TokenKind::RParen, "simplify: missing ')'");
+            expr = Creola::simplify(expr);
+            Creola::println(std::cout, "===> ", expr);
+            return;
         }
+        if(cmd == "expand"){
+            auto expr = Creola::expand(parser.parse());
+            //parser.expect(TokenKind::RParen, "expand: missing ')'");
+            Creola::println(std::cout, "===> ", expr);
+            return;
+        }
+        if(cmd == "diff"){
+            // diff(expr, var)
+            auto expr = parser.parse();
+            parser.expect(TokenKind::Comma, "diff: missing ','");
+            parser.consume(TokenKind::Comma);
+            parser.expect(TokenKind::Ident, "diff: expected variable");
+            // if(!parser.match(TokenKind::Ident)){
+            //     throw std::runtime_error("diff: expected variable");
+            // }
+            auto var = parser.current().text;
+            parser.consume(TokenKind::Ident);
+            //parser.expect(TokenKind::RParen, "diff: missing ')'");
+            auto result = Creola::diff(expr, var);
+            Creola::println(std::cout, "===> ", result);
+            return;
+        }
+        if(cmd == "integrate"){
+            // integrate(expr, var)
+            auto expr = parser.parse();
+            parser.expect(TokenKind::Comma, "integrate: missing ','");
+            parser.consume(TokenKind::Comma);
+            parser.expect(TokenKind::Ident, "integrate: expected variable");
+            // if(!parser.match(TokenKind::Ident)){
+            //     throw std::runtime_error("integrate: expected variable.");
+            // }
+            auto var = parser.current().text;
+            parser.consume(TokenKind::Ident);
+            //parser.expect(TokenKind::RParen, "integrate: missing ')'");
+            auto result = Creola::integrate(expr, var);
+            Creola::println(std::cout, "===> ", result);
+            return;
+        }
+        if(cmd == "taylor"){
+            // taylor(expr, var, center, order)
+            auto expr = parser.parse();
+            parser.expect(TokenKind::Comma, "taylor: missing ','");
+            parser.consume(TokenKind::Comma);
+            parser.expect(TokenKind::Ident, "taylor: expected a variable");
+            // if(!parser.match(TokenKind::Ident)){
+            //     throw std::runtime_error("taylor: expeted a variable");
+            // }
+            auto var = parser.current().text;
+            parser.consume(TokenKind::Ident);
+
+            parser.expect(TokenKind::Number, "taylor: expected a number (i.e the center)");
+            // if(!parser.match(TokenKind::Number)){
+            //     throw std::runtime_error("taylor: expected a number (i.e the center)");
+            // }
+            auto center = parser.current().num;
+            parser.consume(TokenKind::Number);
+            parser.expect(TokenKind::Comma, "taylor: missing ','");
+            parser.consume(TokenKind::Comma);
+            parser.consume(TokenKind::Comma);
+            parser.expect(TokenKind::Number, "taylor: expected a number (i.e the order).");
+            // if(!parser.match(TokenKind::Number)){
+            //     throw std::runtime_error("taylor: expected a number (i.e the order)");
+            // }
+            auto order = static_cast<int>(parser.current().num);
+            parser.consume(TokenKind::Number);
+            //parser.expect(TokenKind::RParen, "taylor: missing ')'");
+            auto result = Creola::taylor(expr, var, center, order);
+            Creola::println(std::cout, "===> ", result);
+            return;
+        }
+        if(cmd == "limit"){
+            // limit(expr, var, val)
+            auto expr = parser.parse();
+            parser.expect(TokenKind::Comma, "limit: missing ','");
+            parser.consume(TokenKind::Comma);
+            parser.expect(TokenKind::Ident, "limit: expected a variable");
+            // if(!parser.match(TokenKind::Ident)){
+            //     throw std::runtime_error("limit: expected variable");
+            // }
+            auto var = parser.current().text;
+            parser.consume(TokenKind::Ident);
+            parser.expect(TokenKind::Comma, "limit: missing ','");
+            parser.consume(TokenKind::Comma);
+            parser.expect(TokenKind::Number, "limit: expected a number (i.e the point where the limit is evaluated.)");
+            // if(!parser.match(TokenKind::Number)){
+            //     throw std::runtime_error("limit: expected a number (i.e the point where the limit is evaluated.)");
+            // }
+            auto val = parser.current().num;
+            parser.consume(TokenKind::Number);
+            //parser.expect(TokenKind::RParen, "limit: missing ')'");
+            auto result = Creola::limit(expr, var, val);
+            Creola::println(std::cout, "===> ", result);
+            return;
+        }
+        if(cmd == "roots"){
+            // --------------------------------
+            // roots(expr, var, [vmin], [vmax])
+            // --------------------------------
+            //! @todo: implement the case where vmin & vmax are supplied
+            auto expr = parser.parse();
+            parser.expect(TokenKind::Comma, "roots: missing ','");
+            parser.consume(TokenKind::Comma);
+            parser.expect(TokenKind::Ident, "roots: expected a variable");
+            // if(!parser.match(TokenKind::Ident)){
+            //     throw std::runtime_error("roots: expected variable");
+            // }
+            auto var = parser.current().text;
+            parser.consume(TokenKind::Ident);
+            //parser.expect(TokenKind::RParen, "roots: missing ')'");
+            auto result = Creola::roots(expr, var);
+            //std::cout << "===> { ";
+            Creola::print(std::cout, "===> { ");
+            for(size_t i=0; i < result.size(); ++i){
+                if(i > 0){ std::cout << ", "; }
+                Creola::print(std::cout, result[i]);
+            }
+            Creola::println(std::cout, "}");
+            return;
+        }
+        //! @todo implement `factor' command
+
+        // --*--
+        std::stringstream css;
+        css << "'" << cmd << "': missing the closing ')'";
+        parser.expect(TokenKind::RParen, css.str());
+        parser.consume(TokenKind::RParen);
+        //}
     }
 
     // default: just parse without evaluating the expression
     auto expr = parser.parse()->simplify();
     expr->print(*Creola::app, std::cout, 0);
     std::cout << std::endl;
+    
 }
-
 
 // - parse_expression_only()
 Expr Creola::parse(const std::string& src){
@@ -814,6 +878,95 @@ void Creola::as(Expr expr, FuncCall& fcall){
         fcall = *dynamic_cast<FuncCall*>(expr.get());
     }
     throw std::runtime_error("TypeError: expected function-call expression");
+}
+
+// ----------------------
+// -*- IMPLEMENTATION OF HELPER METHODS -*-
+// ----------------------
+//! @todo implement the helper method `trim_command(src)`
+std::string Creola::trim_command(const std::string& src, const char* cmd){
+    auto prefix = std::string(cmd);
+    return creola::ltrim(src, prefix);
+}
+
+//! @todo implement the helper method `process_command()`
+void Creola::process_command(const std::string& src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_let()`
+void Creola::handle_keyword_let(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_fun()`
+void Creola::handle_keyword_fun(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_simplify()`
+void Creola::handle_command_simplify(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_diff()`
+void Creola::handle_command_diff(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_integrate()`
+void Creola::handle_command_integrate(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_taylor()`
+void Creola::handle_command_taylor(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_expand()`
+void Creola::handle_command_expand(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_factor()`
+void Creola::handle_command_factor(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_limit()`
+void Creola::handle_command_limit(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_groebner()`
+void Creola::handle_command_groebner(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_rewrite()`
+void Creola::handle_command_rewrite(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_roots()`
+void Creola::handle_command_roots(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_solve()`
+void Creola::handle_command_solve(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_solve_system()`
+void Creola::handle_command_solve_system(const std::string& trimmed_src){
+    //! @todo
+}
+
+//! @todo implement the helper method `handle_parfrac()`
+void Creola::handle_command_partfrac(const std::string& trimmed_src){
+    //! @todo
 }
 
 // -*----------------------------------------------------------------*-
