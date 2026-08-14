@@ -1043,9 +1043,17 @@ void Creola::handle_keyword_fun(const std::string& src){
     Creola::println(std::cout, Creola::ps2, funcname, " = ", expr);
 }
 
-//! @todo implement the helper method `handle_simplify()`
+// -
 void Creola::handle_command_simplify(const std::string& src){
-    //! @todo
+    // simplify(expr)
+    auto code = this->trim_command(src, "simplify"); // "(expr)"
+    Parser parser(code);
+    parser.expect(TokenKind::LParen, "expected '('");
+    parser.consume(TokenKind::LParen);
+    auto expr = parser.parse()->simplify();
+    parser.expect(TokenKind::RParen, "expected ')'");
+    parser.consume(TokenKind::RParen);
+    Creola::println(std::cout, Creola::ps2, expr);
 }
 
 //! @todo implement the helper method `handle_diff()`

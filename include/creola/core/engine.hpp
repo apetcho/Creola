@@ -271,7 +271,22 @@ private:
      */
     void handle_keyword_fun(const std::string& src);
 
-    //! @brief implement the helper method `handle_simplify()`
+    /**
+     * @brief Parse the command `simplify`
+     * 
+     * Synopsis:
+     * --------
+     *      simplify(expr)
+     * 
+     * Example:
+     * --------
+     *      creola> simplify(x - 1 + 2)
+     *      ======> x + 1
+     *      creola> simplify(sin^2(x) + cos^2(x))
+     *      ======> 1
+     * 
+     * @param src 
+     */
     void handle_command_simplify(const std::string& src);
 
     //! @brief implement the helper method `handle_diff()`
