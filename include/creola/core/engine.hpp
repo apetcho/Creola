@@ -17,12 +17,18 @@ namespace creola::core {
 // -*-
 class Creola final : public PrintVisitor {
 public:
-
     // - handle_line()
-    void run(const std::string& src);
+    Result run(const std::string& src);
     // - parse_expression_only()
     Expr parse(const std::string& src);
 
+    // -
+    static std::string ps1;
+    static std::string ps2;
+    static std::set<std::string> keywords;
+    static std::set<std::string> builtin_commands;
+    static void define_keywords(void);
+    static void define_builtin_commands(void);
     // -
     static Shared<Creola> app;
     static std::mutex app_mtx;
@@ -141,13 +147,6 @@ public:
     static std::unordered_map<std::string, UnaryMathFun> UNARY_MATH_FUNCTIONS;
     static std::unordered_map<std::string, Func> COMMON_DIFF_TABLE;
     static std::unordered_map<std::string, Func> COMMON_INTEGRATION_TABLE;
-
-    static std::string ps1;
-    static std::string ps2;
-    static std::set<std::string> keywords;
-    static std::set<std::string> builtin_commands;
-    static void define_keywords(void);
-    static void define_builtin_commands(void);
 
     static Expr number(f64 val);
     static Expr symbol(const std::string& var);

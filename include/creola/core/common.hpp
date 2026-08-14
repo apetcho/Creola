@@ -61,6 +61,26 @@ struct FunctionDef {
     Expr body;
 };
 
+class Result{
+public:
+    explicit Result(std::string& message, bool ok=true)
+    : m_ok{ok}, m_value{message}
+    {}
+
+    bool is_ok(void)const { return this->m_ok; }
+    std::string value(void) const {
+        return this->m_okd ? this->m_value.ok : this->m_value.err;
+    }
+
+private:
+    union Value{
+        std::string ok;
+        std::string err;
+    };
+    bool m_ok;
+    Value m_value;
+};
+
 // -*-
 enum class ExprKind {
     NUM, SYM, ADD, MUL, POW, NEG, CALL,
