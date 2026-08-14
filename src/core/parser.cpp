@@ -23,13 +23,19 @@ Token Tokenizer::next(void){
     auto c = this->m_src[this->m_pos];
     if(std::isdigit(c)){
         auto start = this->m_pos;
-        size_t& pos = this->m_pos;
-        while(pos < this->m_src.size() && (std::isdigit(this->m_src[pos]) || this->m_src[pos]=='.')){
-            ++pos;
-        }
-        auto lexme = this->m_src.substr(start, pos-start);
-        auto num = std::stod(lexme);
-        return Token(TokenKind::Number, lexme, num);
+        //size_t& pos = this->m_pos;
+        auto mystr = this->m_src.substr(start, std::string::npos);
+        usize idx = 0;
+        auto val = std::stod(mystr, &idx);
+        this->m_pos += idx;
+        // while(pos < this->m_src.size() && (std::isdigit(this->m_src[pos]) || this->m_src[pos]=='.')){
+        //     ++pos;
+        // }
+        // auto lexme = this->m_src.substr(start, pos-start);
+        // auto num = std::stod(lexme);
+        // return Token(TokenKind::Number, lexme, num);
+        auto lexme = this->m_src.substr(start, idx-start);
+        return Token(TokenKind::Number, lexme, val);
     }
     if(std::isalpha(c) || c == '_'){
         auto start = this->m_pos;

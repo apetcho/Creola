@@ -1074,12 +1074,58 @@ void Creola::handle_command_diff(const std::string& src){
     parser.consume(TokenKind::RParen);
 
     auto result = expr->diff(var);
-    Creola::println(std::cout, Creola::ps2, result);
+    Creola::println(std::cout, Creola::ps2, result->simplify());
 }
 
-//! @todo implement the helper method `handle_integrate()`
+// -
 void Creola::handle_command_integrate(const std::string& src){
-    //! @todo
+    // (1) integrate(expr, var)             
+    // (2) integrate(expr, var, vmin, vmax)
+    auto code = this->trim_command(src, "integrate");
+    bool evaled{false};
+    Parser parser(code);
+    parser.expect(TokenKind::LParen, "expected '('");
+    parser.consume(TokenKind::LParen);
+
+    auto expr = parser.parse();
+
+    parser.expect(TokenKind::Comma, "expected ','");
+    parser.consume(TokenKind::Comma);
+
+    parser.expect(TokenKind::Ident, "expected a variable name");
+    auto var = parser.current().text;
+    parser.consume(TokenKind::Ident);
+
+    f64 vmin, vmax;
+    if(parser.match(TokenKind::Comma)){
+        parser.expect(TokenKind::Comma, "expected ','");
+        parser.consume(TokenKind::Comma);
+
+        parser.expect(TokenKind::Number, "expected a number");
+        vmin = parser.current().num;
+        parser.consume(TokenKind::Number);
+
+        parser.expect(TokenKind::Comma, "expected ','");
+        parser.consume(TokenKind::Comma);
+        parser.expect(TokenKind::Number, "expected a number");
+        vmax = parser.current().num;
+        parser.consume(TokenKind::Number);
+
+        evaled = true;
+    }
+    
+    parser.expect(TokenKind::RParen, "expected ')'");
+    parser.consume(TokenKind::RParen);
+
+    auto F = expr->integrate(var);
+    if(evaled){
+        auto func = FuncCall("creola@dummy_func", Vec<Expr>{F});
+        auto result = func->eval(func, var, vmax) - func->eval(func, var, vmin);
+        Creola::println(std::cout, Creola::ps2, result->simplify());
+        return;
+    }
+
+    Creola::println(std::cout, Creola::ps2, F->simplify());
 }
 
 //! @todo implement the helper method `handle_taylor()`
