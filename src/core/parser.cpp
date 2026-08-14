@@ -96,16 +96,13 @@ Expr Parser::parse(void){
 
 
 void Parser::consume(TokenKind kind){
-    if(this->match(kind)){
-        this->m_curTok = this->m_tokenizer.next();
-    }
+    this->m_curTok = this->m_tokenizer.next();
 }
 
 void Parser::expect(TokenKind kind, const char* msg){
     if(!this->match(kind)){
-        throw std::runtime_error(msg);
+        throw CreolaError(msg);
     }
-    this->consume(kind);
 }
 
 
@@ -115,52 +112,46 @@ Expr Parser::parse_primary(void){
         this->consume(TokenKind::Number);
         return Creola::number(val);
     }
-    if(this->match(TokenKind::Ident)){
+    if(this->match(TokenKind::Ident)){// name
         auto name = this->m_curTok.text;
         this->consume(TokenKind::Ident);
-        if(this->match(TokenKind::LParen)){
+        if(this->match(TokenKind::LParen)){// name(args)
             this->consume(TokenKind::LParen);
             Vec<Expr> args{};
-            if(!this->match(TokenKind::RParen)){
-                while(true){
-                    args.push_back(this->parse());
-                    if(this->match(TokenKind::Comma)){
-                        this->consume(TokenKind::Comma);
-                    }else{
-                        break;
-                    }
+            while(!this->match(TokenKind::RParen)){
+                args.push_back(this->parse());
+                if(this->match(TokenKind::Comma)){
+                    this->consume(TokenKind::Comma);
                 }
             }
             this->expect(TokenKind::RParen, "expected ')'");
-            //this->consume(TokenKind::RParen);
             return std::make_shared<FuncCall>(name, args);
         }
         return Creola::symbol(name);
     }
-    if(this->match(TokenKind::LParen)){
+    if(this->match(TokenKind::LParen)){// (expr)
         this->consume(TokenKind::LParen);
         auto expr = this->parse();
         this->expect(TokenKind::RParen, "expected ')'");
-        //this->consume(TokenKind::RParen);
         return std::move(expr);
     }
-    if(this->match(TokenKind::Minus)){
+    if(this->match(TokenKind::Minus)){// -expr
         this->consume(TokenKind::Minus);
         return std::make_shared<Neg>(this->parse_primary());
     }
 
-    throw std::runtime_error("invalid primary");
+    throw CreolaError("invalid primary");
 }
 
 Expr Parser::parse_pow(void){
     auto lhs = this->parse_primary();
-    while(this->match(TokenKind::Caret)){
+    while(this->match(TokenKind::Caret)){// expr^expr
         this->consume(TokenKind::Caret);
         auto rhs = this->parse_primary();
         lhs = std::make_shared<Pow>(lhs, rhs);
     }
 
-    return lhs;
+    return std::move(lhs);
 }
 
 Expr Parser::parse_term(void){
@@ -171,7 +162,7 @@ Expr Parser::parse_term(void){
         auto rhs = this->parse_pow();
         if(op==TokenKind::Star){
             lhs = std::make_shared<Mul>(Vec<Expr>{lhs, rhs});
-        }else{
+        }else{// x/y === x * y^(-1)
             lhs = std::make_shared<Mul>(Vec<Expr>{
                 lhs,
                 std::make_shared<Pow>(rhs, Creola::number(-1.0))

@@ -52,10 +52,11 @@ public:
     Expr parse(void); // parse_expr
     const Token& current(void) const { return this->m_curTok; }
 
-    void consume(TokenKind kind);
     bool match(TokenKind kind){
         return this->m_curTok.kind==kind;
     }
+
+    void consume(TokenKind kind);
     void expect(TokenKind kind, const char* msg);
 
 private:
