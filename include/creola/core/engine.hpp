@@ -167,7 +167,8 @@ public:
     static Expr taylor(const Expr& expr, const std::string& var, f64 val, int n);
     static f64 limit(const Expr& expr, const std::string& var, f64 val, f64 eps=1e-6);
 
-    //! @todo Define default symbols including `→`, `∞`, `ℝ`, etc.
+    //! @todo Define default symbols including `→`, `-∞`, `+∞`, `ℝ`, etc.
+
     static bool is_fraction(const Expr& expr, Expr& num, Expr& den){
         //! @todo
         return false;
@@ -417,7 +418,22 @@ private:
      */
     Expr handle_command_factor(const std::string& src, Vec<Expr>& vecResult);
 
-    //! @brief implement the helper method `handle_limit()`
+    /**
+     * @brief Parse the command `limit` expression.
+     * 
+     * Syntax:
+     * -------
+     *      limit(expr, var, val)
+     * 
+     * Example:
+     * -------
+     *      creola> limit("ln(x)/x", x, 0)
+     *      ======> +∞
+     * 
+     * @param src 
+     * @param vecResult 
+     * @return Expr 
+     */
     Expr handle_command_limit(const std::string& src, Vec<Expr>& vecResult);
 
     //! @brief implement the helper method `handle_groebner()`
@@ -440,6 +456,11 @@ private:
     Expr handle_command_equation(const std::string& src, Vec<Expr>& vecResult);
     Expr handle_command_system(const std::string& src, Vec<Expr>& vecResult);
     Expr handle_command_factorial(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_fibonacci(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_help(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_print(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_config(const std::string& src, Vec<Expr>& vecResult);
+    Expr handle_command_show(const std::string& src, Vec<Expr>& vecResult);
 };
 
 // -*----------------------------------------------------------------*-

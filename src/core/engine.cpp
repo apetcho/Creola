@@ -95,7 +95,9 @@ void Creola::define_builtin_commands(void){
         "simplify", "diff", "integrate", "taylor",
         "expand", "factor", "limit", "greobner",
         "rewrite", "roots", "solve", "solve_system",
-        //"equation", "system",
+        "equation", "system", "factorial", "fibonacci",
+        // utility functions
+        "help", "print", "config", "show", "",
     };
 }
 
@@ -1294,52 +1296,157 @@ Expr Creola::handle_command_factor(const std::string& src, Vec<Expr>& vecResult)
     return expr->factor(var)->simplify();
 }
 
-//! @todo implement the helper method `handle_limit()`
+// -
 Expr Creola::handle_command_limit(const std::string& src, Vec<Expr>& vecResult){
-    //! @todo
+    // limit(expr, var, val)
+    vecResult = {};
+    auto code = this->trim_command(src, "limit");
+    Parser parser(code);
+
+    parser.expect(TokenKind::LParen, "expected '('.");
+    parser.consume(TokenKind::LParen);
+
+    auto expr = parser.parse();
+
+    parser.expect(TokenKind::Comma, "expected ','.");
+    parser.consume(TokenKind::Comma);
+
+    parser.expect(TokenKind::Ident, "expected a variable name.");
+    auto var = parser.current().text;
+    parser.consume(TokenKind::RParen);
+
+    parser.expect(TokenKind::Comma, "expected ','.");
+    parser.consume(TokenKind::Comma);
+
+    f64 val{};
+    if(parser.match(TokenKind::Ident)){
+        auto vname = parser.current().text;
+        parser.consume(TokenKind::Ident);
+        this->validate_var(vname);
+        auto numexpr = this->m_vars[vname];
+        if(!Creola::is_number_expr(numexpr)){
+            std::ostringstream ess;
+            ess << "invalid variable " << std::quote(vname) << "'s type. Expected a number.";
+            throw CreolaError(ess.str());
+        }
+        Number num{0.0};
+        Creola::as(numexpr, num);
+        val = num.value();
+    }else{
+        parser.expect(TokenKind::Number, "expected a number.");
+        val = parser.current().num;
+        parser.consume(TokenKind::Number);
+    }
+
+    parser.expect(TokenKind::RParen, "expected ')'.");
+    parser.consume(TokenKind::RParen);
+
+    expr = this->handle_expr(expr);
+
+    return expr->limit(var, val);
 }
 
 //! @todo implement the helper method `handle_groebner()`
 Expr Creola::handle_command_groebner(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_rewrite()`
 Expr Creola::handle_command_rewrite(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_roots()`
 Expr Creola::handle_command_roots(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_solve()`
 Expr Creola::handle_command_solve(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_solve_system()`
 Expr Creola::handle_command_solve_system(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_parfrac()`
 Expr Creola::handle_command_partfrac(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 Expr Creola::handle_command_equation(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 Expr Creola::handle_command_system(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
 }
 
 // -
 Expr Creola::handle_command_factorial(const std::string& src, Vec<Expr>& vecResult){
     //! @todo
+    throw CreolaError("not implemented yet.");
+}
+
+// -
+Expr Creola::handle_command_help(const std::string& src, Vec<Expr>& vecResult){
+    //! @todo
+    throw CreolaError("not implemented yet.");
+}
+
+// -
+Expr Creola::handle_command_print(const std::string& src, Vec<Expr>& vecResult){
+    //! @todo
+    throw CreolaError("not implemented yet.");
+}
+
+// -
+Expr Creola::handle_command_config(const std::string& src, Vec<Expr>& vecResult){
+    //! @todo
+    // >> config(limit.eps)
+    // >> config(limit.epsilon, 0.000000001)
+    // >> config(roots.epsilon, 0.0000000000001)
+    // >> config(print.fancy, "true")
+    // >> config(number.precision, 3)
+    // >> config(number.scientific, "true")
+    // >> config(number.format, "long"); "short", "none", ""
+    // >> config(theme.number, "green")
+    // >> config(theme.keyword, "blue")
+    // >> config(theme.command, "yellow")
+    // >> config(theme.background, "white")
+    // >> config(theme.foreground, "black")
+    // >> config(theme.fontFamily, "times")
+    // >> config(theme.fontSize, "14")
+    // >> config(prompt.ps1, ">> ")
+    // >> config(prompt.ps2, "")
+    // >> config(plot.linewidth, 2)
+    // >> config(plot.linecolor, "blue")
+    // >> config(plot.markerSize, 3)
+    // >> config(plot.markerFontFamily, "verdana")
+    // >> ...
+}
+
+// -
+Expr Creola::handle_command_show(const std::string& src, Vec<Expr>& vecResult){
+    //! @todo
+    // >> show("keywords")
+    // >> show("symbols")
+    // >> show("constants")
+    // >> show("builtins")
+    // >> show("env")
+    // >> show("variables")
+    // >> show("functions")
+    throw CreolaError("not implemented yet.");
 }
 
 // -*----------------------------------------------------------------*-
