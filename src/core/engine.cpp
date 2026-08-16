@@ -102,12 +102,12 @@ void Creola::define_builtin_commands(void){
 }
 
 // -*-
-Expr Creola::number(f64 val){
+Expr Creola::make_number_expr(f64 val){
     return std::make_shared<Number>(val);
 }
 
 // -*-
-Expr Creola::symbol(const std::string& var){
+Expr Creola::make_symbol_expr(const std::string& var){
     return std::make_shared<Symbol>(var);
 }
 
@@ -126,6 +126,31 @@ bool Creola::is_one(const Expr& expr){
     Number num{0.0};
     Creola::as(expr, num);
     return num.value()==1.0;
+}
+
+// -*-
+Expr Creola::make_neg_expr(const Expr& expr){
+    return std::make_shared<Neg>(expr);
+}
+
+// -*-
+Expr Creola::make_add_expr(const Vec<Expr>& terms){
+    return std::make_shared<Add>(terms);
+}
+
+// -*-
+Expr Creola::make_mul_expr(const Vec<Expr>& factors){
+    return std::make_shared<Mul>(factors);
+}
+
+// -*-
+Expr Creola::make_pow_expr(const Expr& base, const Expr& expo){
+    return std::make_shared<Pow>(base, expo);
+}
+
+// -*-
+Expr Creola::make_funcall_expr(const std::string& name, const Vec<Expr>& argv){
+    return std::make_shared<FuncCall>(name, argv);
 }
 
 // -*-
@@ -163,267 +188,61 @@ bool Creola::is_call_expr(const Expr& expr){
     return expr->kind()==ExprKind::CALL;
 }
 
+// // -
+// Expr Creola::handle_expr(const Expr& expr){
+//     if(Creola::is_symbol_expr(expr)){// we have a symbol that represent either a variable or a function name.
+//         Symbol sym{""};
+//         Creola::as(expr, sym);
+//         return this->get_var(sym.name());
+//     }
+
+//     return expr;
+// }
+
 // - handle_line()
 Result Creola::run(const std::string& src){
-    if(src.empty()){ return Result(""); }
+    if(src.empty()){ return Result::ok(""); }
 
     auto startsWithCmd = [](const std::string& data){
         for(auto cmd: Creola::builtin_commands){
-            if(creola::starts_with(data, cmd)){ return true; }
+            if(creola::core::starts_with(data, cmd)){ return true; }
         }
         return false;
     };
 
-    auto input = creola::trim(src);
-    if(creola::starts_with(input, "let") || creola::starts_with("fun")){
+    auto input = creola::core::trim(src);
+    if(creola::core::starts_with(input, "let") || creola::core::starts_with(input, "fun")){
+        std::cerr << "Processing 'let' or 'fun' statements" << std::endl;
         std::ostringstream oss;
         try{
-            auto result = this->process_keyword(input);
-            Creola::print(oss, result[0], result[1], result[2]);
-            return Result(oss.str());
+            auto ans = this->process_keyword(input);
+            return Result::ok(ans);
         }catch(const CreolaError& err){
             Creola::print(oss, err.what());
-            return Result(oss.str(), false);
+            return Result::err(oss.str());
         }catch(...){
             Creola::print(oss, "unexpected error found.");
-            return Result(oss.str(), false);
+            return Result::err(oss.str());
         }
     }else if(startsWithCmd(input)){
-        Vec<Expr> vecResult{};
         std::ostringstream oss;
         try{
-            auto expr = this->process_command(input, vecResult);
-            if(!vecResult.empty()){
-                Creola::print(oss, "{");
-                for(usize i=0; i < vecResult.size(); ++i){
-                    if(i > 0){ Creola::print(oss, ", "); }
-                    Creola::print(oss, vecResult[i]);
-                }
-                Creola::print(oss, "}");
-                return Result(oss.str());
-            }
-            Creola::print(oss, expr);
-            return Result(oss.str());
+            auto ans = this->process_command(input);
+            return Result::ok(ans);
         }catch(const CreolaError& err){
             Creola::print(oss, err.what());
-            return Result(oss.str(), false);
+            return Result::err(oss.str());
         }catch(...){
             Creola::print(oss, "unexpected error found.");
-            return Result(oss.str(), false);
+            return Result::err(oss.str());
         }
     }else{
-        // Just echo the src as is.
+        //! @todo: evaluate a symbol and yield and an error if not defined
+        // Just echo the src as is if it is not a symbol.
         std::ostringstream oss;
         Creola::print(oss, src);
-        return Result(oss.str());
+        return Result::ok(oss.str());
     }
-    
-    // Parser parser(src);
-    // if(parser.match(TokenKind::KwLet)){
-    //     // let name = expr
-    //     parser.consume(TokenKind::KwLet);
-    //     parser.expect(TokenKind::Ident, "Expected identifier after `let'");
-    //     // if(!parser.match(TokenKind::Ident)){
-    //     //     throw std::runtime_error("Expected identifier after `let'");
-    //     // }
-    //     auto name = parser.current().text;
-    //     parser.consume(TokenKind::Ident);
-    //     parser.expect(TokenKind::Equal, "Expected `=' in let statement");
-    //     // if(!parser.match(TokenKind::Equal)){
-    //     //     throw std::runtime_error("Expected `=' in let statement");
-    //     // }
-    //     parser.consume(TokenKind::Equal);
-    //     auto expr = parser.parse()->simplify();
-    //     this->m_vars[name] = expr;
-    //     Creola::println(std::cout, "Defined '", name, "' = ", expr);
-    //     return;
-    // }
-    // if(parser.match(TokenKind::KwFun)){
-    //     // fun f(x) = expr
-    //     parser.consume(TokenKind::KwFun);
-    //     parser.expect(TokenKind::Ident, "Expected function name after `fun' keyword.");
-    //     // if(!parser.match(TokenKind::Ident)){
-    //     //     throw std::runtime_error("Expected function name.");
-    //     // }
-    //     auto fname = parser.current().text;
-    //     parser.consume(TokenKind::Ident);
-    //     parser.expect(TokenKind::LParen, "Expected '(' after function name in `fun' statement.");
-    //     // if(!parser.match(TokenKind::LParen)){
-    //     //     throw std::runtime_error("Expected '(' after function name in `fun` statement.");
-    //     // }
-    //     parser.consume(TokenKind::LParen);
-    //     parser.expect(TokenKind::Ident, "Expected parameter name");
-    //     // if(!parser.match(TokenKind::Ident)){
-    //     //     throw std::runtime_error("Expected parameter name");
-    //     // }
-    //     auto param = parser.current().text;
-    //     parser.consume(TokenKind::Ident);
-    //     parser.expect(TokenKind::RParen, "Expected ')' to close function parameters list.");
-    //     // if(!parser.match(TokenKind::RParen)){
-    //     //     throw std::runtime_error("Expected ')' to close function parameter list.");
-    //     // }
-    //     parser.consume(TokenKind::RParen);
-    //     parser.expect(TokenKind::Equal, "Expected `=' in function function definition after function name.");
-    //     // if(!parser.match(TokenKind::Equal)){
-    //     //     throw std::runtime_error("Expected `=` in function definition");
-    //     // }
-    //     parser.consume(TokenKind::Equal);
-    //     auto body = parser.parse()->simplify();
-    //     this->m_funcs[fname] = {param, body};
-    //     Creola::println(std::cout, "Defined fun: '", fname, "(", param, ") = ", body);
-    //     return;
-    // }
-    // // command like `simplify(...)`, `diff(...)`, `taylor(...)`, ...
-    // if(parser.match(TokenKind::Ident)){
-    //     // `cmd'(...)
-    //     auto cmd = parser.current().text;
-    //     parser.consume(TokenKind::Ident);
-    //     std::stringstream oss;
-    //     ss << "Expected '(' after command '" << cmd << "'";
-    //     parser.expect(TokenKind::LParen, oss.str());
-    //     //if(parser.match(TokenKind::LParen)){
-    //     parser.consume(TokenKind::LParen);
-    //     // --*--
-    //     if(cmd == "simplify"){
-    //         auto expr = parser.parse();
-    //         // parser.expect(TokenKind::RParen, "simplify: missing ')'");
-    //         expr = Creola::simplify(expr);
-    //         Creola::println(std::cout, "===> ", expr);
-    //         return;
-    //     }
-    //     if(cmd == "expand"){
-    //         auto expr = Creola::expand(parser.parse());
-    //         //parser.expect(TokenKind::RParen, "expand: missing ')'");
-    //         Creola::println(std::cout, "===> ", expr);
-    //         return;
-    //     }
-    //     if(cmd == "diff"){
-    //         // diff(expr, var)
-    //         auto expr = parser.parse();
-    //         parser.expect(TokenKind::Comma, "diff: missing ','");
-    //         parser.consume(TokenKind::Comma);
-    //         parser.expect(TokenKind::Ident, "diff: expected variable");
-    //         // if(!parser.match(TokenKind::Ident)){
-    //         //     throw std::runtime_error("diff: expected variable");
-    //         // }
-    //         auto var = parser.current().text;
-    //         parser.consume(TokenKind::Ident);
-    //         //parser.expect(TokenKind::RParen, "diff: missing ')'");
-    //         auto result = Creola::diff(expr, var);
-    //         Creola::println(std::cout, "===> ", result);
-    //         return;
-    //     }
-    //     if(cmd == "integrate"){
-    //         // integrate(expr, var)
-    //         auto expr = parser.parse();
-    //         parser.expect(TokenKind::Comma, "integrate: missing ','");
-    //         parser.consume(TokenKind::Comma);
-    //         parser.expect(TokenKind::Ident, "integrate: expected variable");
-    //         // if(!parser.match(TokenKind::Ident)){
-    //         //     throw std::runtime_error("integrate: expected variable.");
-    //         // }
-    //         auto var = parser.current().text;
-    //         parser.consume(TokenKind::Ident);
-    //         //parser.expect(TokenKind::RParen, "integrate: missing ')'");
-    //         auto result = Creola::integrate(expr, var);
-    //         Creola::println(std::cout, "===> ", result);
-    //         return;
-    //     }
-    //     if(cmd == "taylor"){
-    //         // taylor(expr, var, center, order)
-    //         auto expr = parser.parse();
-    //         parser.expect(TokenKind::Comma, "taylor: missing ','");
-    //         parser.consume(TokenKind::Comma);
-    //         parser.expect(TokenKind::Ident, "taylor: expected a variable");
-    //         // if(!parser.match(TokenKind::Ident)){
-    //         //     throw std::runtime_error("taylor: expeted a variable");
-    //         // }
-    //         auto var = parser.current().text;
-    //         parser.consume(TokenKind::Ident);
-
-    //         parser.expect(TokenKind::Number, "taylor: expected a number (i.e the center)");
-    //         // if(!parser.match(TokenKind::Number)){
-    //         //     throw std::runtime_error("taylor: expected a number (i.e the center)");
-    //         // }
-    //         auto center = parser.current().num;
-    //         parser.consume(TokenKind::Number);
-    //         parser.expect(TokenKind::Comma, "taylor: missing ','");
-    //         parser.consume(TokenKind::Comma);
-    //         parser.consume(TokenKind::Comma);
-    //         parser.expect(TokenKind::Number, "taylor: expected a number (i.e the order).");
-    //         // if(!parser.match(TokenKind::Number)){
-    //         //     throw std::runtime_error("taylor: expected a number (i.e the order)");
-    //         // }
-    //         auto order = static_cast<int>(parser.current().num);
-    //         parser.consume(TokenKind::Number);
-    //         //parser.expect(TokenKind::RParen, "taylor: missing ')'");
-    //         auto result = Creola::taylor(expr, var, center, order);
-    //         Creola::println(std::cout, "===> ", result);
-    //         return;
-    //     }
-    //     if(cmd == "limit"){
-    //         // limit(expr, var, val)
-    //         auto expr = parser.parse();
-    //         parser.expect(TokenKind::Comma, "limit: missing ','");
-    //         parser.consume(TokenKind::Comma);
-    //         parser.expect(TokenKind::Ident, "limit: expected a variable");
-    //         // if(!parser.match(TokenKind::Ident)){
-    //         //     throw std::runtime_error("limit: expected variable");
-    //         // }
-    //         auto var = parser.current().text;
-    //         parser.consume(TokenKind::Ident);
-    //         parser.expect(TokenKind::Comma, "limit: missing ','");
-    //         parser.consume(TokenKind::Comma);
-    //         parser.expect(TokenKind::Number, "limit: expected a number (i.e the point where the limit is evaluated.)");
-    //         // if(!parser.match(TokenKind::Number)){
-    //         //     throw std::runtime_error("limit: expected a number (i.e the point where the limit is evaluated.)");
-    //         // }
-    //         auto val = parser.current().num;
-    //         parser.consume(TokenKind::Number);
-    //         //parser.expect(TokenKind::RParen, "limit: missing ')'");
-    //         auto result = Creola::limit(expr, var, val);
-    //         Creola::println(std::cout, "===> ", result);
-    //         return;
-    //     }
-    //     if(cmd == "roots"){
-    //         // --------------------------------
-    //         // roots(expr, var, [vmin], [vmax])
-    //         // --------------------------------
-    //         //! @todo: implement the case where vmin & vmax are supplied
-    //         auto expr = parser.parse();
-    //         parser.expect(TokenKind::Comma, "roots: missing ','");
-    //         parser.consume(TokenKind::Comma);
-    //         parser.expect(TokenKind::Ident, "roots: expected a variable");
-    //         // if(!parser.match(TokenKind::Ident)){
-    //         //     throw std::runtime_error("roots: expected variable");
-    //         // }
-    //         auto var = parser.current().text;
-    //         parser.consume(TokenKind::Ident);
-    //         //parser.expect(TokenKind::RParen, "roots: missing ')'");
-    //         auto result = Creola::roots(expr, var);
-    //         //std::cout << "===> { ";
-    //         Creola::print(std::cout, "===> { ");
-    //         for(size_t i=0; i < result.size(); ++i){
-    //             if(i > 0){ std::cout << ", "; }
-    //             Creola::print(std::cout, result[i]);
-    //         }
-    //         Creola::println(std::cout, "}");
-    //         return;
-    //     }
-    //     //! @todo implement `factor' command
-
-    //     // --*--
-    //     std::stringstream css;
-    //     css << "'" << cmd << "': missing the closing ')'";
-    //     parser.expect(TokenKind::RParen, css.str());
-    //     parser.consume(TokenKind::RParen);
-    //     //}
-    // }
-
-    // // default: just parse without evaluating the expression
-    // auto expr = parser.parse()->simplify();
-    // expr->print(*Creola::app, std::cout, 0);
-    // std::cout << std::endl;
 }
 
 // - parse_expression_only()
@@ -438,7 +257,7 @@ Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& va
     //if(auto _ = std::dynamic_point_cast<Number>(expr)){ return expr; }
     if(Creola::is_number_expr(expr)){ return expr; }
     if(auto sym = std::dynamic_pointer_cast<Symbol>(expr)){
-        return sym->name() == var? val: expr;
+        return sym->name() == var ? val: expr;
     }
 
     if(auto ptr = std::dynamic_pointer_cast<Add>(expr)){
@@ -446,17 +265,17 @@ Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& va
         for(auto& term: ptr->terms()){
             terms.push_back(this->substitute(term, var, val));
         }
-        return std::make_shared<Add>(terms)->simplify();
+        return Creola::make_add_expr(terms)->simplify();
     }
     if(auto ptr = std::dynamic_pointer_cast<Mul>(expr)){
         Vec<Expr> factors{};
         for(auto& factor: ptr->factors()){
             factors.push_back(this->substitute(factor, var, val));
         }
-        return std::make_shared<Mul>(factors)->simplify();
+        return Creola::make_mul_expr(factors)->simplify();
     }
     if(auto ptr = std::dynamic_pointer_cast<Pow>(expr)){        
-        return std::make_shared<Pow>(
+        return Creola::make_pow_expr(
             this->substitute(ptr->base(), var, val),
             this->substitute(ptr->expo(), var, val)
         )->simplify();
@@ -466,10 +285,10 @@ Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& va
         for(auto& expr: ptr->args()){
             argv.push_back(this->substitute(expr, var, val));
         }  
-        return std::make_shared<FuncCall>(ptr->name(), argv)->simplify();
+        return Creola::make_funcall_expr(ptr->name(), argv)->simplify();
     }
     if(auto ptr = std::dynamic_pointer_cast<Neg>(expr)){
-        return std::make_shared<Neg>(this->substitute(ptr->rhs(), var, val));
+        return Creola::make_neg_expr(this->substitute(ptr->rhs(), var, val));
     }
 
     return expr;
@@ -478,11 +297,21 @@ Expr Creola::substitute(const Expr& expr, const std::string& var, const Expr& va
 // apply_user_func ==> apply 
 Expr Creola::apply(const std::string& name, const Vec<Expr>& args){
     auto entry = this->m_funcs.find(name);
-    if(entry == this->m_funcs.end()){ return nullptr; }
-    if(args.size() != 1){ return nullptr; }
-    return this->substitute(
-        entry->second.body, entry->second.param, args[0]
-    )->simplify();
+    if(entry == this->m_funcs.end()){
+        std::ostringstream ess;
+        ess << "undefined function with the name " << std::quoted(name);
+        throw CreolaError(ess.str());
+    }
+    if(args.size() != entry->second.params.size()){
+        std::ostringstream ess;
+        ess << "incompatible number of argument passed to function " << std::quoted(name);
+        throw CreolaError(ess.str());
+    }
+    for(usize i=0; i < args.size(); ++i){
+        auto ans = this->substitute(entry->second.body, entry->second.params[i], args[i])->simplify();
+        entry->second.body = ans;
+    }
+    return entry->second.body->simplify();
 }
 
 // -*-
@@ -548,25 +377,25 @@ Vec<f64> Creola::roots(const Expr& expr, const std::string& var, f64 vmin, f64 v
 }
 
 // -*-
-Expr Creola::taylor(const Expr& expr, const std::string& var, f64 val, int n){
-    auto series = Creola::number(0);
+Expr Creola::taylor(const Expr& expr, const std::string& var, f64 val, u32 n){
+    auto series = Creola::make_number_expr(0.0);
     auto current = expr;
     for(int k=0; k <= n; ++k){
         auto coeff = current->eval(var, val) / std::tgamma(k+1.0); // k!
         Expr term{};
-        if(k==0){ term =Creola::number(coeff); }
+        if(k==0){ term = Creola::make_number_expr(coeff); }
         else{
-            term = std::make_shared<Mul>(Vec<Expr>{
-                Creola::number(coeff),
-                std::make_shared<Pow>(
-                    std::make_shared<Add>(Vec<Expr>{
-                        Creola::symbol(var), Creola::number(-val)
+            term = Creola::make_mul_expr(Vec<Expr>{
+                Creola::make_number_expr(coeff),
+                Creola::make_pow_expr(
+                    Creola::make_add_expr(Vec<Expr>{
+                        Creola::make_symbol_expr(var), Creola::make_number_expr(-val)
                     }),
-                    Creola::number(k)
+                    Creola::make_number_expr(k)
                 )
             });
         }
-        series = std::make_shared<Add>(Vec<Expr>{series, term})->simplify();
+        series = Creola::make_add_expr(Vec<Expr>{series, term})->simplify();
         current = current->diff(var)->simplify();
     }
 
@@ -590,8 +419,8 @@ f64 Creola::limit(const Expr& expr, const std::string& var, f64 val, f64 eps){
 // -*- Sin, Cos, Tan, Asin, Acos, Atan -*-
 Expr Creola::diff_sin(Expr expr, const std::string& var){
     auto dx = expr->diff(var);
-    return std::make_shared<Mul>(Vec<Expr>{
-        std::make_shared<FuncCall>("cos", Vec<Expr>{expr}),
+    return Creola::make_mul_expr(Vec<Expr>{
+        Creola::make_funcall_expr("cos", Vec<Expr>{expr}),
         dx
     })->simplify();
 }
@@ -600,20 +429,20 @@ Expr Creola::diff_sin(Expr expr, const std::string& var){
 Expr Creola::integrate_sin(Expr expr, const std::string& var){
     auto sym = std::dynamic_pointer_cast<Symbol>(expr);
     if(sym && sym->name() == var){
-        return std::make_shared<Neg>(
-            std::make_shared<FuncCall>("cos", Vec<Expr>{Creola::symbol(var)})
+        return Creola::make_neg_expr(
+            Creola::make_funcall_expr("cos", Vec<Expr>{Creola::make_symbol_expr(var)})
         )->simplify();
     }
     // sin(expr) dvar
-    return std::make_shared<FuncCall>("∫_" + var, Vec<Expr>{expr});
+    return Creola::make_funcall_expr("∫_" + var, Vec<Expr>{expr});
 }
 
 // -*-
 Expr Creola::diff_cos(Expr expr, const std::string& var){
     auto dx = expr->diff(var);
-    return std::make_shared<Mul>(Vec<Expr>{
-        Creola::number(-1),
-        std::make_shared<FuncCall>("sin", Vec<Expr>{expr}),
+    return Creola::make_mul_expr(Vec<Expr>{
+        Creola::make_number_expr(-1),
+        Creola::make_funcall_expr("sin", Vec<Expr>{expr}),
         dx
     })->simplify();
 }
@@ -621,10 +450,10 @@ Expr Creola::diff_cos(Expr expr, const std::string& var){
 Expr Creola::integrate_cos(Expr expr, const std::string& var){
     auto sym = std::dynamic_pointer_cast<Symbol>(expr);
     if(sym && sym->name() == var){
-        return std::make_shared<FuncCall>("sin", Vec<Expr>{expr})->simplify();
+        return Creola::make_funcall_expr("sin", Vec<Expr>{expr})->simplify();
     }
     // cos(expr) dvar
-    return std::make_shared<FuncCall>("∫_" + var, Vec<Expr>{expr});
+    return Creola::make_funcall_expr("∫_" + var, Vec<Expr>{expr});
 }
 
 Expr Creola::diff_tan(Expr expr, const std::string& var){
@@ -746,8 +575,8 @@ Expr Creola::integrate_cbrt(Expr expr, const std::string& var){
 }
 Expr Creola::diff_exp(Expr expr, const std::string& var){
     auto dx = expr->diff(var);
-    return std::make_shared<Mul>(Vec<Expr>{
-        std::make_shared<FuncCall>("exp", Vec<Expr>{expr}),
+    return Creola::make_mul_expr(Vec<Expr>{
+        Creola::make_funcall_expr("exp", Vec<Expr>{expr}),
         dx
     })->simplify();
 }
@@ -759,8 +588,8 @@ Expr Creola::integrate_exp(Expr expr, const std::string& var){
 
 Expr Creola::diff_ln(Expr expr, const std::string& var){
     auto dx = expr->diff(var);
-    return std::make_shared<Mul>(Vec<Expr>{
-        std::make_shared<Pow>(expr, Creola::number(-1)),
+    return Creola::make_mul_expr(Vec<Expr>{
+        Creola::make_pow_expr(expr, Creola::make_number_expr(-1)),
         dx
     })->simplify();
 }
@@ -936,68 +765,109 @@ void Creola::as(Expr expr, FuncCall& fcall){
 // ------------------------------------------------------------------
 std::string Creola::trim_command(const std::string& src, const char* cmd){
     auto prefix = std::string(cmd);
-    return creola::ltrim(src, prefix);
+    return creola::core::ltrim(src);
 }
 
 // -
-Expr Creola::process_command(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::process_command(const std::string& src){
     const auto& _commands = Creola::builtin_commands;
     auto commands = Vec<std::string>(_commands.cbegin(), _commands.cend());
 
-    vecResult = {};
 
+    std::string result{};
     for(auto& cmd: commands){
         if(cmd=="simplify"){
-            return this->handle_command_simplify(src, vecResult);
+            result = this->handle_command_simplify(src);
+            break;
         }
         if(cmd=="diff"){
-            return this->handle_command_diff(src, vecResult);
+            result = this->handle_command_diff(src);
+            break;
         }
         if(cmd=="integrate"){
-            return this->handle_command_integrate(src, vecResult);
+            result = this->handle_command_integrate(src);
+            break;
         }
         if(cmd=="taylor"){
-            return this->handle_command_taylor(src, vecResult);
+            result = this->handle_command_taylor(src);
+            break;
         }
         if(cmd=="expand"){
-            return this->handle_command_expand(src, vecResult);
+            result = this->handle_command_expand(src);
+            break;
         }
         if(cmd=="factor"){
-            return this->handle_command_factor(src, vecResult);
+            result = this->handle_command_factor(src);
+            break;
         }
         if(cmd=="limit"){
-            return this->handle_command_limit(src, vecResult);
+            result = this->handle_command_limit(src);
+            break;
         }
         if(cmd=="groebner"){
-            return this->handle_command_groebner(src, vecResult);
+            result = this->handle_command_groebner(src);
+            break;
         }
         if(cmd=="rewrite"){
-            return this->handle_command_rewrite(src, vecResult);
+            result = this->handle_command_rewrite(src);
+            break;
         }
         if(cmd=="roots"){
-            return this->handle_command_roots(src, vecResult);
+            result = this->handle_command_roots(src);
+            break;
         }
         if(cmd=="solve"){
-            return this->handle_command_solve(src, vecResult);
+            result = this->handle_command_solve(src);
+            break;
         }
         if(cmd=="solve_system"){
-            return this->handle_command_solve_system(src, vecResult);
+            result = this->handle_command_solve_system(src);
+            break;
         }
         if(cmd=="partfrac"){
-            return this->handle_command_partfrac(src, vecResult);
+            result = this->handle_command_partfrac(src);
+            break;
         }
         if(cmd=="equation"){
-            return this->handle_command_equation(src, vecResult);
+            result = this->handle_command_equation(src);
+            break;
         }
         if(cmd=="system"){
-            return this->handle_command_system(src, vecResult);
+            result = this->handle_command_system(src);
+            break;
+        }
+        if(cmd=="factorial"){
+            result = this->handle_command_factorial(src);
+            break;
+        }
+        if(cmd=="fibonacci"){
+            result = this->handle_command_fibonacci(src);
+            break;
+        }
+        if(cmd=="help"){
+            result = this->handle_command_help(src);
+            break;
+        }
+        if(cmd=="print"){
+            result = this->handle_command_print(src);
+            break;
+        }
+        if(cmd=="config"){
+            result = this->handle_command_config(src);
+            break;
+        }
+        if(cmd=="show"){
+            result = this->handle_command_show(src);
+            break;
         }
     }
+
+    return result;
 }
 
 // -
-Vec<Expr> Creola::process_keyword(const std::string& src){
-    if(creola::starts_with(src, "left")){
+std::string Creola::process_keyword(const std::string& src){
+    if(creola::core::starts_with(src, "let")){
         return this->handle_keyword_let(src);
     }else{
         return this->handle_keyword_fun(src);
@@ -1005,76 +875,76 @@ Vec<Expr> Creola::process_keyword(const std::string& src){
 }
 
 // -
-Vec<Expr> Creola::handle_keyword_let(const std::string& src){
+std::string Creola::handle_keyword_let(const std::string& src){
+    std::cerr << "Creola::handle_keyword_let(): <src value=" << std::quoted(src) << ">" << std::endl;
     Parser parser(src);
     parser.expect(TokenKind::KwLet, "expected the keyword `let`.");
     parser.consume(TokenKind::KwLet);
     parser.expect(TokenKind::Ident, "expected and identifier");
     auto var = parser.current().text;
     parser.consume(TokenKind::Ident);
+    std::cerr << "Creola::handle_keyword_let(): <token " << std::quoted(var) << ">" << std::endl;
+
     parser.expect(TokenKind::Equal, "expected `=' after variable name.");
     parser.consume(TokenKind::Equal);
+    std::cerr << "Creola::handle_keyword_let(): <token " << std::quoted("=") << ">" << std::endl;
+
     auto expr = parser.parse()->simplify();
-    this->m_vars[name] = expr;
+    this->m_vars[var] = expr;
     
-    Vec<Expr> result{};
-    result.reserve(3);
-    result[0] = std::make_shared<Symbol>(var);
-    result[1] = std::make_shared<Symbol>("=");
-    result[2] = expr;
-    return result;
+    std::ostringstream oss;
+    Creola::print(oss, var, "=", expr);
+    auto myExpr = oss.str();
+    std::cerr << "Creola::handle_keyword_let(): <expr " << std::quoted(myExpr) << ">" << std::endl;
+    return myExpr;
 }
 
 // -
-Vec<Expr> Creola::handle_keyword_fun(const std::string& src){
+std::string Creola::handle_keyword_fun(const std::string& src){
+    std::cerr << "Creola::handle_keyword_fun(): <src value=" << std::quoted(src) << ">" << std::endl;
     Parser parser(src);
     parser.expect(TokenKind::KwFun, "expected the keyword `fun`.");
     parser.consume(TokenKind::KwFun);
-    // get the function name (.ie funcname) int form "<name>(params)"
+    std::cout << "Consumed the keyword 'fun'" << std::endl;
     parser.expect(TokenKind::Ident, "expected and identifier");
-    auto name = parser.current().text;
+    auto fname = parser.current().text;
     parser.consume(TokenKind::Ident);
+    std::cout << "Consumed the IDENTIFIER " << std::quoted(fname) << std::endl;
+
     parser.expect(TokenKind::LParen, "expected '('");
     parser.consume(TokenKind::LParen);
+    std::cout << "Consumed the LParen '('" << std::endl;
     Vec<std::string> params{};
-    while(parser.current().kind != TokenKind::RParen){
+    while(true){
         parser.expect(TokenKind::Ident, "expected function parameter to be a symbol.");
         auto param = parser.current().text;
         params.push_back(param);
         parser.consume(TokenKind::Ident);
+
+        std::cout << "Consumed the IDENTIFIER " << std::quoted(param) << std::endl;
         if(parser.current().kind == TokenKind::Comma){
             parser.consume(TokenKind::Comma);
+            continue;
         }
+        parser.expect(TokenKind::RParen, "expected function parameter to be a symbol.");
+        parser.consume(TokenKind::Comma);
+        break;
     }
-    parser.expect(TokenKind::RParen, "expected ')'");
-    parser.consume(TokenKind::RParen);
-    std::ostringstream oss;
-    oss << name << "(";
-    for(usize i=0; i < params.size(); ++i){
-        if(i > 0){ oss << ", "; }
-        oss << params[i];
-    }
-    oss << ")";
-    auto funcname = oss.str();
+    
     parser.expect(TokenKind::Equal, "expected '='");
     parser.consume(TokenKind::Equal);
     auto expr = parser.parse();
-    this->m_funcs[funcname] = expr;
-    //Creola::println(std::cout, Creola::ps2, funcname, " = ", expr);
+    this->m_funcs[fname] = {params, expr};
 
-    Vec<Expr> result{};
-    result.reserve(3);
-    result[0] = std::make_shared<Symbol>(funcname);
-    result[1] = std::make_shared<Symbol>("=");
-    result[2] = expr;
+    std::ostringstream oss;
+    Creola::print(oss, fname, "=", expr);
 
-    return result;
+    return oss.str();
 }
 
 // -
-Expr Creola::handle_command_simplify(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_simplify(const std::string& src){
     // simplify(expr)
-    vecResult = {};
     auto code = this->trim_command(src, "simplify"); // "(expr)"
     Parser parser(code);
     parser.expect(TokenKind::LParen, "expected '('");
@@ -1083,15 +953,15 @@ Expr Creola::handle_command_simplify(const std::string& src, Vec<Expr>& vecResul
     parser.expect(TokenKind::RParen, "expected ')'");
     parser.consume(TokenKind::RParen);
 
-    //Creola::println(std::cout, Creola::ps2, expr);
+    std::ostringstream oss;
+    Creola::print(oss, expr->simplify());
 
-    return this->handle_expr(expr)->simplify();
+    return oss.str();
 }
 
 // -
-Expr Creola::handle_command_diff(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_diff(const std::string& src){
     // diff(expr, var)
-    vecResult = {};
     auto code = this->trim_command(src, "diff"); // "(expr)"
     Parser parser(code);
     parser.expect(TokenKind::LParen, "expected '('");
@@ -1106,17 +976,16 @@ Expr Creola::handle_command_diff(const std::string& src, Vec<Expr>& vecResult){
     parser.expect(TokenKind::RParen, "expected ')'");
     parser.consume(TokenKind::RParen);
 
-    expr = this->handle_expr(expr);
     auto result = expr->diff(var);
-    // Creola::println(std::cout, Creola::ps2, result->simplify());
-    return result->simplify();
+    std::ostringstream oss;
+    Creola::print(oss, result->simplify());
+    return oss.str();
 }
 
 // -
-Expr Creola::handle_command_integrate(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_integrate(const std::string& src){
     // (1) integrate(expr, var)             
     // (2) integrate(expr, var, vmin, vmax)
-    vecResult = {};
     auto code = this->trim_command(src, "integrate");
     bool evaled{false};
     Parser parser(code);
@@ -1142,14 +1011,14 @@ Expr Creola::handle_command_integrate(const std::string& src, Vec<Expr>& vecResu
             auto vname = parser.current().text;
             parser.consume(TokenKind::Ident);
             this->validate_var(vname);
-            auto numexpr = this->m_vars[key];
-            if(!Creola::is_number_expr(val)){
+            auto numexpr = this->m_vars[vname];
+            if(!Creola::is_number_expr(numexpr)){
                 std::stringstream ess;
-                ess << "invalid variable " << std::quote(vname) << " type. Expected a number" << std::quote(key);
+                ess << "invalid variable " << std::quoted(vname);
                 throw CreolaError(ess.str());
             }
             Number num{0.0};
-            Creola::as(val, num);
+            Creola::as(numexpr, num);
             vmin = num.value();
         }else{
             parser.expect(TokenKind::Number, "expected a number");
@@ -1169,11 +1038,11 @@ Expr Creola::handle_command_integrate(const std::string& src, Vec<Expr>& vecResu
             auto numexpr = this->m_vars[vname];
             if(!Creola::is_number_expr(numexpr)){
                 std::stringstream ess;
-                ess << "invalid variable " << std::quote(vname) << " type. Expected a number" << std::quote(key);
+                ess << "invalid variable " << std::quoted(vname);
                 throw CreolaError(ess.str());
             }
             Number num{0.0};
-            Creola::as(val, num);
+            Creola::as(numexpr, num);
             vmax = num.value();
         }else{
             parser.expect(TokenKind::Number, "expected a number");
@@ -1187,43 +1056,44 @@ Expr Creola::handle_command_integrate(const std::string& src, Vec<Expr>& vecResu
     parser.expect(TokenKind::RParen, "expected ')'");
     parser.consume(TokenKind::RParen);
 
-    expr = this->handle_expr(expr);
     auto F = expr->integrate(var);
     if(evaled){
-        auto func = FuncCall("creola@dummy_func", Vec<Expr>{F});
-        auto result = func->eval(func, var, vmax) - func->eval(func, var, vmin);
-        //Creola::println(std::cout, Creola::ps2, result->simplify());
-        return result->simplify();
+        auto result = F->eval(var, vmax) - F->eval(var, vmin);
+        return std::to_string(result);
     }
 
-    //Creola::println(std::cout, Creola::ps2, F->simplify());
-    return F->simplify();
+    std::ostringstream oss;
+    Creola::print(oss, F->simplify());
+    return oss.str();
 }
 
 // -
-Expr Creola::handle_command_taylor(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_taylor(const std::string& src){
     // taylor(expr, var, center, order)
-    vecResult = {};
     auto code = this->trim_command(src, "taylor");
     Parser parser(code);
-    parser.expect(TokenKind::LParen, "expected '('.")
+    parser.expect(TokenKind::LParen, "expected '('.");
     parser.consume(TokenKind::LParen);
 
     auto expr = parser.parse();
 
-    parser.expect(TokenKind::Comma, "expected a ','.")
+    parser.expect(TokenKind::Comma, "expected a ','.");
     parser.consume(TokenKind::Comma);
+
+    parser.expect(TokenKind::Ident, "expected a variable.");
+    auto var = parser.current().text;
+    parser.consume(TokenKind::Ident);
 
     // read the center's value
     f64 center{};
     if(parser.match(TokenKind::Ident)){
         auto vname = parser.current().text;
         parser.consume(TokenKind::Ident);
-        this->m_validate_var(vname);
+        this->validate_var(vname);
         auto numexpr = this->m_vars[vname];
         if(!Creola::is_number_expr(numexpr)){
             std::ostringstream ess;
-            ess << "invalid variable " << std::quote(vname) << " type. Expected a number" << std::quote(key);
+            ess << "invalid variable " << std::quoted(vname);
             throw CreolaError(ess.str());
         }
         Number num{0.0};
@@ -1235,7 +1105,7 @@ Expr Creola::handle_command_taylor(const std::string& src, Vec<Expr>& vecResult)
         parser.consume(TokenKind::Number);
     }
 
-    parser.expect(TokenKind::Comma, "expected ','.")
+    parser.expect(TokenKind::Comma, "expected ','.");
     parser.consume(TokenKind::Comma);
 
     // read the order's value
@@ -1243,11 +1113,11 @@ Expr Creola::handle_command_taylor(const std::string& src, Vec<Expr>& vecResult)
     if(parser.match(TokenKind::Ident)){
         auto vname = parser.current().text;
         parser.consume(TokenKind::Ident);
-        this->m_validate_var(vname);
+        this->validate_var(vname);
         auto numexpr = this->m_vars[vname];
         if(!Creola::is_number_expr(numexpr)){
             std::ostringstream ess;
-            ess << "invalid variable " << std::quote(vname) << " type. Expected a number" << std::quote(key);
+            ess << "invalid variable " << std::quoted(vname);
             throw CreolaError(ess.str());
         }
         Number num{0.0};
@@ -1265,19 +1135,18 @@ Expr Creola::handle_command_taylor(const std::string& src, Vec<Expr>& vecResult)
         order = n1;
     }
 
-    parser.expect(TokenKind::RParen, "expected ')'.")
+    parser.expect(TokenKind::RParen, "expected ')'.");
     parser.consume(TokenKind::RParen);
 
-    expr = this->handle_expr(expr);
     auto result = expr->taylor(var, center, order);
-    //Creola::println(std::cout, Creola::ps2, result);
-    return result->simplify();
+    std::ostringstream oss;
+    Creola::println(oss, result->simplify());
+    return oss.str();
 }
 
 // 
-Expr Creola::handle_command_expand(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_expand(const std::string& src){
     // expand(expr)
-    vecResult = {};
     auto code = this->trim_command(src, "expand");
     Parser parser(code);
     parser.expect(TokenKind::LParen, "expected '('.");
@@ -1288,17 +1157,16 @@ Expr Creola::handle_command_expand(const std::string& src, Vec<Expr>& vecResult)
     parser.expect(TokenKind::RParen, "expected ')'.");
     parser.consume(TokenKind::RParen);
 
-    expr = this->handle_expr(expr);
-
-    return expr->expand()->simplify();
+    std::ostringstream oss;
+    Creola::print(oss, expr->expand()->simplify());
+    return oss.str();
 }
 
 // -
-Expr Creola::handle_command_factor(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_factor(const std::string& src){
     // factor(expr, var)
-    vecResult = {};
     auto code = this->trim_command(src, "factor");
-    Parser parse(code);
+    Parser parser(code);
     parser.expect(TokenKind::LParen, "expected '('.");
     parser.consume(TokenKind::LParen);
 
@@ -1313,16 +1181,15 @@ Expr Creola::handle_command_factor(const std::string& src, Vec<Expr>& vecResult)
 
     parser.expect(TokenKind::RParen, "expected ')'.");
     parser.consume(TokenKind::RParen);
-    
-    expr = this->handle_expr(expr);
 
-    return expr->factor(var)->simplify();
+    std::ostringstream oss;
+    Creola::print(oss, expr->factorize(var)->simplify());
+    return oss.str();
 }
 
 // -
-Expr Creola::handle_command_limit(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_limit(const std::string& src){
     // limit(expr, var, val)
-    vecResult = {};
     auto code = this->trim_command(src, "limit");
     Parser parser(code);
 
@@ -1349,7 +1216,7 @@ Expr Creola::handle_command_limit(const std::string& src, Vec<Expr>& vecResult){
         auto numexpr = this->m_vars[vname];
         if(!Creola::is_number_expr(numexpr)){
             std::ostringstream ess;
-            ess << "invalid variable " << std::quote(vname) << "'s type. Expected a number.";
+            ess << "invalid variable " << std::quoted(vname) << "'s type. Expected a number.";
             throw CreolaError(ess.str());
         }
         Number num{0.0};
@@ -1364,85 +1231,88 @@ Expr Creola::handle_command_limit(const std::string& src, Vec<Expr>& vecResult){
     parser.expect(TokenKind::RParen, "expected ')'.");
     parser.consume(TokenKind::RParen);
 
-    expr = this->handle_expr(expr);
-
-    return expr->limit(var, val);
+    auto ans = expr->limit(var, val);
+    return std::to_string(ans);
 }
 
 //! @todo implement the helper method `handle_groebner()`
-Expr Creola::handle_command_groebner(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_groebner(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_rewrite()`
-Expr Creola::handle_command_rewrite(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_rewrite(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_roots()`
-Expr Creola::handle_command_roots(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_roots(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_solve()`
-Expr Creola::handle_command_solve(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_solve(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_solve_system()`
-Expr Creola::handle_command_solve_system(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_solve_system(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 //! @todo implement the helper method `handle_parfrac()`
-Expr Creola::handle_command_partfrac(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_partfrac(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
-Expr Creola::handle_command_equation(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_equation(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
-Expr Creola::handle_command_system(const std::string& src, Vec<Expr>& vecResult){
-    //! @todo
-    throw CreolaError("not implemented yet.");
-}
-
-// -
-Expr Creola::handle_command_factorial(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_system(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 // -
-Expr Creola::handle_command_help(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_factorial(const std::string& src){
+    //! @todo
+    throw CreolaError("not implemented yet.");
+}
+
+std::string Creola::handle_command_fibonacci(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 // -
-Expr Creola::handle_command_print(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_help(const std::string& src){
     //! @todo
     throw CreolaError("not implemented yet.");
 }
 
 // -
-Expr Creola::handle_command_config(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_print(const std::string& src){
+    //! @todo
+    throw CreolaError("not implemented yet.");
+}
+
+// -
+std::string Creola::handle_command_config(const std::string& src){
     //! @todo
     // >> config(limit.eps)
     // >> config(limit.epsilon, 0.000000001)
     // >> config(roots.epsilon, 0.0000000000001)
     // >> config(print.fancy, "true")
     // >> config(number.precision, 3)
-    // >> config(number.scientific, "true")
-    // >> config(number.format, "long"); "short", "none", ""
+    // >> config(number.format, "long"); "short", "none", "scientific", "long"
     // >> config(theme.number, "green")
     // >> config(theme.keyword, "blue")
     // >> config(theme.command, "yellow")
@@ -1457,10 +1327,11 @@ Expr Creola::handle_command_config(const std::string& src, Vec<Expr>& vecResult)
     // >> config(plot.markerSize, 3)
     // >> config(plot.markerFontFamily, "verdana")
     // >> ...
+    throw CreolaError("not implemented yet.");
 }
 
 // -
-Expr Creola::handle_command_show(const std::string& src, Vec<Expr>& vecResult){
+std::string Creola::handle_command_show(const std::string& src){
     //! @todo
     // >> show("keywords")
     // >> show("symbols")

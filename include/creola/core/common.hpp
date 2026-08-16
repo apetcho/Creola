@@ -3,10 +3,13 @@
 #include<unordered_map>
 #include<functional>
 #include<stdexcept>
+#include<iostream>
+#include<variant>
 #include<cstdint>
 #include<memory>
 #include<vector>
 #include<cctype>
+#include<string>
 #include<cmath>
 #include<map>
 
@@ -17,6 +20,14 @@
 // -*----------------------------------------------------------------*-
 namespace creola::core {
 // -
+// -*- Forward declarations -*-
+struct Symbol;
+struct Number;
+struct Neg;
+struct Add;
+struct Mul;
+struct Pow;
+struct FuncCall;
 
 template<typename T>
 using Vec = std::vector<T>;
@@ -57,27 +68,70 @@ using Func = std::function<Expr(Expr, const std::string&)>;
 
 // -*-
 struct FunctionDef {
-    std::string param; // univariate function
+    Vec<std::string> params; // univariate function
     Expr body;
 };
 
 class Result{
 public:
-    explicit Result(std::string& message, bool ok=true)
-    : m_ok{ok}, m_value{message}
-    {}
+    static Result ok(const std::string& ans){
+        Result result{};
+        result.m_value = Result::Ok(ans);
+        return result;
+    }
 
-    bool is_ok(void)const { return this->m_ok; }
+    // -
+    static Result err(const std::string& ans){
+        Result result{};
+        result.m_value = Result::Err(ans);
+        return result;
+    }
+
+    bool is_ok(void)const { return std::holds_alternative<Ok>(this->m_value); }
+
     std::string value(void) const {
-        return this->m_okd ? this->m_value.ok : this->m_value.err;
+        return (
+            this->is_ok() ?
+            (std::get<Ok>(this->m_value)).str :
+            (std::get<Err>(this->m_value)).str
+        );
     }
 
 private:
-    union Value{
-        std::string ok;
-        std::string err;
+    /*
+    struct LetResult{
+        std::string lhs;
+        Expr rhs;
+
+        LetResult(const std::string& var, const Expr& val);
+        std::string str(void) const;
     };
-    bool m_ok;
+
+    struct FunResult{
+        std::string name;
+        FunctionDef def;
+
+        FunResult(const std::string& name, FunctionDef func);
+
+        std::string str();
+    };
+    */
+    struct Err{
+        std::string str{};
+        Err(const std::string& v): str{v}{}
+        Err(const char* v): str{v}{}
+    };
+    struct Ok{
+        std::string str{};
+        Ok(const std::string& v): str{v}{}
+        Ok(const char* v): str{v}{}
+
+    /*
+        using Output = std::variant<std::monostate, LetResult, FunResult, Expr>;
+        Output m_out;
+    */
+    };
+    using Value = std::variant<std::monostate, Ok, Err>;
     Value m_value;
 };
 
@@ -85,7 +139,6 @@ private:
 enum class ExprKind {
     NUM, SYM, ADD, MUL, POW, NEG, CALL,
 };
-
 
 // -*-
 static inline bool starts_with(const std::string& text, const std::string& prefix){
@@ -106,6 +159,7 @@ static inline bool ends_with(const std::string& text, const std::string& suffix)
 }
 
 static inline std::string ltrim(const std::string& text){
+    std::cerr << "In 'ltrim()'" << std::endl;
     auto ptr = text.begin();
     while(ptr != text.end()){
         if(!std::isspace(*ptr)){ break; }
@@ -115,16 +169,20 @@ static inline std::string ltrim(const std::string& text){
 }
 
 static inline std::string rtrim(const std::string& text){
-    auto ptr = text.rbegin();
-    while(ptr != text.rend()){
-        if(!std::isspace(*ptr)){ break; }
-        ptr++;
-    }
-    return std::string(text.rend(), ptr);
+    auto len = text.length();
+    while(len > 0 && std::isspace(text[--len])){ continue; }
+    // std::cerr << "In 'rtrim()'" << std::endl;
+    // auto ptr = text.rbegin();
+    // while(ptr != text.rend()){
+    //     if(!std::isspace(*ptr)){ break; }
+    //     ptr++;
+    // }
+    return text.substr(0, len+1);
 }
 
 static inline std::string trim(const std::string& text){
-    return ltrim(rtrim(text));
+    std::cerr << "In 'trim()'" << std::endl;
+    return creola::core::ltrim(rtrim(text));
 }
 
 // -*-
@@ -152,7 +210,7 @@ static inline bool almost_equal(f64 xnum, f64 ynum, f64 tol=1e-12){
 }
 
 static inline bool almost_zero(f64 num, f64 tol=1e-12){
-    return almost_equal(num, 0.0, tol);
+    return creola::core::almost_equal(num, 0.0, tol);
 }
 
 

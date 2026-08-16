@@ -11,6 +11,31 @@
 // -*-------------------------------------------------------------------------*-
 namespace creola::cli{
 // -
+creola::core::Vec<creola::core::Token> Repl::tokenize(const std::string& src){
+    creola::core::Tokenizer tokenizer(src);
+    creola::core::Vec<creola::core::Token> tokens{};
+    auto token = tokenizer.next();
+    while(token.kind != creola::core::TokenKind::End){
+        tokens.push_back(token);
+        token = tokenizer.next();
+    }
+
+    return tokens;
+}
+
+// -
+creola::core::Vec<creola::core::Expr> Repl::parse(const std::string& src){
+    creola::core::Vec<creola::core::Expr> result{};
+    creola::core::Parser parser(src);
+    while(parser.current().kind != creola::core::TokenKind::End){
+        auto expr = parser.parse();
+        result.push_back(std::move(expr));
+    }
+
+    return result;
+}
+
+// -
 std::string Repl::highlight(const std::string& line){
     using namespace creola::core;
     // very simple: number in CYAN, identifier in GREEN, keyowrds in MAGENTA
@@ -84,9 +109,82 @@ void Repl::run(void){
         ::add_history(src.c_str());
         
         try{
-            creola.run(src);
+            // --
+            // std::cerr << "<input value=" << std::quoted(src) << ">" << std::endl;
+            auto kindToString = [](const creola::core::TokenKind kind){
+                switch(kind){
+                case creola::core::TokenKind::End:
+                    return "END";
+                case creola::core::TokenKind::Caret:
+                    return "CARET";
+                case creola::core::TokenKind::Comma:
+                    return "COMMA";
+                case creola::core::TokenKind::Equal:
+                    return "EQUAL";
+                case creola::core::TokenKind::Ident:
+                    return "IDENT";
+                case creola::core::TokenKind::KwFun:
+                    return "FUN";
+                case creola::core::TokenKind::KwLet:
+                    return "LET";
+                case creola::core::TokenKind::LParen:
+                    return "LPAREN";
+                case creola::core::TokenKind::Minus:
+                    return "MINUS";
+                case creola::core::TokenKind::Number:
+                    return "NUMBER";
+                case creola::core::TokenKind::Plus:
+                    return "PLUS";
+                case creola::core::TokenKind::RParen:
+                    return "RPAREN";
+                case creola::core::TokenKind::Slash:
+                    return "SLASH";
+                case creola::core::TokenKind::Star:
+                    return "STAR";
+                default:
+                    throw std::runtime_error("unknown token kind.");
+                }
+            };
+
+            // -*-
+            // auto tokens = Repl::tokenize(src);
+            // for(const auto& token: tokens){
+            //     std::cout << "Token{ kind=" << kindToString(token.kind);
+            //     std::cout << ", text=" << std::quoted(token.text);
+            //     std::cout << ", num=" << token.num;
+            //     std::cout << " }" << std::endl;
+            // }
+
+            // --
+            {
+                // std::vector<creola::core::Expr> exprs{};
+                try{
+                    auto exprs = Repl::parse(src);
+                    for(size_t i=0; i < exprs.size(); ++i){
+                        creola::core::Creola::println(
+                            std::cerr, "items[", i, "] =", exprs[i]
+                        );
+                    }
+                }catch(const creola::core::CreolaError& err){
+                    creola::core::Creola::println(std::cerr, err.what());
+                }catch(const std::exception& err){
+                    creola::core::Creola::println(std::cerr, err.what());
+                }catch(...){
+                    creola::core::Creola::println(std::cerr, "Fatal error");
+                }
+            }
+
+            // // --
+            // auto result = creola.run(src);
+            // if(result.is_ok()){
+            //     std::cout << result.value() << std::endl;
+            // }else{
+            //     throw creola::core::CreolaError(result.value());
+            // }
+        }catch(const creola::core::CreolaError& err){
+            std::cerr << "CreolaError: " << err.what() << std::endl;
         }catch(std::exception& err){
-            std::cerr << "Error: " << err.what() << std::endl;
+            std::cerr << "***Error***: " << err.what() << std::endl;
         }catch(...){
             std::cerr << "Error: unknown error encountered." << std::endl;
         }

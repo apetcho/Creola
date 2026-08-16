@@ -20,39 +20,39 @@ namespace creola::core{
 // --- Number Expression ---
 // -------------------------
 Expr Number::simplify(void) const{
-    return std::make_shared<Number>(*this);
+    return Creola::make_number_expr(this->value());
 }
 
 // -*-
 Expr Number::diff(const std::string& var) const{
     CREOLA_UNUSED(var);
-    return std::make_shared<Number>(0.0);
+    return Creola::make_number_expr(0.0);
 }
 
 // -*-
 Expr Number::integrate(const std::string& var) const{
     // ∫ c dx = c x
-    return std::make_shared<Mul>(Vec<Expr>{
-        Creola::number(this->value()),
-        Creola::symbol(var)
+    return Creola::make_mul_expr(Vec<Expr>{
+        Creola::make_number_expr(this->value()),
+        Creola::make_symbol_expr(var)
     });
 }
 
 // -*-
 Expr Number::expand(void) const{
-    return std::make_shared<Number>(*this);
+    return Creola::make_number_expr(this->value());
 }
 
 Expr Number::factorize(const std::string& var) const{
     //! @todo: implement integer factorization here.
     //! @note: Hard-coded for now
-    return Creola::number(this->value());
+    return Creola::make_number_expr(this->value());
 }
 
-Expr Number::taylor(const std::string& var, f64 val, int n) const{
+Expr Number::taylor(const std::string& var, f64 val, u32 n) const{
     //! @todo: 
     //! @note: Hard-coded for now
-    return Creola::number(this->value());
+    return Creola::make_number_expr(this->value());
 }
 
 Vec<f64> Number::roots(const std::string& var, f64 vmin, f64 vmax, int samples) const{
@@ -77,12 +77,12 @@ f64 Number::eval(const std::string& var, f64 val) const{
 // --- Symbol Expression ---
 // -------------------------
 Expr Symbol::simplify(void) const{
-    return std::make_shared<Symbol>(*this);
+    return Creola::make_symbol_expr(this->name());
 }
 
 //
 Expr Symbol::diff(const std::string& var) const{
-    return std::make_shared<Number>(this->name()==var ? 1.0 : 0.0);
+    return Creola::make_number_expr(this->name()==var ? 1.0 : 0.0);
 }
 
 Expr Symbol::integrate(const std::string& var) const{
@@ -90,20 +90,23 @@ Expr Symbol::integrate(const std::string& var) const{
     // ∫ sym dx => (sym == var) ? 1/2 x^2 : sym x 
     Expr ans = nullptr;
     if(this->name()==var){
-        auto c = Creola::number(0.5);
-        auto x2 = std::make_shared<Pow>(Creola::symbol(var), Creola::number(2.0));
-        ans = std::make_shared<Mul>(Vec<Expr>{c, x2});
+        auto c = Creola::make_number_expr(0.5);
+        auto x2 = Creola::make_pow_expr(
+            Creola::make_symbol_expr(var),
+            Creola::make_number_expr(2.0)
+        );
+        ans = Creola::make_mul_expr(Vec<Expr>{c, x2});
     }else{
-        auto sym = Creola::symbol(this->name());
-        auto x = Creola::symbol(var);
-        ans = std::make_shared<Mul>(Vec<Expr>{sym, x});
+        auto sym = Creola::make_symbol_expr(this->name());
+        auto x = Creola::make_symbol_expr(var);
+        ans = Creola::make_mul_expr(Vec<Expr>{sym, x});
     }
     return std::move(ans->simplify());
 }
 
 // -*-
 Expr Symbol::expand(void) const{
-    return std::make_shared<Symbol>(*this);
+    return Creola::make_symbol_expr(this->name());
 }
 
 
@@ -111,7 +114,7 @@ Expr Symbol::factorize(const std::string& var) const{
     //! @todo
     return nullptr;
 }
-Expr Symbol::taylor(const std::string& var, f64 val, int n) const{
+Expr Symbol::taylor(const std::string& var, f64 val, u32 n) const{
     //! @todo
     return nullptr;
 }
@@ -137,32 +140,32 @@ f64 Symbol::eval(const std::string& var, f64 val) const{
 Expr Neg::simplify(void) const{
     auto expr = this->rhs()->simplify();
     if (auto num = std::dynamic_pointer_cast<Number>(expr)){
-        return Creola::number(-num->value());
+        return Creola::make_number_expr(-num->value());
     }
-    return std::make_shared<Neg>(expr);
+    return Creola::make_neg_expr(expr);
 }
 
 // -*-
 Expr Neg::diff(const std::string& var) const{
-    return std::make_shared<Neg>(this->rhs()->diff(var));
+    return Creola::make_neg_expr(this->rhs()->diff(var));
 }
 
 // -*-
 Expr Neg::integrate(const std::string& var) const{
     // ∫- expr dx = - ∫ expr dx
-    return std::make_shared<Neg>(this->rhs()->integrate(var))->simplify();
+    return Creola::make_neg_expr(this->rhs()->integrate(var))->simplify();
 }
 
 // -*-
 Expr Neg::expand(void) const{
-    return std::make_shared<Neg>(this->rhs()->expand());
+    return Creola::make_neg_expr(this->rhs()->expand());
 }
 
 Expr Neg::factorize(const std::string& var) const{
     //! @todo
     return nullptr;
 }
-Expr Neg::taylor(const std::string& var, f64 val, int n) const{
+Expr Neg::taylor(const std::string& var, f64 val, u32 n) const{
     //! @todo
     return nullptr;
 }
@@ -202,10 +205,10 @@ Expr Add::simplify(void) const{
         }
     }
 
-    if (std::fabsl(acc) != 0.0L){ result.push_back(Creola::number(acc)); }
-    if (result.empty()){ return Creola::number(0); }
+    if (std::fabsl(acc) != 0.0L){ result.push_back(Creola::make_number_expr(acc)); }
+    if (result.empty()){ return Creola::make_number_expr(0.0); }
     if (result.size() == 1) { return result[0]; }
-    return std::make_shared<Add>(result);
+    return Creola::make_add_expr(result);
 }
 
 // -*-
@@ -215,7 +218,7 @@ Expr Add::diff(const std::string& var) const{
     for(auto& term: this->terms()){
         result.push_back(term->diff(var));
     }
-    return std::make_shared<Add>(result)->simplify();
+    return Creola::make_add_expr(result)->simplify();
 }
 
 // -*-
@@ -226,7 +229,7 @@ Expr Add::integrate(const std::string& var) const{
     for(auto& term: this->terms()){
         result.push_back(term->integrate(var));
     }
-    return std::make_shared<Add>(result)->simplify();
+    return Creola::make_add_expr(result)->simplify();
 }
 
 // -*-
@@ -236,7 +239,7 @@ Expr Add::expand(void) const{
     for(auto& term: this->terms()){
         result.push_back(term->expand());
     }
-    return std::make_shared<Add>(result)->simplify();
+    return Creola::make_add_expr(result)->simplify();
 }
 
 // -*-
@@ -246,7 +249,7 @@ Expr Add::factorize(const std::string& var) const{
 }
 
 // -*-
-Expr Add::taylor(const std::string& var, f64 val, int n) const{
+Expr Add::taylor(const std::string& var, f64 val, u32 n) const{
     //! @todo
     return nullptr;
 }
@@ -289,14 +292,14 @@ Expr Mul::simplify(void) const{
         }
     }
 
-    if(acc == 0.0L){ return Creola::number(0.0L); }
+    if(acc == 0.0L){ return Creola::make_number_expr(0.0L); }
     if(acc != 1.0L || result.empty()){
-        result.push_back(Creola::number(acc));
+        result.push_back(Creola::make_number_expr(acc));
     }
-    if(result.empty()){ return Creola::number(1.0L); }
+    if(result.empty()){ return Creola::make_number_expr(1.0); }
     if(result.size()==1){ return result[0]; }
 
-    return std::make_shared<Mul>(result);
+    return Creola::make_mul_expr(result);
 }
 
 // -*-
@@ -313,9 +316,9 @@ Expr Mul::diff(const std::string& var) const{
                 product.push_back(this->factors()[j]);
             }
         }
-        sum_terms.push_back(std::make_shared<Mul>(product));
+        sum_terms.push_back(Creola::make_mul_expr(product));
     }
-    return std::make_shared<Add>(sum_terms)->simplify();
+    return Creola::make_add_expr(sum_terms)->simplify();
 }
 
 
@@ -331,13 +334,13 @@ Expr Mul::integrate(const std::string& var) const{
         if(num){
             auto n = num->value();
             auto F = this->factors()[1]->integrate(var)->simplify();
-            return std::make_shared<Mul>(Vec<Expr>{Creola::number(n), F})->simplify();
+            return Creola::make_mul_expr(Vec<Expr>{Creola::make_number_expr(n), F})->simplify();
         }
         num = std::dynamic_pointer_cast<Number>(this->factors()[1]);
         if(num){
             auto n = num->value();
             auto F = this->factors()[0]->integrate(var)->simplify();
-            return std::make_shared<Mul>(Vec<Expr>{Creola::number(n), F})->simplify();
+            return Creola::make_mul_expr(Vec<Expr>{Creola::make_number_expr(n), F})->simplify();
         }
     }
     auto self = this->simplify();
@@ -345,12 +348,12 @@ Expr Mul::integrate(const std::string& var) const{
     for(auto& expr: this->factors()){
         exprs.push_back(expr->integrate(var)->simplify());
     }
-    return std::make_shared<Mul>(exprs); // fallback
+    return Creola::make_mul_expr(exprs); // fallback
 }
 
 // -*-
 Expr Mul::expand(void) const{
-    if(this->factors().empty()){ return Creola::number(1.0L); }
+    if(this->factors().empty()){ return Creola::make_number_expr(1.0); }
     Expr acc = this->factors()[0]->expand();
     for(size_t i=1; i < this->factors().size(); ++i){
         Expr next = this->factors()[i]->expand();
@@ -361,22 +364,22 @@ Expr Mul::expand(void) const{
         if(xadd && yadd){
             for(auto& xterm: xadd->terms()){
                 for(auto& yterm: yadd->terms()){
-                    neo_terms.push_back(std::make_shared<Mul>(Vec<Expr>{xterm, yterm}));
+                    neo_terms.push_back(Creola::make_mul_expr(Vec<Expr>{xterm, yterm}));
                 }
             }
-            acc = std::make_shared<Add>(neo_terms)->simplify();
+            acc = Creola::make_add_expr(neo_terms)->simplify();
         }else if (xadd){
             for(auto& xterm: xadd->terms()){
-                neo_terms.push_back(std::make_shared<Mul>(Vec<Expr>{xterm, next}));
+                neo_terms.push_back(Creola::make_mul_expr(Vec<Expr>{xterm, next}));
             }
-            acc = std::make_shared<Add>(neo_terms)->simplify();
+            acc = Creola::make_add_expr(neo_terms)->simplify();
         }else if (yadd){
             for(auto& yterm: yadd->terms()){
-                neo_terms.push_back(std::make_shared<Mul>(Vec<Expr>{acc, yterm}));
+                neo_terms.push_back(Creola::make_mul_expr(Vec<Expr>{acc, yterm}));
             }
-            acc = std::make_shared<Add>(neo_terms)->simplify();
+            acc = Creola::make_add_expr(neo_terms)->simplify();
         }else{
-            acc = std::make_shared<Mul>(Vec<Expr>{acc, next})->simplify();
+            acc = Creola::make_mul_expr(Vec<Expr>{acc, next})->simplify();
         }
     }
     return acc;
@@ -387,7 +390,7 @@ Expr Mul::factorize(const std::string& var) const{
     return nullptr;
 }
 
-Expr Mul::taylor(const std::string& var, f64 val, int n) const{
+Expr Mul::taylor(const std::string& var, f64 val, u32 n) const{
     //! @todo
     return nullptr;
 }
@@ -420,9 +423,9 @@ Expr Pow::simplify(void) const{
     auto e = this->expo()->simplify();
     if(auto num = std::dynamic_pointer_cast<Number>(e)){
         if(num->value() == 1.0L){ return b; }
-        if(num->value() == 0.0L){ return Creola::number(1.0L); }
+        if(num->value() == 0.0L){ return Creola::make_number_expr(1.0L); }
     }
-    return std::make_shared<Pow>(b, e);
+    return Creola::make_pow_expr(b, e);
 }
 
 // -*-
@@ -430,27 +433,27 @@ Expr Pow::diff(const std::string& var) const{
     //! Only handle power with numeric exponent: (f^n)' = n f^(n-1) f'
     auto num = std::dynamic_pointer_cast<Number>(this->expo());
     if(num){
-        auto _expo = Creola::number(num->value()-1);
+        auto _expo = Creola::make_number_expr(num->value()-1);
         auto fprime = this->base()->diff(var);
-        return std::make_shared<Mul>(Vec<Expr>{
-            Creola::number(num->value()),
-            std::make_shared<Pow>(this->base(), _expo),
+        return Creola::make_mul_expr(Vec<Expr>{
+            Creola::make_number_expr(num->value()),
+            Creola::make_pow_expr(this->base(), _expo),
             fprime
         })->simplify();
     }
     // general case: (f^g)' = f^g (g' ln f + g f'/f)
-    auto ln_f = std::make_shared<FuncCall>("ln", Vec<Expr>{this->base()});
+    auto ln_f = Creola::make_funcall_expr("ln", Vec<Expr>{this->base()});
     auto gprime = this->expo()->diff(var);
     auto fprime = this->base()->diff(var);
-    auto term1 = std::make_shared<Mul>(Vec<Expr>{gprime, ln_f});
-    auto term2 = std::make_shared<Mul>(Vec<Expr>{
+    auto term1 = Creola::make_mul_expr(Vec<Expr>{gprime, ln_f});
+    auto term2 = Creola::make_mul_expr(Vec<Expr>{
         this->expo(),
         fprime,
-        std::make_shared<Pow>(this->base(), Creola::number(-1))
+        Creola::make_pow_expr(this->base(), Creola::make_number_expr(-1.0))
     });
-    auto sum = std::make_shared<Add>(Vec<Expr>{term1, term2});
-    return std::make_shared<Mul>(
-        Vec<Expr>{std::make_shared<Pow>(this->base(), this->expo()), sum}
+    auto sum = Creola::make_add_expr(Vec<Expr>{term1, term2});
+    return Creola::make_mul_expr(
+        Vec<Expr>{Creola::make_pow_expr(this->base(), this->expo()), sum}
     )->simplify();
 }
 
@@ -465,26 +468,26 @@ Expr Pow::integrate(const std::string& var) const{
     auto e = std::dynamic_pointer_cast<Number>(this->expo());
     if(b && e && b->name()==var){
         auto n = e->value() + 1;
-        auto ans = std::make_shared<Mul>(Vec<Expr>{
-            Creola::number(1.0/n),
-            std::make_shared<Pow>(Creola::symbol(var), Creola::number(n))
+        auto ans = Creola::make_mul_expr(Vec<Expr>{
+            Creola::make_number_expr(1.0/n),
+            Creola::make_pow_expr(Creola::make_symbol_expr(var), Creola::make_number_expr(n))
         });
         return ans->simplify();
     }
     auto xb = std::dynamic_pointer_cast<Number>(this->base());
     auto xe = std::dynamic_pointer_cast<Symbol>(this->expo());
     if(xb && xe && xe->name()==var){// lhs * rhs where lhs = 1/ln(b) and rhs = b^var
-        auto lhs = Creola::number(1.0/std::log(xb->value()));
-        auto rhs = std::make_shared<Pow>(
-            Creola::number(xb->value()), Creola::symbol(var)
+        auto lhs = Creola::make_number_expr(1.0/std::log(xb->value()));
+        auto rhs = Creola::make_pow_expr(
+            Creola::make_number_expr(xb->value()), Creola::make_symbol_expr(var)
         );
-        auto ans = std::make_shared<Mul>(Vec<Expr>{lhs, rhs});
+        auto ans = Creola::make_mul_expr(Vec<Expr>{lhs, rhs});
         return ans->simplify();
     }
     // fallback
     // ∫base^expo dvar
-    return std::make_shared<FuncCall>("∫_"+var, Vec<Expr>{
-        std::make_shared<Pow>(this->base(), this->expo())->simplify()
+    return Creola::make_funcall_expr("∫_"+var, Vec<Expr>{
+        Creola::make_pow_expr(this->base(), this->expo())->simplify()
     });
 }
 
@@ -492,21 +495,21 @@ Expr Pow::expand(void) const{
     //! naive: only expand integer exponent >= 0
     auto num = std::dynamic_pointer_cast<Number>(this->expo());
     if(!num){
-        return std::make_shared<Pow>(
+        return Creola::make_pow_expr(
             this->base()->expand(), this->expo()->expand()
         );
     }
     i64 k = std::llround(num->value());
     if(k < 0 || std::fabs(num->value() - k) > 1e-12){
-        return std::make_shared<Pow>(
+        return Creola::make_pow_expr(
             this->base()->expand(),
             this->expo()->expand()
         );
     }
 
-    Expr acc = Creola::number(1);
+    Expr acc = Creola::make_number_expr(1.0);
     for(i64 i=0; i < k; i++){
-        acc = std::make_shared<Mul>(Vec<Expr>{acc, this->base()})->expand();
+        acc = Creola::make_mul_expr(Vec<Expr>{acc, this->base()})->expand();
     }
     return acc->simplify();
 }
@@ -517,7 +520,7 @@ Expr Pow::factorize(const std::string& var) const{
     return nullptr;
 }
 
-Expr Pow::taylor(const std::string& var, f64 val, int n) const{
+Expr Pow::taylor(const std::string& var, f64 val, u32 n) const{
     //! @todo
     return nullptr;
 }
@@ -559,44 +562,44 @@ Expr FuncCall::simplify(void) const{
         }
     }
 
-    return std::make_shared<FuncCall>(this->name(), argv);
+    return Creola::make_funcall_expr(this->name(), argv);
 }
 
 // -*-
 Expr FuncCall::diff(const std::string& var) const{
     if(this->args().size() != 1){
-        return Creola::number(0.0); // keep it simple
+        return Creola::make_number_expr(0.0); // keep it simple
     }
     auto x = this->args()[0];
     auto dx = x->diff(var);
     if(name()=="sin"){
-        return std::make_shared<Mul>(
+        return Creola::make_mul_expr(
             Vec<Expr>{
-                std::make_shared<FuncCall>("cos", Vec<Expr>{x}),
+                Creola::make_funcall_expr("cos", Vec<Expr>{x}),
                 dx
             }
         )->simplify();
     }
 
     if(name()=="cos"){
-        return std::make_shared<Mul>(
+        return Creola::make_mul_expr(
             Vec<Expr>{
-                Creola::number(-1.0),
-                std::make_shared<FuncCall>("sin", Vec<Expr>{x}),
+                Creola::make_number_expr(-1.0),
+                Creola::make_funcall_expr("sin", Vec<Expr>{x}),
                 dx
             }
         )->simplify();
     }
 
     if(name()=="exp"){
-        return std::make_shared<Mul>(
-            Vec<Expr>{std::make_shared<FuncCall>("expr", Vec<Expr>{x}), dx}
+        return Creola::make_mul_expr(
+            Vec<Expr>{Creola::make_funcall_expr("expr", Vec<Expr>{x}), dx}
         )->simplify();
     }
 
     if(name()=="ln"){
-        return std::make_shared<Mul>(
-            Vec<Expr>{std::make_shared<Pow>(x, Creola::number(-1.0)), dx}
+        return Creola::make_mul_expr(
+            Vec<Expr>{Creola::make_pow_expr(x, Creola::make_number_expr(-1.0)), dx}
         )->simplify();
     }
 
@@ -604,7 +607,7 @@ Expr FuncCall::diff(const std::string& var) const{
 
     // user-defined functions: f(x) ==> f'(x) * dx
     // We'll handle later
-    return std::make_shared<FuncCall>(this->name() + "'", Vec<Expr>{x, dx});
+    return Creola::make_funcall_expr(this->name() + "'", Vec<Expr>{x, dx});
 }
 
 // -*-
@@ -675,7 +678,7 @@ Expr FuncCall::expand(void) const{
     for(auto& arg: this->args()){
         argv.push_back(arg->expand());
     }
-    return std::make_shared<FuncCall>(this->name(), argv);
+    return Creola::make_funcall_expr(this->name(), argv);
 }
 
 // -*-
@@ -685,7 +688,7 @@ Expr FuncCall::factorize(const std::string& var) const{
 }
 
 // -*-
-Expr FuncCall::taylor(const std::string& var, f64 val, int n) const{
+Expr FuncCall::taylor(const std::string& var, f64 val, u32 n) const{
     //! @todo
     //! @note: Hard-coded for now
     return nullptr;
@@ -747,9 +750,15 @@ std::ostream& operator<<(std::ostream& os, const Neg& neg){
 
 std::ostream& operator<<(std::ostream& os, const Add& add){
     for(size_t i=0; i < add.terms().size(); ++i){
-        if (i > 0){ os << " + "; }
-        //os << *add.terms()[i];
-        Creola::display(os, add.terms()[i]);
+        auto term = add.terms()[i];
+        if (i > 0){
+            if(auto num = std::dynamic_pointer_cast<Number>(term)){
+                Creola::print(os, (num->value() < 0 ? "-": "+"), std::fabs(num->value()));
+                continue;
+            }
+            Creola::print(os, " + ");
+        }
+        Creola::print(os, add.terms()[i]);
     }
     return os;
 }
@@ -757,19 +766,44 @@ std::ostream& operator<<(std::ostream& os, const Add& add){
 // -
 std::ostream& operator<<(std::ostream& os, const Mul& mul){
     for(size_t i=0; i < mul.factors().size(); ++i){
-        if (i > 0){ os << "*"; }
+        if (i > 0){
+            if(auto num = std::dynamic_pointer_cast<Number>(mul.factors()[i])){
+                auto val = num->value();
+                auto test = (val < 0);
+                std::string str = (test ? "(-":"") + std::to_string(std::fabs(val));
+                str += test ? ")": "";
+                Creola::print(os, "*", str);
+                continue;
+            }
+            Creola::print(os, "*");
+        }
         //os << *mul.factors()[i];
-        Creola::display(os, mul.factors()[i]);
+        Creola::print(os, mul.factors()[i]);
     }
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const Pow& pow){
-    //os << *pow.base();
-    Creola::display(os, pow.base());
-    os << "^";
-    //os << *pow.expo();
-    Creola::display(os, pow.expo());
+    if(auto num = std::dynamic_pointer_cast<Number>(pow.base())){
+        auto val = num->value();
+        auto test = (val < 0);
+        std::string txt = ( test ? "(-": "") + std::to_string(std::fabs(val));
+        txt += (test ? ")": "");
+        Creola::print(os, txt);
+    }else{
+        Creola::print(os, pow.base());
+    }
+    Creola::print(os, "^");
+    
+    if(auto num = std::dynamic_pointer_cast<Number>(pow.expo())){
+        auto val = num->value();
+        auto test = (val < 0);
+        std::string txt = ( test ? "(-": "") + std::to_string(std::fabs(val));
+        txt += (test ? ")": "");
+        Creola::print(os, txt);
+    }else{
+        Creola::print(os, pow.expo());
+    }
     return os;
 }
 
@@ -778,10 +812,10 @@ std::ostream& operator<<(std::ostream& os, const FuncCall& fcall){
     for(size_t i=0; i < fcall.args().size(); ++i){
         if(i > 0){ os << ", "; }
         // os << *fcall.args()[i];
-        Creola::display(os, fcall.args()[i]);
+        Creola::print(os, fcall.args()[i]);
     }
     os << ")";
-    return os; 
+    return os;
 }
 
 // -*----------------------------------------------------------------*-

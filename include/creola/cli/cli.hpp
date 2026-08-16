@@ -11,6 +11,9 @@ public:
     void run(void);
     static std::string highlight(const std::string& line);
 
+    static creola::core::Vec<creola::core::Token> tokenize(const std::string& src);
+    static creola::core::Vec<creola::core::Expr> parse(const std::string& src);
+
 private:
 };
 

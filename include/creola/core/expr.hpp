@@ -21,6 +21,38 @@ namespace creola::core{
 // -
 
 /*
+struct FuncPattern {
+    std::string def;
+    std::string param;
+
+    FuncPattern(const std::string& def, const std::string& var);
+
+    func(var: const std::string&) -> Expr;
+    diff(var: const std::string&) -> Expr;
+    primitve(var: const std::string&) -> Expr;
+    taylor(var: const std::string&, center: f64, order: u32) -> Expr;
+    bool operator<(const Func& func) const;
+};
+
+std::set<FuncPattern> FuncTable = {
+    FuncPattern{"ln(x)", Symbol("x")},
+    FuncPattern{"log(x)", Symbol("x")},
+    FuncPattern{"exp(x)", Symbol("x")},
+    FuncPattern{"sin(x)", Symbol("x")},
+    FuncPattern{"cos(x)", Symbol("x")},
+    FuncPattern{"tan(x)", Symbol("x")},
+    FuncPattern{"asin(x)", Symbol("x")},
+    FuncPattern{"acos(x)", Symbol("x")},
+    FuncPattern{"atan(x)", Symbol("x")},
+    FuncPattern{"sinh(x)", Symbol("x")},
+    FuncPattern{"cosh(x)", Symbol("x")},
+    FuncPattern{"tanh(x)", Symbol("x")},
+    FuncPattern{"asinh(x)", Symbol("x")},
+    FuncPattern{"acosh(x)", Symbol("x")},
+    FuncPattern{"atanh(x)", Symbol("x")},
+    ...
+};
+
 Table of Derivatives:
 --------------------
 x^a         ==> a x^(a-1)
@@ -297,7 +329,7 @@ struct Number : public ExprBase {
     Expr integrate(const std::string& var) const override;
     Expr expand(void) const override;
     Expr factorize(const std::string& var) const override;
-    Expr taylor(const std::string& var, f64 val, int n) const override;
+    Expr taylor(const std::string& var, f64 val, u32 n) const override;
     Vec<f64> roots(const std::string& var, f64 vmin=-10, f64 vmax=10, int samples=100) const override;
     f64 limit(const std::string& var, f64 val, f64 eps=1e-6) const override;
 
@@ -322,8 +354,11 @@ private:
 
 // -*-
 struct Symbol : public ExprBase{
-    explicit Symbol(const std::string& name)
-    : ExprBase{ExprKind::SYM}, m_name{std::move(name)} {}
+    explicit Symbol(const std::string& name) // , bool as_function_name
+    : ExprBase{ExprKind::SYM}
+    , m_name{std::move(name)}
+    //, m_as_function_name{as_function_name}
+    {}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
@@ -347,7 +382,7 @@ struct Symbol : public ExprBase{
 
     std::string& name(void){ return this->m_name; }
     const std::string& name(void) const { return this->m_name; }
-
+    
 private:
     std::string m_name;
 };
@@ -386,9 +421,9 @@ private:
 
 // -*-
 struct Add : public ExprBase{
-    explicit Add(Vec<Expr> exprs)
+    explicit Add(const Vec<Expr>& terms)
     : ExprBase{ExprKind::ADD}
-    , m_terms{std::move(exprs)}{}
+    , m_terms{terms}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
@@ -419,9 +454,9 @@ private:
 
 // -*-
 struct Mul : public ExprBase{
-    explicit Mul(Vec<Expr> exprs)
+    explicit Mul(const Vec<Expr>& factors)
     : ExprBase{ExprKind::MUL}
-    , m_factors{exprs}{}
+    , m_factors{factors}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
@@ -452,10 +487,10 @@ private:
 
 // -*-
 struct Pow : public ExprBase {
-    explicit Pow(Expr b, Expr e)
+    explicit Pow(const Expr& b, const Expr& e)
     : ExprBase{ExprKind::POW}
-    , m_base{std::move(b)}
-    , m_expo{std::move(e)}{}
+    , m_base{b}
+    , m_expo{e}{}
 
     Expr simplify(void) const override;
     Expr diff(const std::string& var) const override;
@@ -535,29 +570,6 @@ std::ostream& operator<<(std::ostream& os, const Add& rhs);
 std::ostream& operator<<(std::ostream& os, const Mul& rhs);
 std::ostream& operator<<(std::ostream& os, const Pow& rhs);
 std::ostream& operator<<(std::ostream& os, const FuncCall& rhs);
-
-
-// // -*-
-// HashMap<std::string, Expr> VARS;
-// HashMap<std::string, FunctionDef> FUNCTIONS;
-
-// Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
-// Expr apply_user_fun(const std::string& name, const Vec<Expr>& args);
-
-// // helper
-// bool is_fraction(const Expr& expr, Expr& numerator, Expr& denominator);
-
-
-// enum class LimitKind {
-//     Finite, PosInf, NegInf, NaN,
-// };
-
-// LimitKind classify_value(f64 val);
-// LimitKind classify_at(const Expr& expr, const std::string& var, f64 val);
-
-// // L'Hôpital-based limit
-// Expr limit_symbolic(const Expr& expr, const std::string& var, f64 val, int max_iter=5);
-
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-

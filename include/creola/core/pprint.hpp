@@ -1,31 +1,11 @@
 #pragma once
 #include "creola/core/common.hpp"
 
-
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
 namespace creola::core{
 // -
-
-struct Number;
-struct Symbol;
-struct Neg;
-struct Add;
-struct Mul;
-struct Pow;
-struct FuncCall;
-
-/*
-struct Simplifier;
-struct Factorizer;
-struct Expander;
-struct Integrator;
-struct Differentiator;
-struct Series;
-struct LimitFinder;
-struct RootsFinder;
-*/
 
 // -*- Display::display -*-
 struct PrintVisitor {
