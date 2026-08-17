@@ -165,8 +165,7 @@ Expr Parser::parse(void){
             lhs = Creola::make_add_expr(Vec<Expr>{lhs, rhs});
         }else{
             lhs = Creola::make_add_expr(Vec<Expr>{
-                lhs,
-                Creola::make_neg_expr(rhs)
+                lhs, Creola::make_neg_expr(rhs)
             });
         }
     }
@@ -198,10 +197,12 @@ Expr Parser::parse_primary(void){
         if(this->match(TokenKind::LParen)){// name(args)
             this->consume(TokenKind::LParen);
             Vec<Expr> args{};
-            while(!this->match(TokenKind::RParen)){
-                args.push_back(this->parse());
-                if(this->match(TokenKind::Comma)){
-                    this->consume(TokenKind::Comma);
+            if(!this->match(TokenKind::RParen)){
+                while(true){
+                    args.push_back(this->parse());
+                    if(this->match(TokenKind::Comma)){
+                        this->consume(TokenKind::Comma);
+                    }else{ break;}
                 }
             }
             this->consume(TokenKind::RParen, "expected ')'");
