@@ -43,12 +43,18 @@ Token Lexer::next(void){
     return Token();
 }
 
+// -*-
+void Lexer::skip_ws(void){
+    while(!this->is_eos() && std::isspace(this->peek())){
+        this->advance();
+    }
+}
+
 /*
 // -*-
 class Lexer{
 public:
 
-void Lexer::skip_ws(void){}
 char Lexer::peek(void){}
 Token Lexer::read_number(void){}
 Token Lexer::read_string(void){}
