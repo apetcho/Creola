@@ -115,16 +115,16 @@ Token Lexer::read_string(void){
                 this->advance();
                 c = this->peek();
                 switch(c){
-                    case 't': lexeme += "\t"; this->advance(); break;
-                    case 'n': lexeme += "\n"; this->advance(); break;
-                    case 'r': lexeme += "\r"; this->advance(); break;
-                    case 'b': lexeme += "\b"; this->advance(); break;
-                    case 'f': lexeme += "\f"; this->advance(); break;
-                    case '\\': lexeme += "\\"; this->advance(); break;
-                    case '\'': lexeme += "'"; this->advance(); break;
-                    default:
-                        throw CreolaError("LexerError", "invalid escape character");
+                    case 't': lexeme += "\t"; break;
+                    case 'n': lexeme += "\n"; break;
+                    case 'r': lexeme += "\r"; break;
+                    case 'b': lexeme += "\b"; break;
+                    case 'f': lexeme += "\f"; break;
+                    case '\\': lexeme += "\\"; break;
+                    case '\'': lexeme += "'"; break;
+                    default: lexeme += c; break;
                 }
+                this->advance();
                 continue;
             }
             lexeme += c;
@@ -143,15 +143,14 @@ Token Lexer::read_string(void){
             this->advance();
             c = this->peek();
             switch(c){
-                case 't': lexeme += "\t"; this->advance(); break;
-                case 'n': lexeme += "\n"; this->advance(); break;
-                case 'r': lexeme += "\r"; this->advance(); break;
-                case 'b': lexeme += "\b"; this->advance(); break;
-                case 'f': lexeme += "\f"; this->advance(); break;
-                case '\\': lexeme += "\\"; this->advance(); break;
-                case '"': lexeme += "\""; this->advance(); break;
-                default:
-                    throw CreolaError("LexerError", "invalid escape character");
+                case 't': lexeme += "\t"; break;
+                case 'n': lexeme += "\n"; break;
+                case 'r': lexeme += "\r"; break;
+                case 'b': lexeme += "\b"; break;
+                case 'f': lexeme += "\f"; break;
+                case '\\': lexeme += "\\"; break;
+                case '\'': lexeme += "'"; break;
+                default: lexeme += c; break;
             }
             continue;
         }
@@ -164,22 +163,33 @@ Token Lexer::read_string(void){
     return Token(TokenKind::String, lexeme);
 }
 
-/*
 // -*-
-class Lexer{
-public:
+Token Lexer::read_identifier(void){
+    Str lexeme{};
+    auto c = this->peek();
+    this->advance();
+    while(!this->is_eos() && (std::isalnum(c) || c == '_')){
+        lexeme += c;
+        this->advance();
+        c = this->peek();
+    }
 
+    static Dict<Str, TokenKind> reservedWords = {
+#define CREOLA_DEF(kind, text)  {text, TokenKind::kind},
+        CREOLA_BUILTIN_FUNCTIONS()
+        CREOLA_COMMANDS()
+        CREOLA_KEYWORDS()
+#undef CREOLA_DEF
+    };
 
-Token Lexer::read_identifier(void){}
+    auto entry = reservedWords.find(lexeme);
+    if(entry != reservedWords.end()){
+        return Token(entry->second, lexeme);
+    }
 
-private:
-    Str m_src;
-    usize m_pos = 0;
+    return Token(TokenKind::Ident, lexeme);
+}
 
-
-};
-
-*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-
