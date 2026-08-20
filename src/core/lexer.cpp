@@ -104,13 +104,72 @@ Token Lexer::read_number(void){
     throw CreolaError("LexerError", "error while reading a number.");
 }
 
+// -*-
+Token Lexer::read_string(void){
+    Str lexeme{};
+    if(this->peek()=='\''){
+        this->advance();
+        auto c = this->peek();
+        while(!this->is_eos() && (std::isalnum(c) || c == '_')){
+            if(c=='\\'){
+                this->advance();
+                c = this->peek();
+                switch(c){
+                    case 't': lexeme += "\t"; this->advance(); break;
+                    case 'n': lexeme += "\n"; this->advance(); break;
+                    case 'r': lexeme += "\r"; this->advance(); break;
+                    case 'b': lexeme += "\b"; this->advance(); break;
+                    case 'f': lexeme += "\f"; this->advance(); break;
+                    case '\\': lexeme += "\\"; this->advance(); break;
+                    case '\'': lexeme += "'"; this->advance(); break;
+                    default:
+                        throw CreolaError("LexerError", "invalid escape character");
+                }
+                continue;
+            }
+            lexeme += c;
+        }
+        if(this->is_eos()){
+            throw CreolaError("LexerError", "error while reading string. Unexpected end of input.");
+        }
+
+        return Token(TokenKind::String, lexeme);
+    }
+    // double quoted string
+    this->advance();
+    auto c = this->peek();
+    while(!this->is_eos() && (std::isalnum(c) || c == '_')){
+        if(c=='\\'){
+            this->advance();
+            c = this->peek();
+            switch(c){
+                case 't': lexeme += "\t"; this->advance(); break;
+                case 'n': lexeme += "\n"; this->advance(); break;
+                case 'r': lexeme += "\r"; this->advance(); break;
+                case 'b': lexeme += "\b"; this->advance(); break;
+                case 'f': lexeme += "\f"; this->advance(); break;
+                case '\\': lexeme += "\\"; this->advance(); break;
+                case '"': lexeme += "\""; this->advance(); break;
+                default:
+                    throw CreolaError("LexerError", "invalid escape character");
+            }
+            continue;
+        }
+        lexeme += c;
+    }
+    if(this->is_eos()){
+        throw CreolaError("LexerError", "error while reading string. Unexpected end of input.");
+    }
+
+    return Token(TokenKind::String, lexeme);
+}
 
 /*
 // -*-
 class Lexer{
 public:
 
-Token Lexer::read_string(void){}
+
 Token Lexer::read_identifier(void){}
 
 private:
