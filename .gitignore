@@ -10,7 +10,14 @@
 /creola-desktop
 /creola-web
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 56b259b (Refactor creola project structure and build the static library creola.)
 =======
 /old_unfinished
 >>>>>>> 6adcc70 (Update .gitignore)
+=======
+/src/core/cas.cpp
+/src/core/CMakeLists.txt
+/include/creola/core/cas.hpp
+todos.txt
+>>>>>>> e6f5ca2 (Refactor creola::core APIs)

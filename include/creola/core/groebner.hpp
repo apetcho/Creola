@@ -1,8 +1,8 @@
 #pragma once
 
 #include "creola/core/common.hpp"
-#include "creola/core/expr.hpp"
-#include "creola/core/poly.hpp"
+#include "creola/core/ast.hpp"
+#include "creola/core/polynomial.hpp"
 
 //! @note: Implement a simplified Gröbner factorization
 /*

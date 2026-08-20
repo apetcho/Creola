@@ -3,6 +3,7 @@
 #include<unordered_map>
 #include<functional>
 #include<stdexcept>
+#include<exception>
 #include<iostream>
 #include<variant>
 #include<cstdint>
@@ -21,13 +22,9 @@
 namespace creola::core {
 // -
 // -*- Forward declarations -*-
-struct Symbol;
-struct Number;
-struct Neg;
-struct Add;
-struct Mul;
-struct Pow;
-struct FuncCall;
+struct AstBase;
+struct ExprBase;
+struct StmtBase;
 
 template<typename T>
 using Vec = std::vector<T>;
@@ -42,8 +39,11 @@ template<typename Key, typename Value>
 using Dict = std::map<Key, Value>;
 
 // -*-
-struct ExprBase;
+using Ast = Shared<AstBase>;
+using Stmt = Shared<StmtBase>;
 using Expr = Shared<ExprBase>;
+
+using Str = std::string;
 
 using f64 = double;
 using u32 = std::uint32_t;
@@ -62,82 +62,53 @@ enum class MathFunc{
     Pow, Sqrt, Cbrt, Exp,
     // ...
 };
-// -
-using UnaryMathFun = std::function<Expr(f64)>;
-using Func = std::function<Expr(Expr, const std::string&)>;
+
+using UnaryFun = std::function<Expr(const Expr&)>;
+using BinaryFun = std::function<Expr(const Expr&, const Expr&)>;
+using MathFun = std::variant<UnaryFun, BinaryFun>;
 
 // -*-
-struct FunctionDef {
-    Vec<std::string> params; // univariate function
-    Expr body;
-};
-
-class Result{
+class CreolaError final {
 public:
-    static Result ok(const std::string& ans){
-        Result result{};
-        result.m_value = Result::Ok(ans);
-        return result;
+    CreolaError()
+    : m_etype{"Error"}
+    , m_msg{"unexpected error found."}
+    {}
+
+    explicit CreolaError(const char* msg)
+    : m_etype{"Error"}
+    , m_msg{msg}
+    {}
+    
+    explicit CreolaError(const std::string& msg)
+    : m_etype{"Error"}
+    , m_msg{msg}
+    {}
+
+    CreolaError(const Str& etype): CreolaError(){
+        this->m_etype = etype;
     }
 
-    // -
-    static Result err(const std::string& ans){
-        Result result{};
-        result.m_value = Result::Err(ans);
-        return result;
+    explicit CreolaError(const Str& etype, const char* msg)
+    : CreolaError(msg){
+        this->m_etype = etype;
     }
 
-    bool is_ok(void)const { return std::holds_alternative<Ok>(this->m_value); }
-
-    std::string value(void) const {
-        return (
-            this->is_ok() ?
-            (std::get<Ok>(this->m_value)).str :
-            (std::get<Err>(this->m_value)).str
-        );
+    explicit CreolaError(const Str& etype, const std::string& msg)
+    : CreolaError(msg){
+        this->m_etype = etype;
     }
+
+    Str describe(void) const {
+        std::ostringstream oss;
+        oss << this->m_etype << ": " << this->m_msg;
+        return oss.str();
+    }
+
 
 private:
-    /*
-    struct LetResult{
-        std::string lhs;
-        Expr rhs;
-
-        LetResult(const std::string& var, const Expr& val);
-        std::string str(void) const;
-    };
-
-    struct FunResult{
-        std::string name;
-        FunctionDef def;
-
-        FunResult(const std::string& name, FunctionDef func);
-
-        std::string str();
-    };
-    */
-    struct Err{
-        std::string str{};
-        Err(const std::string& v): str{v}{}
-        Err(const char* v): str{v}{}
-    };
-    struct Ok{
-        std::string str{};
-        Ok(const std::string& v): str{v}{}
-        Ok(const char* v): str{v}{}
-
-    /*
-        using Output = std::variant<std::monostate, LetResult, FunResult, Expr>;
-        Output m_out;
-    */
-    };
-    using Value = std::variant<std::monostate, Ok, Err>;
-    Value m_value;
-};
-
-// -*-
-enum class ExprKind {
-    NUM, SYM, ADD, MUL, POW, NEG, CALL,
+    Str m_etype;
+    Str m_msg;
 };
 
 // -*-
@@ -171,12 +142,6 @@ static inline std::string ltrim(const std::string& text){
 static inline std::string rtrim(const std::string& text){
     auto len = text.length();
     while(len > 0 && std::isspace(text[--len])){ continue; }
-    // std::cerr << "In 'rtrim()'" << std::endl;
-    // auto ptr = text.rbegin();
-    // while(ptr != text.rend()){
-    //     if(!std::isspace(*ptr)){ break; }
-    //     ptr++;
-    // }
     return text.substr(0, len+1);
 }
 
@@ -185,13 +150,6 @@ static inline std::string trim(const std::string& text){
     return creola::core::ltrim(rtrim(text));
 }
 
-// -*-
-class CreolaError: public std::runtime_error{
-public:
-    CreolaError(): std::runtime_error("unexpected error found."){}
-    explicit CreolaError(const char* msg): std::runtime_error(msg){}
-    explicit CreolaError(const std::string& msg): std::runtime_error(msg){}
-};
 
 // some utility functions
 static inline bool almost_equal(f64 xnum, f64 ynum, f64 tol=1e-12){
@@ -200,7 +158,6 @@ static inline bool almost_equal(f64 xnum, f64 ynum, f64 tol=1e-12){
     }
 
     constexpr auto VMIN = std::numeric_limits<f64>::min();
-
     auto dx = std::abs(xnum-ynum);
     if(dx <= VMIN){ return true; }
 

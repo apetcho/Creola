@@ -1,5 +1,6 @@
 #pragma once
-#include "creola/core/common.hpp"
+
+#include "creola/core/visitors.hpp"
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -7,39 +8,12 @@
 namespace creola::core{
 // -
 
-// -*- Display::display -*-
-struct PrintVisitor {
-    virtual ~PrintVisitor() = default;
-
-    virtual void visit(std::ostream& os, const Number& expr, int prec=0) const = 0;
-    virtual void visit(std::ostream& os, const Symbol& expr, int prec=0) const = 0;
-    virtual void visit(std::ostream& os, const Neg& expr, int prec=0) const = 0;
-    virtual void visit(std::ostream& os, const Add& expr, int prec=0) const = 0;
-    virtual void visit(std::ostream& os, const Mul& expr, int prec=0) const = 0;
-    virtual void visit(std::ostream& os, const Pow& expr, int prec=0) const = 0;
-    virtual void visit(std::ostream& os, const FuncCall& expr, int prec=0) const = 0;
-};
-
-/*
-struct ToBoxVisitor{
-    virtual ~BoxVisitor() = default;
-
-    virtual Box to_box(const Symbol& sym) const = 0;
-    virtual Box to_box(const Number& num) const = 0;
-    virtual Box to_box(const Neg& neg) const = 0;
-    virtual Box to_box(const Add& add) const = 0;
-    virtual Box to_box(const Mul& mul) const = 0;
-    virtual Box to_box(const Pow& Pow) const = 0;
-    virtual Box to_box(const FuncCall& sym) const = 0;
-};
-
-*/
-
-/* 
-// - Box type and utilities
-class Box{
+// -*--------------------------*-
+// -*- Box type and utilities -*-
+// -*--------------------------*-
+class Box final {
 public:
-    explicit Box(const Vec<std::string>& lines={});
+    explicit Box(const Vec<Str>& lines={});
 
     static Box make_text(const std::string& text);
     static Box make_fraction(const Box& num, const Box& den);
@@ -51,12 +25,72 @@ public:
     Box vcat(const Box& rhs) const;
     Box center(usize width) const;
 
+    Str to_string(void) const;
+
 private:
-    Vec<std::string> m_lines;
+    Vec<Str> m_lines;
     usize m_width = 0;
     usize m_height = 0;
 };
-*/
+
+// -------------
+// -*- Boxer -*-
+// -------------
+class Boxer final: protected ToBoxVisitor{
+public:
+    explicit Boxer();
+    explicit Boxer(const Expr& expr);
+    explicit Boxer(Expr&& expr);
+
+    Box to_box(void) const;
+
+private:
+    Expr m_expr;
+
+    void to_box(const SymbolExpr& expr, Box& box) const override;
+    void to_box(const NumberExpr& expr, Box& box) const override;
+    void to_box(const NegExpr& expr, Box& box) const override;
+    void to_box(const AddExpr& expr, Box& box) const override;
+    void to_box(const MulExpr& expr, Box& box) const override;
+    void to_box(const PowExpr& expr, Box& box) const override;
+    void to_box(const CallExpr& expr, Box& box) const override;
+    void to_box(const EquationExpr& expr, Box& box) const override;
+    void to_box(const SystemExpr& expr, Box& box) const override;
+};
+
+
+// -*-
+class PrettyPrinter final: protected PrintVisitor {
+public:
+    explicit PrettyPrinter(): m_stream{std::cout}{}
+    explicit PrettyPrinter(std::ostream& os): m_stream{os}{}
+
+    void pprint(i64 num);
+    void pprint(f64 num);
+    void pprint(const Str& str);
+    void pprint(const SymbolExpr& expr);
+    void pprint(const NumberExpr& expr);
+    void pprint(const NegExpr& expr);
+    void pprint(const AddExpr& expr);
+    void pprint(const MulExpr& expr);
+    void pprint(const PowExpr& expr);
+    void pprint(const CallExpr& expr);
+    void pprint(const EquationExpr& expr);
+    void pprint(const SystemExpr& expr);
+
+private:
+    std::ostream& m_stream;
+
+    void print(std::ostream& os, const SymbolExpr& expr) override;
+    void print(std::ostream& os, const NumberExpr& expr) override;
+    void print(std::ostream& os, const NegExpr& expr) override;
+    void print(std::ostream& os, const AddExpr& expr) override;
+    void print(std::ostream& os, const MulExpr& expr) override;
+    void print(std::ostream& os, const PowExpr& expr) override;
+    void print(std::ostream& os, const CallExpr& expr) override;
+    void print(std::ostream& os, const EquationExpr& expr) override;
+    void print(std::ostream& os, const SystemExpr& expr) override;
+};
 
 
 // -*----------------------------------------------------------------*-

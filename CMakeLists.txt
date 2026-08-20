@@ -31,6 +31,7 @@ add_library(creola
 # )
 
 add_subdirectory(src/cli)
+add_subdirectory(src/core)
 
 #[[
 
