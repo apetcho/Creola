@@ -5,6 +5,7 @@
 #include<stdexcept>
 #include<exception>
 #include<iostream>
+#include<sstream>
 #include<variant>
 #include<cstdint>
 #include<memory>
@@ -79,15 +80,22 @@ public:
     : m_etype{"Error"}
     , m_msg{msg}
     {}
+
     
     explicit CreolaError(const std::string& msg)
     : m_etype{"Error"}
     , m_msg{msg}
     {}
 
-    CreolaError(const Str& etype): CreolaError(){
-        this->m_etype = etype;
-    }
+    explicit CreolaError(const char* etype, const char* msg)
+    : m_etype{etype}
+    , m_msg{msg}
+    {}
+
+    explicit CreolaError(const char* etype, const Str& msg)
+    : m_etype{etype}
+    , m_msg{msg}
+    {}
 
     explicit CreolaError(const Str& etype, const char* msg)
     : CreolaError(msg){
@@ -104,7 +112,6 @@ public:
         oss << this->m_etype << ": " << this->m_msg;
         return oss.str();
     }
-
 
 private:
     Str m_etype;

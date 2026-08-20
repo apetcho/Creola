@@ -50,13 +50,66 @@ void Lexer::skip_ws(void){
     }
 }
 
+// -*-
+char Lexer::peek(void){
+    if(this->is_eos()){ return EOF; }
+    return this->m_src[this->m_pos];
+}
+
+// -*-
+Token Lexer::read_number(void){
+    auto c = this->peek();
+    auto ndec = (c=='.') ? 1 : 0;
+    Str numstr{};
+    Str text{};
+
+    while(!this->is_eos() && std::isdigit(c)){
+        numstr += this->peek();
+        this->advance();
+    }
+    if(this->is_eos()){
+        if(ndec){ return Token(TokenKind::Float, numstr); }
+        return Token(TokenKind::Float, numstr);
+    }
+    if(ndec==1 && this->match(this->peek(), '.')){ // already read the decimal point
+        throw CreolaError("LexerError", "error while reading a number.");
+    }
+
+    if(ndec==0 && this->match(this->peek(), '.')){ // read fractional part
+        numstr += this->peek();
+        this->advance();
+        while(!this->is_eos() && std::isdigit(this->peek())){
+            numstr += this->peek();
+            this->advance();
+        }
+        return Token(TokenKind::Float, numstr);
+    }
+
+    if(this->peek()=='e' || this->peek()=='E'){
+        Str expo{};
+        expo += 'e';
+        if(this->match('-', 1)){ expo += '-';}
+        if(this->match('+', 1)){ expo += '+';}
+        if(std::isdigit(this->m_src[this->m_pos+2])){
+            this->m_pos += 2;
+            while(!this->is_eos() && std::isdigit(this->peek())){
+                expo += this->peek();
+                this->advance();
+            }
+            numstr += expo;
+            return Token(TokenKind::Float, numstr);
+        }
+    }
+
+    throw CreolaError("LexerError", "error while reading a number.");
+}
+
+
 /*
 // -*-
 class Lexer{
 public:
 
-char Lexer::peek(void){}
-Token Lexer::read_number(void){}
 Token Lexer::read_string(void){}
 Token Lexer::read_identifier(void){}
 
