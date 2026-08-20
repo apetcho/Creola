@@ -108,6 +108,15 @@ private:
     Token read_number(void);
     Token read_string(void);
     Token read_identifier(void);
+    
+    // -*-
+    bool match(char c, u32 pos=0){
+        auto idx = this->m_pos + pos;
+        if(idx >= this->m_src.length() && c == EOF){ return true; }
+        if(idx >= this->m_src.length()){ return false; }
+
+        return this->m_src[idx]==c;
+    }
 };
 
 
