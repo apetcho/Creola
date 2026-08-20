@@ -6,15 +6,14 @@
 namespace creola::core{
 //
 
+Lexer::Lexer(const Str& src) : m_src{}
+{}
+
 /*
-
-
 // -*-
 class Lexer{
 public:
 
-Lexer::Lexer(const Str& src){}
-Token Lexer::next(void){}
 void Lexer::skip_ws(void){}
 char Lexer::peek(void){}
 Token Lexer::read_number(void){}
