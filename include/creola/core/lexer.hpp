@@ -95,6 +95,7 @@ struct Token{
 class Lexer{
 public:
     explicit Lexer(const Str& src);
+    ~Lexer() = default;
     Token next(void);
 
 private:
@@ -103,12 +104,14 @@ private:
 
     void skip_ws(void);
     char peek(void);
-    void advance(void){ this->m_pos++; }
+    void advance(void){
+        this->m_pos++;
+    }
     bool is_eos(void){ return this->m_pos >= this->m_src.length(); }
     Token read_number(void);
     Token read_string(void);
     Token read_identifier(void);
-    
+
     // -*-
     bool match(char c, u32 pos=0){
         auto idx = this->m_pos + pos;

@@ -1,5 +1,7 @@
 #include "creola/core/lexer.hpp"
 
+#include<iomanip>
+
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
@@ -7,15 +9,22 @@ namespace creola::core{
 //
 
 // -*-
-Lexer::Lexer(const Str& src) : m_src{}
-{}
+Lexer::Lexer(const Str& src)
+: m_src{src}
+{
+    //std::cerr << "INPUT: " << this->m_src << std::endl;
+}
 
 // -*-
 Token Lexer::next(void){
+    if(this->m_pos > 26){ return Token(); }
     this->skip_ws();
-    if(this->is_eos()){ return Token(); }
+    if(this->is_eos()){
+        return Token();
+    }
 
     auto c = this->peek();
+
     // read number 
     if(std::isdigit(c) || c == '.'){ return this->read_number(); }
 
@@ -167,7 +176,6 @@ Token Lexer::read_string(void){
 Token Lexer::read_identifier(void){
     Str lexeme{};
     auto c = this->peek();
-    this->advance();
     while(!this->is_eos() && (std::isalnum(c) || c == '_')){
         lexeme += c;
         this->advance();

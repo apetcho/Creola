@@ -1,9 +1,11 @@
 #pragma once
 
 #include "creola/core/common.hpp"
+#include "creola/core/lexer.hpp"
 #include "creola/core/parser.hpp"
-#include "creola/core/expr.hpp"
-#include "creola/core/engine.hpp"
+//#include "creola/core/expr.hpp"
+#include "creola/core/ast.hpp"
+//#include "creola/core/engine.hpp"
 #include "creola/core/pprint.hpp"
 
 // #include "creola/core/groebner.hpp"

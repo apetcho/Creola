@@ -20,4 +20,8 @@
 /src/core/CMakeLists.txt
 /include/creola/core/cas.hpp
 todos.txt
+<<<<<<< HEAD
 >>>>>>> e6f5ca2 (Refactor creola::core APIs)
+=======
+.DS_Store
+>>>>>>> 5598bb8 (Test Lexer API)
