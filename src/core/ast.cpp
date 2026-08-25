@@ -49,13 +49,24 @@ Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
+// -
+i64 NumberExpr::as_integer(void) const{
+    if(std::holds_alternative<i64>(this->m_data)){
+        return std::get<i64>(this->m_data);
+    }
+    auto num = std::get<f64>(this->m_data);
+
+    return static_cast<i64>(num);
+}
+
+
 /*
 // -*-
 class NumberExpr final: public ExprBase{
 public:
 
 
-i64 NumberExpr::as_integer(void) const{}
+
 f64 NumberExpr::as_float(void) const{}
 bool NumberExpr::is_integer(void) const{}
 Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
