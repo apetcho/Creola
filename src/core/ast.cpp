@@ -39,12 +39,17 @@ NumberExpr::NumberExpr(i64 val)
 : m_data{val}
 {}
 
+// -
+NumberExpr::NumberExpr(f64 val)
+: m_data{val}
+{}
+
 /*
 // -*-
 class NumberExpr final: public ExprBase{
 public:
 
-NumberExpr::NumberExpr(f64 val){}
+
 Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 i64 NumberExpr::as_integer(void) const{}
 f64 NumberExpr::as_float(void) const{}
