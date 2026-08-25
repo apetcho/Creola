@@ -331,10 +331,20 @@ Expr make_equation_expr(Expr&& lhs, Expr&& rhs){
     return std::make_shared<EquationExpr>(lhs, rhs);
 }
 
+// ------------------
+// -*- SystemExpr -*-
+// ------------------
+Expr make_system_expr(const Vec<EquationExpr>& equations){
+    return std::make_shared<SystemExpr>(equations);
+}
+
+// -*-
+Expr make_system_expr(Vec<EquationExpr>&& equations){
+    return std::make_shared<SystemExpr>(equations);
+}
+
 /*
 // -
-Expr make_system_expr(const Vec<EquationExpr>& equations){}
-Expr make_system_expr(Vec<EquationExpr>&& equations){}
 
 Stmt make_let_stmt(const Str& name, const Expr& expr){}
 Stmt make_let_stmt(Str&& name, Expr&& expr){}
