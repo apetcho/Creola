@@ -360,7 +360,7 @@ static inline bool is_add_expr(const Expr& expr){
 }
 
 /**
- * @brief Returns true if `expr` is MulExpr type.
+ * @brief Returns true if `expr` is of MulExpr type.
  * 
  * @param expr 
  * @return true 
@@ -370,7 +370,17 @@ static inline bool is_mul_expr(const Expr& expr){
     return (std::dynamic_pointer_cast<MulExpr>(expr) ? true : false);
 }
 
-static inline bool is_pow_expr(const Expr& expr);
+/**
+ * @brief Returns true if `expr` is of PowExpr type.
+ * 
+ * @param expr 
+ * @return true 
+ * @return false 
+ */
+static inline bool is_pow_expr(const Expr& expr){
+    return (std::dynamic_pointer_cast<PowExpr>(expr) ? true : false);
+}
+
 static inline bool is_call_expr(const Expr& expr);
 static inline bool is_equation_expr(const Expr& expr);
 static inline bool is_system_expr(const Expr& expr);
