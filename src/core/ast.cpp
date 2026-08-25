@@ -241,18 +241,26 @@ FunStmt::FunStmt(Str&& name, Lambda&& lambda)
 , m_lambda{std::move(lambda)}
 {}
 
-/*
-// -*-
-class FunStmt final: public StmtBase{
-public:
-void FunStmt::execute(const ExecuteVisitor& visitor, Env& ctx){}
-private:
-    Str m_name;
-    Lambda m_lambda;
-};
+// -
+void FunStmt::execute(const ExecuteVisitor& visitor, Env& ctx){
+    visitor.execute(*this, ctx);
+}
 
-Expr make_unary_expr(const Expr& expr){}
-Expr make_unary_expr(Expr&& expr){}
+// -------------------------
+// -*- Utility functions -*-
+// -------------------------
+//! @brief create NegExpr object.
+Expr make_unary_expr(const Expr& expr){
+    return std::make_shared<NegExpr>(expr);
+}
+
+// -
+Expr make_unary_expr(Expr&& expr){
+    return std::make_shared<NegExpr>(expr);
+}
+
+/*
+// -
 Expr make_binary_expr(const Expr& lhs, const Expr& rhs){}
 Expr make_binary_expr(Expr&& lhs, Expr&& rhs){}
 
