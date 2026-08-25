@@ -27,24 +27,18 @@ Expr SymbolExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
+// ------------------
+// -*- NumberExpr -*-
+// ------------------
+NumberExpr::NumberExpr()
+: m_data{i64{}}
+{}
+
 /*
-// -*-
-class SymbolExpr final: public ExprBase {
-public:
-
-
-
-
-
-private:
-    Str m_text;
-};
-
 // -*-
 class NumberExpr final: public ExprBase{
 public:
 
-NumberExpr::NumberExpr(){}
 NumberExpr::NumberExpr(i64 val){}
 NumberExpr::NumberExpr(f64 val){}
 Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
