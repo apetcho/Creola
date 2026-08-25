@@ -316,7 +316,7 @@ Stmt make_fun_stmt(const Str& name, const Lambda& lambda);
 Stmt make_fun_stmt(Str&& name, Lambda&& lambda);
 
 /**
- * @brief Return true if `expr` is a symbol-expression.
+ * @brief Returns true if `expr` is a symbol-expression.
  * 
  * @param expr 
  * @return true 
@@ -326,8 +326,18 @@ static inline bool is_symbol_expr(const Expr& expr){
     return (std::dynamic_pointer_cast<SymbolExpr>(expr)!=nullptr ? true : false);
 }
 
+/**
+ * @brief Returns true if `expr` is a number-expression.
+ * 
+ * @param expr 
+ * @return true 
+ * @return false 
+ */
+static inline bool is_number_expr(const Expr& expr){
+    return (std::dynamic_pointer_cast<NumberExpr>(expr)!=nullptr ? true : false);
+}
 
-static inline bool is_number_expr(const Expr& expr);
+
 static inline bool is_neg_expr(const Expr& expr);
 static inline bool is_add_expr(const Expr& expr);
 static inline bool is_mul_expr(const Expr& expr);
