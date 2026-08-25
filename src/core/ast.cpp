@@ -227,24 +227,25 @@ void LetStmt::execute(const ExecuteVisitor& visitor, Env& ctx){
     visitor.execute(*this, ctx);
 }
 
+// ---------------
+// -*- FunStmt -*-
+// ---------------
+FunStmt::FunStmt(const Str& name, const Lambda& lambda)
+: m_name{name}
+, m_lambda{lambda}
+{}
+
+// -
+FunStmt::FunStmt(Str&& name, Lambda&& lambda)
+: m_name{std::move(name)}
+, m_lambda{std::move(lambda)}
+{}
+
 /*
-// -*-
-class LetStmt final: public StmtBase{
-public:
-
-
-private:
-    Str m_name;
-    Expr m_expr;
-};
-
 // -*-
 class FunStmt final: public StmtBase{
 public:
-FunStmt::FunStmt(const Str& name, const Lambda& lambda){}
-FunStmt::FunStmt(Str&& name, Lambda&& lambda){}
 void FunStmt::execute(const ExecuteVisitor& visitor, Env& ctx){}
-
 private:
     Str m_name;
     Lambda m_lambda;
