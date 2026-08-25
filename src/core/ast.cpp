@@ -309,10 +309,18 @@ Expr make_pow_expr(Expr&& base, Expr&& exponent){
     return std::make_shared<PowExpr>(base, exponent);
 }
 
+//! @brief Create a CallExpr object shared pointer.
+Expr make_call_expr(const Str& name, const Vec<Expr>& args){
+    return std::make_shared<CallExpr>(name, args);
+}
+
+// -
+Expr make_call_expr(Str&& name, Vec<Expr>&& args){
+    return std::make_shared<CallExpr>(name, args);
+}
+
 /*
 // -
-Expr make_call_expr(const Str& name, const Vec<Expr>& args){}
-Expr make_call_expr(Str&& name, Vec<Expr>&& args){}
 Expr make_equation_expr(const Expr& lhs, const Expr& rhs){}
 Expr make_equation_expr(Expr&& lhs, Expr&& rhs){}
 Expr make_system_expr(const Vec<EquationExpr>& equations){}
