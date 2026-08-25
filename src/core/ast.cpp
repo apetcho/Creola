@@ -44,13 +44,17 @@ NumberExpr::NumberExpr(f64 val)
 : m_data{val}
 {}
 
+// -
+Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
+
 /*
 // -*-
 class NumberExpr final: public ExprBase{
 public:
 
 
-Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 i64 NumberExpr::as_integer(void) const{}
 f64 NumberExpr::as_float(void) const{}
 bool NumberExpr::is_integer(void) const{}
