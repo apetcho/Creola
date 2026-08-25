@@ -382,7 +382,7 @@ static inline bool is_pow_expr(const Expr& expr){
 }
 
 /**
- * @brief Returns true if `expr` is of CallExpr.
+ * @brief Returns true if `expr` is of CallExpr type.
  * 
  * @param expr 
  * @return true 
@@ -393,7 +393,7 @@ static inline bool is_call_expr(const Expr& expr){
 }
 
 /**
- * @brief Return true if `expr` is of EquationExpr.
+ * @brief Return true if `expr` is of EquationExpr type.
  * 
  * @param expr 
  * @return true 
@@ -403,7 +403,16 @@ static inline bool is_equation_expr(const Expr& expr){
     return (std::dynamic_pointer_cast<EquationExpr>(expr) ? true : false);
 }
 
-static inline bool is_system_expr(const Expr& expr);
+/**
+ * @brief Return true if `expr` is of EquationExpr type.
+ * 
+ * @param expr 
+ * @return true 
+ * @return false 
+ */
+static inline bool is_system_expr(const Expr& expr){
+    return (std::dynamic_pointer_cast<SymbolExpr>(expr) ? true : false);
+}
 
 static inline SymbolExpr as_symbol_expr(const Expr& expr);
 static inline NumberExpr as_number_expr(const Expr& expr);
