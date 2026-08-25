@@ -153,13 +153,25 @@ Expr PowExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
+// ----------------
+// -*- CallExpr -*-
+// ----------------
+CallExpr::CallExpr(const Str& name, const Vec<Expr>& args)
+: m_name{name}
+, m_args{args}
+{}
+
+// -
+CallExpr::CallExpr(Str&& name, Vec<Expr>&& args)
+: m_name{std::move(name)}
+, m_args{std::move(args)}
+{}
+
 /*
 // -*-
 class CallExpr final: public ExprBase{
 public:
 
-CallExpr::CallExpr(const Str& name, const Vec<Expr>& args){}
-CallExpr::CallExpr(Str&& name, Vec<Expr>&& args){}
 Expr CallExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 private:
