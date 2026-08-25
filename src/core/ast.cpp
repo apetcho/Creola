@@ -22,15 +22,18 @@ SymbolExpr::SymbolExpr(const Str& sym)
 : m_text{sym}
 {}
 
+// -*-
+Expr SymbolExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
+
 /*
-
-
 // -*-
 class SymbolExpr final: public ExprBase {
 public:
 
 
-Expr SymbolExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
+
 
 
 private:
