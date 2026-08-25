@@ -74,10 +74,6 @@ bool NumberExpr::is_integer(void) const{
     return std::holds_alternative<i64>(this->m_data);
 }
 
-// -
-Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
-    return visitor.eval(*this, ctx);
-}
 
 // ---------------
 // -*- NegExpr -*-

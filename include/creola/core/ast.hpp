@@ -43,7 +43,7 @@ public:
     explicit SymbolExpr(const Str& sym);
     SymbolExpr(const SymbolExpr&) = default;
     SymbolExpr(SymbolExpr&&) = default;
-    SymbolExpr& operator=(const SymbolExpr&) const = default;
+    SymbolExpr& operator=(const SymbolExpr&) = default;
     SymbolExpr& operator=(SymbolExpr&&) = default;
 
     ~SymbolExpr() = default;
@@ -75,8 +75,6 @@ public:
     i64 as_integer(void) const;
     f64 as_float(void) const;
     bool is_integer(void) const;
-
-    Expr eval(const EvalVisitor& visitor, Env& ctx) const override;
 
 private:
     using Data = std::variant<i64, f64>;
@@ -409,7 +407,7 @@ static inline bool is_equation_expr(const Expr& expr){
  * @return false 
  */
 static inline bool is_system_expr(const Expr& expr){
-    return (std::dynamic_pointer_cast<SymbolExpr>(expr) ? true : false);
+    return (std::dynamic_pointer_cast<SystemExpr>(expr) ? true : false);
 }
 
 /**
