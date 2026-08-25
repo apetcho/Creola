@@ -353,12 +353,15 @@ Stmt make_let_stmt(Str&& name, Expr&& expr){
     return std::make_shared<LetStmt>(name, expr);
 }
 
-/*
-// -
-Stmt make_fun_stmt(const Str& name, const Lambda& lambda){}
-Stmt make_fun_stmt(Str&& name, Lambda&& lambda){}
+//! @brief Create a FunStmt object shared pointer.
+Stmt make_fun_stmt(const Str& name, const Lambda& lambda){
+    return std::make_shared<FunStmt>(name, lambda);
+}
 
-*/
+// -
+Stmt make_fun_stmt(Str&& name, Lambda&& lambda){
+    return std::make_shared<FunStmt>(name, lambda);
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-
