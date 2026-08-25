@@ -167,18 +167,12 @@ CallExpr::CallExpr(Str&& name, Vec<Expr>&& args)
 , m_args{std::move(args)}
 {}
 
+// -
+Expr CallExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
+
 /*
-// -*-
-class CallExpr final: public ExprBase{
-public:
-
-Expr CallExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
-
-private:
-    Str m_name;
-    Vec<Expr> m_args;
-};
-
 // -*-
 class EquationExpr final: public ExprBase{
 public:
