@@ -203,17 +203,12 @@ SystemExpr::SystemExpr(Vec<EquationExpr>&& equations)
 : m_equations{std::move(equations)}
 {}
 
+// -
+Expr SystemExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
+
 /*
-// -*-
-class SystemExpr final: public ExprBase{
-public:
-
-Expr SystemExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
-
-private:
-    Vec<EquationExpr> m_equations;
-};
-
 // -*-
 class LetStmt final: public StmtBase{
 public:
