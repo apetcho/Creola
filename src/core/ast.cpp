@@ -69,6 +69,10 @@ f64 NumberExpr::as_float(void) const{
     return static_cast<f64>(num);
 }
 
+// -
+bool NumberExpr::is_integer(void) const{
+    return std::holds_alternative<i64>(this->m_data);
+}
 
 /*
 // -*-
@@ -76,7 +80,7 @@ class NumberExpr final: public ExprBase{
 public:
 
 
-bool NumberExpr::is_integer(void) const{}
+
 Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 private:
