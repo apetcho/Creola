@@ -74,20 +74,12 @@ bool NumberExpr::is_integer(void) const{
     return std::holds_alternative<i64>(this->m_data);
 }
 
+// -
+Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
+
 /*
-// -*-
-class NumberExpr final: public ExprBase{
-public:
-
-
-
-Expr NumberExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
-
-private:
-    using Data = std::variant<i64, f64>;
-    Data m_data;
-};
-
 // -*-
 class NegExpr final: public ExprBase{
 public:
