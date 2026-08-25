@@ -208,13 +208,25 @@ Expr SystemExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
+// ---------------
+// -*- LetStmt -*-
+// ---------------
+LetStmt::LetStmt(const Str& name, const Expr& expr)
+: m_name{name}
+, m_expr{expr}
+{}
+
+// -
+LetStmt::LetStmt(Str&& name, Expr&& expr)
+: m_name{std::move(name)}
+, m_expr{std::move(expr)}
+{}
+
 /*
 // -*-
 class LetStmt final: public StmtBase{
 public:
 
-LetStmt::LetStmt(const Str& name, const Expr& expr){}
-LetStmt::LetStmt(Str&& name, Expr&& expr){}
 void LetStmt::execute(const ExecuteVisitor& visitor, Env& ctx){}
 
 private:
