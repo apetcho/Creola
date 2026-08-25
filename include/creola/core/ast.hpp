@@ -286,11 +286,9 @@ private:
     Lambda m_lambda;
 };
 
-Expr make_unary_expr(const Expr& expr);
-Expr make_unary_expr(Expr&& expr);
-Expr make_binary_expr(const Expr& lhs, const Expr& rhs);
-Expr make_binary_expr(Expr&& lhs, Expr&& rhs);
-
+// ---------------------
+// - Utility functions -
+// ---------------------
 Expr make_symbol_expr(const Str& name);
 Expr make_number_expr(void);
 Expr make_number_expr(i64 num);
