@@ -392,8 +392,17 @@ static inline bool is_call_expr(const Expr& expr){
     return (std::dynamic_pointer_cast<CallExpr>(expr) ? true : false);
 }
 
+/**
+ * @brief Return true if `expr` is of EquationExpr.
+ * 
+ * @param expr 
+ * @return true 
+ * @return false 
+ */
+static inline bool is_equation_expr(const Expr& expr){
+    return (std::dynamic_pointer_cast<EquationExpr>(expr) ? true : false);
+}
 
-static inline bool is_equation_expr(const Expr& expr);
 static inline bool is_system_expr(const Expr& expr);
 
 static inline SymbolExpr as_symbol_expr(const Expr& expr);
