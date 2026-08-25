@@ -96,21 +96,25 @@ Expr NegExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
-/*
+// ---------------
+// -*- AddExpr -*-
+// ---------------
+AddExpr::AddExpr(const Expr& lhs, const Expr& rhs)
+: m_lhs{lhs}
+, m_rhs{rhs}
+{}
+
 // -*-
-class NegExpr final: public ExprBase{
-public:
+AddExpr::AddExpr(Expr&& lhs, Expr&& rhs)
+: m_lhs{std::move(lhs)}
+, m_rhs{std::move(rhs)}
+{}
 
-private:
-    Expr m_rhs;
-};
-
+/*
 // -*-
 class AddExpr final: public ExprBase{
 public:
 
-AddExpr::AddExpr(const Expr& lhs, const Expr& rhs){}
-AddExpr::AddExpr(Expr&& lhs, Expr&& rhs){}
 Expr AddExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 private:
