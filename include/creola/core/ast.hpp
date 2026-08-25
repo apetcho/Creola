@@ -513,8 +513,21 @@ static inline CallExpr as_call_expr(const Expr& expr){
     return *self;
 }
 
+/**
+ * @brief Cast `expr` to EquationExpr object.
+ * 
+ * @param expr 
+ * @return EquationExpr 
+ */
+static inline EquationExpr as_equation_expr(const Expr& expr){
+    if(!is_system_expr(expr)){
+        throw CreolaError("expected `EquationExpr` object.");
+    }
+    auto self = std::dynamic_pointer_cast<EquationExpr>(expr);
+    return *self;
+}
 
-static inline EquationExpr as_equation_expr(const Expr& expr);
+
 static inline SystemExpr as_system_expr(const Expr& expr);
 
 
