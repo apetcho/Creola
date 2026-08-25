@@ -134,13 +134,26 @@ Expr MulExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
+// ---------------
+// -*- PowExpr -*-
+// ---------------
+PowExpr::PowExpr(const Expr& base, const Expr& expo)
+: m_base{base}
+, m_exponent{expo}
+{}
+
+// -
+PowExpr::PowExpr(Expr&& base, Expr&& expo)
+: m_base{std::move(base)}
+, m_exponent{std::move(expo)}
+{}
+
 /*
 // -*-
 class PowExpr final: public ExprBase{
 public:
 
-PowExpr::PowExpr(const Expr& base, const Expr& expo){}
-PowExpr::PowExpr(Expr&& base, Expr&& expo){}
+
 Expr PowExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 private:
