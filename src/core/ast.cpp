@@ -15,22 +15,21 @@ Lambda::Lambda(Vec<Str>&& params, Expr&& body)
 , body{std::move(body)}
 {}
 
+// ------------------
+// -*- SymbolExpr -*-
+// ------------------
+SymbolExpr::SymbolExpr(const Str& sym)
+: m_text{sym}
+{}
+
 /*
-
-struct Lambda final{
-    Vec<Str> params;
-    Expr body;
-
-
-
-};
 
 
 // -*-
 class SymbolExpr final: public ExprBase {
 public:
 
-SymbolExpr::SymbolExpr(const Str& sym){}
+
 Expr SymbolExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 
