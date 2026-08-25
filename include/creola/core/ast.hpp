@@ -323,7 +323,7 @@ Stmt make_fun_stmt(Str&& name, Lambda&& lambda);
  * @return false 
  */
 static inline bool is_symbol_expr(const Expr& expr){
-    return (std::dynamic_pointer_cast<SymbolExpr>(expr)!=nullptr ? true : false);
+    return (std::dynamic_pointer_cast<SymbolExpr>(expr) ? true : false);
 }
 
 /**
@@ -334,7 +334,7 @@ static inline bool is_symbol_expr(const Expr& expr){
  * @return false 
  */
 static inline bool is_number_expr(const Expr& expr){
-    return (std::dynamic_pointer_cast<NumberExpr>(expr)!=nullptr ? true : false);
+    return (std::dynamic_pointer_cast<NumberExpr>(expr) ? true : false);
 }
 
 /**
@@ -345,7 +345,7 @@ static inline bool is_number_expr(const Expr& expr){
  * @return false 
  */
 static inline bool is_neg_expr(const Expr& expr){
-    return (std::dynamic_pointer_cast<NegExpr>(expr)!=nullptr ? true : false);
+    return (std::dynamic_pointer_cast<NegExpr>(expr) ? true : false);
 }
 
 /**
@@ -356,11 +356,20 @@ static inline bool is_neg_expr(const Expr& expr){
  * @return false 
  */
 static inline bool is_add_expr(const Expr& expr){
-    return (std::dynamic_pointer_cast<AddExpr>(expr)!=nullptr ? true : false);
+    return (std::dynamic_pointer_cast<AddExpr>(expr) ? true : false);
 }
 
+/**
+ * @brief Returns true if `expr` is MulExpr type.
+ * 
+ * @param expr 
+ * @return true 
+ * @return false 
+ */
+static inline bool is_mul_expr(const Expr& expr){
+    return (std::dynamic_pointer_cast<MulExpr>(expr) ? true : false);
+}
 
-static inline bool is_mul_expr(const Expr& expr);
 static inline bool is_pow_expr(const Expr& expr);
 static inline bool is_call_expr(const Expr& expr);
 static inline bool is_equation_expr(const Expr& expr);
