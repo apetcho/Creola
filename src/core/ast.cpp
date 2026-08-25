@@ -299,10 +299,18 @@ Expr make_mul_expr(Expr&& lhs, Expr&& rhs){
     return std::make_shared<MulExpr>(lhs, rhs);
 }
 
+//! @brief Create a PowExpr object shared pointer.
+Expr make_pow_expr(const Expr& base, const Expr& exponent){
+    return std::make_shared<PowExpr>(base, exponent);
+}
+
+// -
+Expr make_pow_expr(Expr&& base, Expr&& exponent){
+    return std::make_shared<PowExpr>(base, exponent);
+}
+
 /*
 // -
-Expr make_pow_expr(const Expr& base, const Expr& exponent){}
-Expr make_pow_expr(Expr&& base, Expr&& exponent){}
 Expr make_call_expr(const Str& name, const Vec<Expr>& args){}
 Expr make_call_expr(Str&& name, Vec<Expr>&& args){}
 Expr make_equation_expr(const Expr& lhs, const Expr& rhs){}
