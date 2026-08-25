@@ -279,10 +279,18 @@ Expr make_neg_expr(Expr&& expr){
     return std::make_shared<NegExpr>(expr);
 }
 
+//! @brief Create a AddExpr object shared pointer.
+Expr make_add_expr(const Expr& lhs, const Expr& rhs){
+    return std::make_shared<AddExpr>(lhs, rhs);
+}
+
+// -
+Expr make_add_expr(Expr&& lhs, Expr&& rhs){
+    return std::make_shared<AddExpr>(lhs, rhs);
+}
+
 /*
 // -
-Expr make_add_expr(const Expr& lhs, const Expr& rhs){}
-Expr make_add_expr(Expr&& lhs, Expr&& rhs){}
 Expr make_mul_expr(const Expr& lhs, const Expr& rhs){}
 Expr make_mul_expr(Expr&& lhs, Expr&& rhs){}
 Expr make_pow_expr(const Expr& base, const Expr& exponent){}
