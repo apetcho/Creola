@@ -269,10 +269,18 @@ Expr make_number_expr(f64 num){
     return std::make_shared<NumberExpr>(num);
 }
 
+//! @brief Create a NegExpr object shared pointer.
+Expr make_neg_expr(const Expr& expr){
+    return std::make_shared<NegExpr>(expr);
+}
+
+// -
+Expr make_neg_expr(Expr&& expr){
+    return std::make_shared<NegExpr>(expr);
+}
+
 /*
 // -
-Expr make_neg_expr(const Expr& expr){}
-Expr make_neg_expr(Expr&& expr){}
 Expr make_add_expr(const Expr& lhs, const Expr& rhs){}
 Expr make_add_expr(Expr&& lhs, Expr&& rhs){}
 Expr make_mul_expr(const Expr& lhs, const Expr& rhs){}
