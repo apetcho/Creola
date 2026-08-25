@@ -191,23 +191,23 @@ Expr EquationExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
+// ------------------
+// -*- SystemExpr -*-
+// ------------------
+SystemExpr::SystemExpr(const Vec<EquationExpr>& equations)
+: m_equations{equations}
+{}
+
+// -
+SystemExpr::SystemExpr(Vec<EquationExpr>&& equations)
+: m_equations{std::move(equations)}
+{}
+
 /*
-// -*-
-class EquationExpr final: public ExprBase{
-public:
-
-
-private:
-    Expr m_lhs;
-    Expr m_rhs;
-};
-
 // -*-
 class SystemExpr final: public ExprBase{
 public:
 
-SystemExpr::SystemExpr(const Vec<EquationExpr>& equations){}
-SystemExpr::SystemExpr(Vec<EquationExpr>&& equations){}
 Expr SystemExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 private:
