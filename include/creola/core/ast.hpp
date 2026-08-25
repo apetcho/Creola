@@ -428,8 +428,22 @@ static inline SymbolExpr as_symbol_expr(const Expr& expr){
     return *self;
 }
 
+/**
+ * @brief Cast `expr` to NumberExpr obj.
+ * 
+ * @throw CreolaError
+ * @param expr 
+ * @return NumberExpr 
+ */
+static inline NumberExpr as_number_expr(const Expr& expr){
+    if(!is_system_expr(expr)){
+        throw CreolaError("expected `NumberExpr` object.");
+    }
+    auto self = std::dynamic_pointer_cast<NumberExpr>(expr);
+    return *self;
+}
 
-static inline NumberExpr as_number_expr(const Expr& expr);
+
 static inline NegExpr as_neg_expr(const Expr& expr);
 static inline AddExpr as_add_expr(const Expr& expr);
 static inline MulExpr as_mul_expr(const Expr& expr);
