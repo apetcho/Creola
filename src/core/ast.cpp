@@ -172,13 +172,25 @@ Expr CallExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
     return visitor.eval(*this, ctx);
 }
 
+// --------------------
+// -*- EquationExpr -*-
+// --------------------
+EquationExpr::EquationExpr(const Expr& lhs, const Expr& rhs)
+: m_lhs{lhs}
+, m_rhs{rhs}
+{}
+
+// -
+EquationExpr::EquationExpr(Expr&& lhs, Expr&& rhs)
+: m_lhs{std::move(lhs)}
+, m_rhs{std::move(rhs)}
+{}
+
 /*
 // -*-
 class EquationExpr final: public ExprBase{
 public:
 
-EquationExpr::EquationExpr(const Expr& lhs, const Expr& rhs){}
-EquationExpr::EquationExpr(Expr&& lhs, Expr&& rhs){}
 Expr EquationExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 private:
