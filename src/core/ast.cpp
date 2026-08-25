@@ -249,16 +249,28 @@ void FunStmt::execute(const ExecuteVisitor& visitor, Env& ctx){
 // -------------------------
 // -*- Utility functions -*-
 // -------------------------
-//! @brief Create a symbol expr
+//! @brief Create a SymbolExpr object shared pointer
 Expr make_symbol_expr(const Str& name){
     return std::make_shared<SymbolExpr>(name);
 }
 
+//! @brief Create a NumberExpr object shared pointer
+Expr make_number_expr(void){
+    return std::make_shared<NumberExpr>();
+}
+
+// -
+Expr make_number_expr(i64 num){
+    return std::make_shared<NumberExpr>(num);
+}
+
+// -
+Expr make_number_expr(f64 num){
+    return std::make_shared<NumberExpr>(num);
+}
+
 /*
 // -
-Expr make_number_expr(void){}
-Expr make_number_expr(i64 num){}
-Expr make_number_expr(f64 num){}
 Expr make_neg_expr(const Expr& expr){}
 Expr make_neg_expr(Expr&& expr){}
 Expr make_add_expr(const Expr& lhs, const Expr& rhs){}
