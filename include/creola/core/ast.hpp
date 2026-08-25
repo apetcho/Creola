@@ -457,7 +457,21 @@ static inline NegExpr as_neg_expr(const Expr& expr){
     return *self;
 }
 
-static inline AddExpr as_add_expr(const Expr& expr);
+/**
+ * @brief Cast `expr` to AddExpr object.
+ * 
+ * @param expr 
+ * @return AddExpr 
+ */
+static inline AddExpr as_add_expr(const Expr& expr){
+    if(!is_system_expr(expr)){
+        throw CreolaError("expected `AddExpr` object.");
+    }
+    auto self = std::dynamic_pointer_cast<AddExpr>(expr);
+    return *self;
+}
+
+
 static inline MulExpr as_mul_expr(const Expr& expr);
 static inline PowExpr as_pow_expr(const Expr& expr);
 static inline CallExpr as_call_expr(const Expr& expr);
