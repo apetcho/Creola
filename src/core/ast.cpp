@@ -129,20 +129,12 @@ MulExpr::MulExpr(Expr&& lhs, Expr&& rhs)
 , m_rhs{std::move(rhs)}
 {}
 
+// -
+Expr MulExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
 
 /*
-// -*-
-class MulExpr final: public ExprBase{
-public:
-
-
-Expr MulExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
-
-private:
-    Expr m_lhs;
-    Expr m_rhs;
-};
-
 // -*-
 class PowExpr final: public ExprBase{
 public:
