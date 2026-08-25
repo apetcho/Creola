@@ -343,11 +343,18 @@ Expr make_system_expr(Vec<EquationExpr>&& equations){
     return std::make_shared<SystemExpr>(equations);
 }
 
+//! @brief Create a LetStmt object shared pointer.
+Stmt make_let_stmt(const Str& name, const Expr& expr){
+    return std::make_shared<LetStmt>(name, expr);
+}
+
+// -*-
+Stmt make_let_stmt(Str&& name, Expr&& expr){
+    return std::make_shared<LetStmt>(name, expr);
+}
+
 /*
 // -
-
-Stmt make_let_stmt(const Str& name, const Expr& expr){}
-Stmt make_let_stmt(Str&& name, Expr&& expr){}
 Stmt make_fun_stmt(const Str& name, const Lambda& lambda){}
 Stmt make_fun_stmt(Str&& name, Lambda&& lambda){}
 
