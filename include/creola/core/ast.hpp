@@ -414,7 +414,21 @@ static inline bool is_system_expr(const Expr& expr){
     return (std::dynamic_pointer_cast<SymbolExpr>(expr) ? true : false);
 }
 
-static inline SymbolExpr as_symbol_expr(const Expr& expr);
+/**
+ * @brief Cast `expr` to SymbolExpr object.
+ * 
+ * @param expr 
+ * @return SymbolExpr 
+ */
+static inline SymbolExpr as_symbol_expr(const Expr& expr){
+    if(!is_system_expr(expr)){
+        throw CreolaError("expected `SymbolExpr` object.");
+    }
+    auto self = std::dynamic_pointer_cast<SymbolExpr>(expr);
+    return *self;
+}
+
+
 static inline NumberExpr as_number_expr(const Expr& expr);
 static inline NegExpr as_neg_expr(const Expr& expr);
 static inline AddExpr as_add_expr(const Expr& expr);
