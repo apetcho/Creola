@@ -222,12 +222,16 @@ LetStmt::LetStmt(Str&& name, Expr&& expr)
 , m_expr{std::move(expr)}
 {}
 
+// -
+void LetStmt::execute(const ExecuteVisitor& visitor, Env& ctx){
+    visitor.execute(*this, ctx);
+}
+
 /*
 // -*-
 class LetStmt final: public StmtBase{
 public:
 
-void LetStmt::execute(const ExecuteVisitor& visitor, Env& ctx){}
 
 private:
     Str m_name;
