@@ -91,14 +91,15 @@ NegExpr::NegExpr(Expr&& expr)
 : m_rhs{std::move(expr)}
 {}
 
+// -
+Expr NegExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
+
 /*
 // -*-
 class NegExpr final: public ExprBase{
 public:
-
-
-
-Expr NegExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
 
 private:
     Expr m_rhs;
