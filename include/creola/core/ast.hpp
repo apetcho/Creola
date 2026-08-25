@@ -337,8 +337,18 @@ static inline bool is_number_expr(const Expr& expr){
     return (std::dynamic_pointer_cast<NumberExpr>(expr)!=nullptr ? true : false);
 }
 
+/**
+ * @brief Return true if `expr` is neg[ate]-expression.
+ * 
+ * @param expr 
+ * @return true 
+ * @return false 
+ */
+static inline bool is_neg_expr(const Expr& expr){
+    return (std::dynamic_pointer_cast<NegExpr>(expr)!=nullptr ? true : false);
+}
 
-static inline bool is_neg_expr(const Expr& expr);
+
 static inline bool is_add_expr(const Expr& expr);
 static inline bool is_mul_expr(const Expr& expr);
 static inline bool is_pow_expr(const Expr& expr);
