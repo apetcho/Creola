@@ -6,14 +6,23 @@
 namespace creola::core{
 //
 
+Lambda::Lambda(const Vec<Str>& params, const Expr& body)
+: params{params}, body{body}
+{}
+
+Lambda::Lambda(Vec<Str>&& params, Expr&& body)
+: params{std::move(params)}
+, body{std::move(body)}
+{}
+
 /*
 
 struct Lambda final{
     Vec<Str> params;
     Expr body;
 
-Lambda::Lambda(const Vec<Str>& params, const Expr& body){}
-Lambda::Lambda(Vec<Str>&& params, Expr&& body){}
+
+
 };
 
 
@@ -189,26 +198,6 @@ Stmt make_let_stmt(const Str& name, const Expr& expr){}
 Stmt make_let_stmt(Str&& name, Expr&& expr){}
 Stmt make_fun_stmt(const Str& name, const Lambda& lambda){}
 Stmt make_fun_stmt(Str&& name, Lambda&& lambda){}
-
-static inline bool is_symbol_expr(const Expr& expr);
-static inline bool is_number_expr(const Expr& expr);
-static inline bool is_neg_expr(const Expr& expr);
-static inline bool is_add_expr(const Expr& expr);
-static inline bool is_mul_expr(const Expr& expr);
-static inline bool is_pow_expr(const Expr& expr);
-static inline bool is_call_expr(const Expr& expr);
-static inline bool is_equation_expr(const Expr& expr);
-static inline bool is_system_expr(const Expr& expr);
-
-static inline SymbolExpr as_symbol_expr(const Expr& expr);
-static inline NumberExpr as_number_expr(const Expr& expr);
-static inline NegExpr as_neg_expr(const Expr& expr);
-static inline AddExpr as_add_expr(const Expr& expr);
-static inline MulExpr as_mul_expr(const Expr& expr);
-static inline PowExpr as_pow_expr(const Expr& expr);
-static inline CallExpr as_call_expr(const Expr& expr);
-static inline EquationExpr as_equation_expr(const Expr& expr);
-static inline SystemExpr as_system_expr(const Expr& expr);
 
 */
 
