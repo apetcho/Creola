@@ -443,8 +443,20 @@ static inline NumberExpr as_number_expr(const Expr& expr){
     return *self;
 }
 
+/**
+ * @brief Cast `expr` to NegExpr object.
+ * 
+ * @param expr 
+ * @return NegExpr 
+ */
+static inline NegExpr as_neg_expr(const Expr& expr){
+    if(!is_system_expr(expr)){
+        throw CreolaError("expected `NegExpr` object.");
+    }
+    auto self = std::dynamic_pointer_cast<NegExpr>(expr);
+    return *self;
+}
 
-static inline NegExpr as_neg_expr(const Expr& expr);
 static inline AddExpr as_add_expr(const Expr& expr);
 static inline MulExpr as_mul_expr(const Expr& expr);
 static inline PowExpr as_pow_expr(const Expr& expr);
