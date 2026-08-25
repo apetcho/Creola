@@ -148,19 +148,12 @@ PowExpr::PowExpr(Expr&& base, Expr&& expo)
 , m_exponent{std::move(expo)}
 {}
 
+// -
+Expr PowExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
+    return visitor.eval(*this, ctx);
+}
+
 /*
-// -*-
-class PowExpr final: public ExprBase{
-public:
-
-
-Expr PowExpr::eval(const EvalVisitor& visitor, Env& ctx) const{}
-
-private:
-    Expr m_base;
-    Expr m_exponent;
-};
-
 // -*-
 class CallExpr final: public ExprBase{
 public:
