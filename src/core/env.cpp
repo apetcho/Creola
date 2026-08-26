@@ -11,7 +11,10 @@ Env::Env(Env* parent)
 , m_parent{parent}
 {}
 
-
+// -*-
+void Env::define(const Str& name, const Expr& expr){
+    this->m_bindings[name] = expr;
+}
 
 /*
 class Env final: std::enable_shared_from_this<Env>{
