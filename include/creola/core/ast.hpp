@@ -13,6 +13,8 @@ namespace creola::core{
 // -*-
 struct AstBase{
     virtual ~AstBase() = default;
+    virtual bool is_statement(void) const{ return false; }
+    virtual bool is_func(void) const{ return false; }
 };
 
 struct ExprBase: public AstBase{
@@ -23,6 +25,7 @@ struct ExprBase: public AstBase{
 struct StmtBase: public AstBase {
     virtual ~StmtBase() = default;
     virtual void execute(const ExecuteVisitor& visitor, Env& ctx) = 0;
+    bool is_statement(void) const override { return true; }
 };
 
 // -*-
@@ -300,6 +303,8 @@ public:
     const LambdaExpr& lambda(void) const{ return this->m_lambda; }
     Str& name(void){ return this->m_name; }
     LambdaExpr& lambda(void){ return this->m_lambda; }
+
+    bool is_func(void) const override { return true; }
 
 private:
     Str m_name;

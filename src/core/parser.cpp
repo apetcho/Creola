@@ -20,14 +20,12 @@ Parser::Parser(const Str& src)
 }
 
 // -*-
-Option<Expr> Parser::parse(void){
+Ast Parser::parse(void){
     if(this->m_current.kind==TokenKind::Let){
-        this->parse_let();
-        return std::nullopt;
+        return this->parse_let();
     }
     if(this->m_current.kind==TokenKind::Fun){
-        this->parse_fun();
-        return std::nullopt;
+        return this->parse_fun();
     }
 
     // equation
@@ -259,14 +257,96 @@ Expr Parser::parse_primary_expr(void){
     throw CreolaError("unexpected token in primary-expression: " + this->m_current.text);
 }
 
+// -*-
+Stmt Parser::parse_let(void){
+    this->consume(TokenKind::Let);
+    this->expect(TokenKind::Ident, "expected identifier after `let`");
+    auto name = this->m_current.text;
+    this->consume(TokenKind::Ident);
+    this->consume(TokenKind::Equal);
+    auto expr = this->parse_expr();
+    if(this->match(TokenKind::Semi)){}
+
+    return make_let_stmt(name, expr);
+}
+
+// -*-
+Stmt Parser::parse_fun(void){}
+
+/*
+// -*-
+Expr Parser::parse_fun(void){
+    this->consume(TokenKind::FUN);
+    this->expect(TokenKind::IDENT, "Expected function name");
+    auto fname = this->m_current.text;
+    this->consume(TokenKind::IDENT);
+    this->consume(TokenKind::LPAREN);
+    Vec<Str> params{};
+    if(this->m_current.kind==TokenKind::IDENT){
+        params.push_back(this->m_current.text);
+        this->consume(TokenKind::IDENT);
+        while(this->match(TokenKind::COMMA)){
+            this->expect(TokenKind::IDENT, "Expected parameter name");
+            params.push_back(this->m_current.text);
+            this->consume(TokenKind::IDENT);
+        }
+    }
+    this->consume(TokenKind::RPAREN);
+    this->consume(TokenKind::EQ);
+    auto body = this->parse_expr();
+    auto lambda = ExprNode::make_lambda(params, body);
+    return ExprNode::make_assign(fname, lambda);
+}
+
+// -*-
+Expr Parser::parse_diff(void){
+    // diff(expr, var);
+    this->consume(TokenKind::DIFF);
+    this->consume(TokenKind::LPAREN);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::COMMA);
+    this->expect(TokenKind::IDENT, "Expected variable in derivative");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::IDENT);
+    this->consume(TokenKind::RPAREN);
+    auto result = CasEngine::diff(expr, var);
+
+    return CasEngine::simplify(result);
+}
+
+// -*-
+Expr Parser::parse_integrate(void){
+    // integrate(expr, var)
+    bool evaled{false};
+    Expr x1{}, x2{}, result{};
+    this->consume(TokenKind::INTEGRATE);
+    this->consume(TokenKind::LPAREN);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::COMMA);
+    this->expect(TokenKind::IDENT, "Expected variable in integral");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::IDENT);
+    if(this->m_current.kind == TokenKind::COMMA){
+        x1 = this->parse_expr();
+        this->expect(TokenKind::COMMA, "Expected comma in intregal evaluation");
+        x2 = this->parse_expr();
+    }
+    this->consume(TokenKind::RPAREN);
+
+    if(evaled){
+        result = CasEngine::integrate(expr, var, x1, x2);
+    }else{
+        result = CasEngine::integrate(expr, var);
+    }
+    return CasEngine::simplify(result);
+}
+*/
+
 /*
 // -*- Parser
 class Parser{
 public:
 
-
-void Parser::parse_let(void){}
-void Parser::parse_fun(void){}
 
 Expr Parser::parse_equation(void){}
 Expr Parser::parse_system(void){}
