@@ -4,21 +4,6 @@
 #include<string>
 #include<stdexcept>
 
-/*
-// -*-
-Expr Parser::parse(void){
-    // parse a statement or expression
-    //if(this->m_current.kind==TokenKind::END){ return ExprNode::make_none(); }
-    if(this->m_current.kind==TokenKind::LET){ return this->parse_let(); }
-    if(this->m_current.kind==TokenKind::FUN){ return this->parse_fun(); }
-    if(this->m_current.kind==TokenKind::DIFF){ return this->parse_diff(); }
-    if(this->m_current.kind==TokenKind::INTEGRATE){ return this->parse_integrate(); }
-
-    auto expr = this->parse_expr();
-    if(this->match(TokenKind::SEMI)){ return expr; } // parse optional semicolon
-    return expr;
-}
-*/
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -143,14 +128,43 @@ Option<Expr> Parser::parse(void){
 }
 
 /*
+
+// -*-
+bool Parser::match(TokenKind kind){
+    if(this->m_current.kind == kind){
+        // this->m_current = this->peek();
+        // this->advance();
+        this->m_current = this->m_lexer.next();
+        return true;
+    }
+    return false;
+}
+
+void Parser::expect(TokenKind kind, const Str& msg){
+    if(this->m_current.kind!=kind){
+        throw CasError(msg);
+    }
+}
+*/
+
+// -*-
+void Parser::consume(TokenKind kind){
+    if(this->m_current.kind != kind){
+        throw CreolaError("Unexpected token: " + this->m_current.text);
+    }
+    this->m_current = this->m_lexer.next();
+}
+
+bool Parser::match(TokenKind kind){}
+void Parser::expect(TokenKind kind, const Str& msg){}
+
+
+
+/*
 // -*- Parser
 class Parser{
 public:
 
-
-void Parser::consume(TokenKind kind){}
-bool Parser::match(TokenKind kind){}
-void Parser::expect(TokenKind kind, const Str& msg){}
 
 void Parser::parse_let(void){}
 void Parser::parse_fun(void){}
