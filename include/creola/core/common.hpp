@@ -6,6 +6,7 @@
 #include<exception>
 #include<iostream>
 #include<sstream>
+#include<optional>
 #include<variant>
 #include<cstdint>
 #include<memory>
@@ -29,6 +30,9 @@ struct StmtBase;
 
 template<typename T>
 using Vec = std::vector<T>;
+
+template<typename T>
+using Option = std::optional<T>;
 
 template<typename T>
 using Shared = std::shared_ptr<T>;

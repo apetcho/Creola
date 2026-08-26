@@ -15,7 +15,7 @@ public:
     explicit Parser(const Str& src);
     ~Parser() = default;
 
-    Ast parse(void);
+    Expr parse(void);
 
 private:
     Lexer m_lexer;

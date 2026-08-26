@@ -4,20 +4,41 @@
 #include<string>
 #include<stdexcept>
 
+/*
+// -*-
+Expr Parser::parse(void){
+    // parse a statement or expression
+    //if(this->m_current.kind==TokenKind::END){ return ExprNode::make_none(); }
+    if(this->m_current.kind==TokenKind::LET){ return this->parse_let(); }
+    if(this->m_current.kind==TokenKind::FUN){ return this->parse_fun(); }
+    if(this->m_current.kind==TokenKind::DIFF){ return this->parse_diff(); }
+    if(this->m_current.kind==TokenKind::INTEGRATE){ return this->parse_integrate(); }
+
+    auto expr = this->parse_expr();
+    if(this->match(TokenKind::SEMI)){ return expr; } // parse optional semicolon
+    return expr;
+}
+*/
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
 namespace creola::core{
-//
+// -
+
+// -*-
+Parser::Parser(const Str& src)
+: m_lexer{src}
+{
+    this->m_current = this->m_lexer.next();
+}
 
 /*
 // -*- Parser
 class Parser{
 public:
 
-Parser::Parser(const Str& src){}
-Ast Parser::parse(void){}
+Expr Parser::parse(void){}
 
 void Parser::consume(TokenKind kind){}
 bool Parser::match(TokenKind kind){}
