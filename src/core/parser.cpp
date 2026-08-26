@@ -1,4 +1,5 @@
 #include "creola/core/parser.hpp"
+#include "creola/core/ast.hpp"
 
 #include<cctype>
 #include<string>
@@ -155,32 +156,32 @@ Expr Parser::parse_expr(void){
     return this->parse_add_expr();
 }
 
-Expr Parser::parse_add_expr(void){}
+// -*-
+Expr Parser::parse_add_expr(void){
+    auto lhs = this->parse_mul_expr();
+    while(this->m_current.kind==TokenKind::Plus || this->m_current.kind==TokenKind::Minus){
+        if(this->m_current.kind==TokenKind::Plus){
+            this->consume(TokenKind::Plus);
+            auto rhs = this->parse_mul_expr();
+            lhs = make_add_expr(lhs, rhs);
+        }else{
+            this->consume(TokenKind::Minus);
+            auto rhs = this->parse_mul_expr();
+            rhs = make_neg_expr(rhs);
+            lhs = make_add_expr(lhs, rhs);
+        }
+    }
+
+    return lhs;
+}
+
+// -*-
 Expr Parser::parse_mul_expr(void){}
 Expr Parser::parse_pow_expr(void){}
 Expr Parser::parse_unary_expr(void){}
 Expr Parser::parse_primary_expr(void){}
 
 /*
-// -*-
-Expr Parser::parse_add_expr(void){
-    auto expr = this->parse_mul_expr();
-    while(this->m_current.kind==TokenKind::PLUS || this->m_current.kind==TokenKind::MINUS){
-        if(this->m_current.kind==TokenKind::PLUS){
-            this->consume(TokenKind::PLUS);
-            expr = ExprNode::make_binary(ExprKind::Add, expr, this->parse_mul_expr());
-        }else{
-            this->consume(TokenKind::MINUS);
-            expr = ExprNode::make_binary(
-                ExprKind::Add, expr,
-                ExprNode::make_unary(ExprKind::Neg, this->parse_mul_expr())
-            );
-        }
-    }
-
-    return expr;
-}
-
 // -*-
 Expr Parser::parse_mul_expr(void){
     auto expr = this->parse_pow_expr();
