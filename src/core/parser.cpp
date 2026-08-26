@@ -176,7 +176,27 @@ Expr Parser::parse_add_expr(void){
 }
 
 // -*-
-Expr Parser::parse_mul_expr(void){}
+Expr Parser::parse_mul_expr(void){
+    auto lhs = this->parse_pow_expr();
+    while(this->m_current.kind==TokenKind::Star || this->m_current.kind==TokenKind::Slash){
+        if(this->m_current.kind==TokenKind::Star){
+            this->consume(TokenKind::Star);
+            auto rhs = this->parse_pow_expr();
+            lhs = make_mul_expr(lhs, rhs);
+        }else{
+            this->consume(TokenKind::Slash);
+            auto rhs = this->parse_pow_expr();
+            if(is_zero(rhs)){
+                throw CreolaError("division by zero");
+            }
+            rhs = make_pow_expr(rhs, make_number_expr(-1.0));
+            lhs = make_mul_expr(lhs, rhs);
+        }
+    }
+
+    return lhs;
+}
+
 Expr Parser::parse_pow_expr(void){}
 Expr Parser::parse_unary_expr(void){}
 Expr Parser::parse_primary_expr(void){}
