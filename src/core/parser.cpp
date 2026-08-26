@@ -150,7 +150,123 @@ void Parser::expect(TokenKind kind, const Str& msg){
     }
 }
 
+// -*-
+Expr Parser::parse_expr(void){
+    return this->parse_add_expr();
+}
 
+Expr Parser::parse_add_expr(void){}
+Expr Parser::parse_mul_expr(void){}
+Expr Parser::parse_pow_expr(void){}
+Expr Parser::parse_unary_expr(void){}
+Expr Parser::parse_primary_expr(void){}
+
+/*
+// -*-
+Expr Parser::parse_add_expr(void){
+    auto expr = this->parse_mul_expr();
+    while(this->m_current.kind==TokenKind::PLUS || this->m_current.kind==TokenKind::MINUS){
+        if(this->m_current.kind==TokenKind::PLUS){
+            this->consume(TokenKind::PLUS);
+            expr = ExprNode::make_binary(ExprKind::Add, expr, this->parse_mul_expr());
+        }else{
+            this->consume(TokenKind::MINUS);
+            expr = ExprNode::make_binary(
+                ExprKind::Add, expr,
+                ExprNode::make_unary(ExprKind::Neg, this->parse_mul_expr())
+            );
+        }
+    }
+
+    return expr;
+}
+
+// -*-
+Expr Parser::parse_mul_expr(void){
+    auto expr = this->parse_pow_expr();
+    while(this->m_current.kind==TokenKind::STAR || this->m_current.kind==TokenKind::SLASH){
+        if(this->m_current.kind==TokenKind::STAR){
+            this->consume(TokenKind::STAR);
+            expr = ExprNode::make_binary(ExprKind::Mul, expr, this->parse_pow_expr());
+        }else{
+            this->consume(TokenKind::SLASH);
+            // treat division as multiplication by reciprocal (not fully smybolic)
+            auto den = this->parse_pow_expr();
+            auto mul = ExprNode::make_expr(ExprKind::Mul);
+            //auto mul = std::make_shared<ExprNode>(ExprKind::Mul);
+            mul->value() = Vec<Expr>{
+                expr,
+                ExprNode::make_binary(ExprKind::Pow, den, ExprNode::make_number(-1.0))
+            };
+            expr = mul;
+        }
+    }
+
+    return expr;
+}
+
+// -*-
+Expr Parser::parse_pow_expr(void){
+    auto expr = this->parse_unary_expr();
+    if(this->m_current.kind==TokenKind::CARET){
+        this->consume(TokenKind::CARET);
+        auto expo = this->parse_unary_expr();
+        expr = ExprNode::make_binary(ExprKind::Pow, expr, expo);
+    }
+
+    return expr;
+}
+
+// -*-
+Expr Parser::parse_unary_expr(void){
+    if(this->m_current.kind==TokenKind::MINUS){
+        this->consume(TokenKind::MINUS);
+        return ExprNode::make_unary(ExprKind::Neg, this->parse_unary_expr());
+    }
+    return this->parse_primary_expr();
+}
+
+// -
+Expr Parser::parse_primary_expr(void){
+    // (1) <number>
+    // (2.a) <name>
+    // (2.b) <name(args)>
+    // (3) <(expr)>
+    
+    if(this->m_current.kind==TokenKind::NUM){
+        f64 num = this->m_current.num;
+        this->consume(TokenKind::NUM);
+        return ExprNode::make_number(num);
+    }
+    if(this->m_current.kind==TokenKind::IDENT){
+        auto name = this->m_current.text;
+        this->consume(TokenKind::IDENT);                    // name
+        if(this->m_current.kind==TokenKind::LPAREN){        // (
+            this->consume(TokenKind::LPAREN);
+            Vec<Expr> args{};                               // x, y, ...
+            if(this->m_current.kind != TokenKind::RPAREN){
+                args.push_back(this->parse_expr());
+                while(this->match(TokenKind::COMMA)){
+                    if(this->m_current.kind == TokenKind::RPAREN){ break; } // XXX
+                    args.push_back(this->parse_expr());
+                }
+            }
+            this->consume(TokenKind::RPAREN);
+            return ExprNode::make_call(name, args); // name(args)
+        }
+        return ExprNode::make_var(name);            // name
+    }
+
+    if(this->m_current.kind==TokenKind::LPAREN){        // (expr)
+        this->consume(TokenKind::LPAREN);
+        auto expr = this->parse_expr();
+        this->consume(TokenKind::RPAREN);
+        return expr;
+    }
+
+    throw CasError("Unexpected token in primary-expression: " + this->m_current.text);
+}
+*/
 
 /*
 // -*- Parser
@@ -184,12 +300,6 @@ Expr Parser::parse_show(void){}
 Expr Parser::parse_plot(void){}
 Expr Parser::parse_config(void){}
 
-Expr Parser::parse_expr(void){}
-Expr Parser::parse_add_expr(void){}
-Expr Parser::parse_mul_expr(void){}
-Expr Parser::parse_pow_expr(void){}
-Expr Parser::parse_unary_expr(void){}
-Expr Parser::parse_primary_expr(void){}
 
 private:
     Lexer m_lexer;
