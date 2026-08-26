@@ -9,18 +9,6 @@ namespace creola::core{
 // -
 //! @todo: Add support for complex numbers
 
-struct Lambda final{
-    Vec<Str> params;
-    Expr body;
-
-    explicit Lambda(const Vec<Str>& params, const Expr& body);
-    explicit Lambda(Vec<Str>&& params, Expr&& body);
-    Lambda(const Lambda&) = default;
-    Lambda(Lambda&&) = default;
-    ~Lambda() = default;
-    Lambda& operator=(const Lambda&) = default;
-    Lambda& operator=(Lambda&&) = default;
-};
 
 // -*-
 struct AstBase{
@@ -172,6 +160,40 @@ private:
     Expr m_exponent;
 };
 
+/*
+
+*/
+
+// -*-
+class LambdaExpr final: public ExprBase{
+public:
+    explicit LambdaExpr(const Vec<Str>& params, const Expr& body)
+    : m_params{params}, m_body{body}
+    {}
+
+    explicit LambdaExpr(Vec<Str>&& params, Expr&& body)
+    : m_params{std::move(params)}, m_body{std::move(body)}
+    {}
+
+    LambdaExpr(const LambdaExpr&) = default;
+    LambdaExpr(LambdaExpr&&) = default;
+    ~LambdaExpr() = default;
+    LambdaExpr& operator=(const LambdaExpr&) = default;
+    LambdaExpr& operator=(LambdaExpr&&) = default;
+
+    Expr eval(const EvalVisitor& visitor, Env& ctx) const override{
+        return visitor.eval(*this, ctx);
+    }
+
+    const Vec<Str>& params(void) const{ return this->m_params; }
+    const Expr& body(void) const{ return this->m_body; }
+
+private:
+    Vec<Str> m_params;
+    Expr m_body;
+};
+
+
 // -*-
 class CallExpr final: public ExprBase{
 public:
@@ -264,8 +286,8 @@ private:
 // -*-
 class FunStmt final: public StmtBase{
 public:
-    explicit FunStmt(const Str& name, const Lambda& lambda);
-    explicit FunStmt(Str&& name, Lambda&& lambda);
+    explicit FunStmt(const Str& name, const LambdaExpr& lambda);
+    explicit FunStmt(Str&& name, LambdaExpr&& lambda);
     FunStmt(const FunStmt&) = default;
     FunStmt(FunStmt&&) = default;
     ~FunStmt() = default;
@@ -275,13 +297,13 @@ public:
     void execute(const ExecuteVisitor& visitor, Env& ctx) override;
 
     const Str& name(void) const{ return this->m_name; }
-    const Lambda& lambda(void) const{ return this->m_lambda; }
+    const LambdaExpr& lambda(void) const{ return this->m_lambda; }
     Str& name(void){ return this->m_name; }
-    Lambda& lambda(void){ return this->m_lambda; }
+    LambdaExpr& lambda(void){ return this->m_lambda; }
 
 private:
     Str m_name;
-    Lambda m_lambda;
+    LambdaExpr m_lambda;
 };
 
 // ---------------------
@@ -299,6 +321,8 @@ Expr make_mul_expr(const Expr& lhs, const Expr& rhs);
 Expr make_mul_expr(Expr&& lhs, Expr&& rhs);
 Expr make_pow_expr(const Expr& base, const Expr& exponent);
 Expr make_pow_expr(Expr&& base, Expr&& exponent);
+Expr make_lambda_expr(const Vec<Str>& params, const Expr& body);
+Expr make_lambda_expr(Vec<Str>&& params, Expr&& body);
 Expr make_call_expr(const Str& name, const Vec<Expr>& args);
 Expr make_call_expr(Str&& name, Vec<Expr>&& args);
 Expr make_equation_expr(const Expr& lhs, const Expr& rhs);
@@ -308,8 +332,8 @@ Expr make_system_expr(Vec<EquationExpr>&& equations);
 
 Stmt make_let_stmt(const Str& name, const Expr& expr);
 Stmt make_let_stmt(Str&& name, Expr&& expr);
-Stmt make_fun_stmt(const Str& name, const Lambda& lambda);
-Stmt make_fun_stmt(Str&& name, Lambda&& lambda);
+Stmt make_fun_stmt(const Str& name, const LambdaExpr& lambda);
+Stmt make_fun_stmt(Str&& name, LambdaExpr&& lambda);
 
 /**
  * @brief Returns true if `expr` is a symbol-expression.
@@ -375,6 +399,17 @@ static inline bool is_mul_expr(const Expr& expr){
  */
 static inline bool is_pow_expr(const Expr& expr){
     return (std::dynamic_pointer_cast<PowExpr>(expr) ? true : false);
+}
+
+/**
+ * @brief Returns true if `expr` is of LambdaExpr type.
+ * 
+ * @param expr 
+ * @return true 
+ * @return false 
+ */
+static inline bool is_lambda_expr(const Expr& expr){
+    return (std::dynamic_pointer_cast<LambdaExpr>(expr) ? true : false);
 }
 
 /**
@@ -494,6 +529,16 @@ static inline PowExpr as_pow_expr(const Expr& expr){
     auto self = std::dynamic_pointer_cast<PowExpr>(expr);
     return *self;
 }
+
+
+static inline LambdaExpr as_lambda_expr(const Expr& expr){
+    if(!is_system_expr(expr)){
+        throw CreolaError("expected `LambdaExpr` object.");
+    }
+    auto self = std::dynamic_pointer_cast<LambdaExpr>(expr);
+    return *self;
+}
+
 
 /**
  * @brief Cast `expr` to CallExpr object.

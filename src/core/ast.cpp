@@ -6,15 +6,6 @@
 namespace creola::core{
 //
 
-Lambda::Lambda(const Vec<Str>& params, const Expr& body)
-: params{params}, body{body}
-{}
-
-Lambda::Lambda(Vec<Str>&& params, Expr&& body)
-: params{std::move(params)}
-, body{std::move(body)}
-{}
-
 // ------------------
 // -*- SymbolExpr -*-
 // ------------------
@@ -226,13 +217,13 @@ void LetStmt::execute(const ExecuteVisitor& visitor, Env& ctx){
 // ---------------
 // -*- FunStmt -*-
 // ---------------
-FunStmt::FunStmt(const Str& name, const Lambda& lambda)
+FunStmt::FunStmt(const Str& name, const LambdaExpr& lambda)
 : m_name{name}
 , m_lambda{lambda}
 {}
 
 // -
-FunStmt::FunStmt(Str&& name, Lambda&& lambda)
+FunStmt::FunStmt(Str&& name, LambdaExpr&& lambda)
 : m_name{std::move(name)}
 , m_lambda{std::move(lambda)}
 {}
@@ -305,6 +296,16 @@ Expr make_pow_expr(Expr&& base, Expr&& exponent){
     return std::make_shared<PowExpr>(base, exponent);
 }
 
+// -*-
+Expr make_lambda_expr(const Vec<Str>& params, const Expr& body){
+    return std::make_shared<LambdaExpr>(params, body);
+}
+
+// -*-
+Expr make_lambda_expr(Vec<Str>&& params, Expr&& body){
+    return std::make_shared<LambdaExpr>(params, body);
+}
+
 //! @brief Create a CallExpr object shared pointer.
 Expr make_call_expr(const Str& name, const Vec<Expr>& args){
     return std::make_shared<CallExpr>(name, args);
@@ -350,12 +351,12 @@ Stmt make_let_stmt(Str&& name, Expr&& expr){
 }
 
 //! @brief Create a FunStmt object shared pointer.
-Stmt make_fun_stmt(const Str& name, const Lambda& lambda){
+Stmt make_fun_stmt(const Str& name, const LambdaExpr& lambda){
     return std::make_shared<FunStmt>(name, lambda);
 }
 
 // -
-Stmt make_fun_stmt(Str&& name, Lambda&& lambda){
+Stmt make_fun_stmt(Str&& name, LambdaExpr&& lambda){
     return std::make_shared<FunStmt>(name, lambda);
 }
 
