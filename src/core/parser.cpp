@@ -259,6 +259,7 @@ Expr Parser::parse_primary_expr(void){
 
 // -*-
 Stmt Parser::parse_let(void){
+    // let x = 3.14
     this->consume(TokenKind::Let);
     this->expect(TokenKind::Ident, "expected identifier after `let`");
     auto name = this->m_current.text;
@@ -271,33 +272,32 @@ Stmt Parser::parse_let(void){
 }
 
 // -*-
-Stmt Parser::parse_fun(void){}
-
-/*
-// -*-
-Expr Parser::parse_fun(void){
-    this->consume(TokenKind::FUN);
-    this->expect(TokenKind::IDENT, "Expected function name");
+Stmt Parser::parse_fun(void){
+    // fun f(x) = x + 1
+    this->consume(TokenKind::Fun);
+    this->expect(TokenKind::Ident, "Expected function name");
     auto fname = this->m_current.text;
-    this->consume(TokenKind::IDENT);
-    this->consume(TokenKind::LPAREN);
+    this->consume(TokenKind::Ident);
+    this->consume(TokenKind::LParen);
     Vec<Str> params{};
-    if(this->m_current.kind==TokenKind::IDENT){
+    if(this->m_current.kind==TokenKind::Ident){
         params.push_back(this->m_current.text);
-        this->consume(TokenKind::IDENT);
-        while(this->match(TokenKind::COMMA)){
-            this->expect(TokenKind::IDENT, "Expected parameter name");
+        this->consume(TokenKind::Ident);
+        while(this->match(TokenKind::Comma)){
+            this->expect(TokenKind::Ident, "Expected parameter name");
             params.push_back(this->m_current.text);
-            this->consume(TokenKind::IDENT);
+            this->consume(TokenKind::Ident);
         }
     }
-    this->consume(TokenKind::RPAREN);
-    this->consume(TokenKind::EQ);
+    this->consume(TokenKind::RParen);
+    this->consume(TokenKind::Equal);
     auto body = this->parse_expr();
-    auto lambda = ExprNode::make_lambda(params, body);
-    return ExprNode::make_assign(fname, lambda);
+    auto lambda = make_lambda_expr(params, body);
+    return make_fun_stmt(fname, as_lambda_expr(lambda));
 }
 
+
+/*
 // -*-
 Expr Parser::parse_diff(void){
     // diff(expr, var);
