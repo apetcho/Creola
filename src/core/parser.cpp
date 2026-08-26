@@ -209,32 +209,20 @@ Expr Parser::parse_pow_expr(void){
     return expr;
 }
 
-Expr Parser::parse_unary_expr(void){}
-Expr Parser::parse_primary_expr(void){}
-
-/*
-
-// -*-
-Expr Parser::parse_pow_expr(void){
-    auto expr = this->parse_unary_expr();
-    if(this->m_current.kind==TokenKind::CARET){
-        this->consume(TokenKind::CARET);
-        auto expo = this->parse_unary_expr();
-        expr = ExprNode::make_binary(ExprKind::Pow, expr, expo);
-    }
-
-    return expr;
-}
-
 // -*-
 Expr Parser::parse_unary_expr(void){
-    if(this->m_current.kind==TokenKind::MINUS){
-        this->consume(TokenKind::MINUS);
-        return ExprNode::make_unary(ExprKind::Neg, this->parse_unary_expr());
+    if(this->m_current.kind==TokenKind::Minus){
+        this->consume(TokenKind::Minus);
+        return make_neg_expr(this->parse_unary_expr());
     }
+
     return this->parse_primary_expr();
 }
 
+// -*-
+Expr Parser::parse_primary_expr(void){}
+
+/*
 // -
 Expr Parser::parse_primary_expr(void){
     // (1) <number>
