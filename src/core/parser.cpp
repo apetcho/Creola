@@ -197,34 +197,22 @@ Expr Parser::parse_mul_expr(void){
     return lhs;
 }
 
-Expr Parser::parse_pow_expr(void){}
-Expr Parser::parse_unary_expr(void){}
-Expr Parser::parse_primary_expr(void){}
-
-/*
 // -*-
-Expr Parser::parse_mul_expr(void){
-    auto expr = this->parse_pow_expr();
-    while(this->m_current.kind==TokenKind::STAR || this->m_current.kind==TokenKind::SLASH){
-        if(this->m_current.kind==TokenKind::STAR){
-            this->consume(TokenKind::STAR);
-            expr = ExprNode::make_binary(ExprKind::Mul, expr, this->parse_pow_expr());
-        }else{
-            this->consume(TokenKind::SLASH);
-            // treat division as multiplication by reciprocal (not fully smybolic)
-            auto den = this->parse_pow_expr();
-            auto mul = ExprNode::make_expr(ExprKind::Mul);
-            //auto mul = std::make_shared<ExprNode>(ExprKind::Mul);
-            mul->value() = Vec<Expr>{
-                expr,
-                ExprNode::make_binary(ExprKind::Pow, den, ExprNode::make_number(-1.0))
-            };
-            expr = mul;
-        }
+Expr Parser::parse_pow_expr(void){
+    auto expr = this->parse_unary_expr();
+    if(this->m_current.kind==TokenKind::Caret){
+        this->consume(TokenKind::Caret);
+        auto rhs = this->parse_unary_expr();
+        expr = make_pow_expr(expr, rhs);
     }
 
     return expr;
 }
+
+Expr Parser::parse_unary_expr(void){}
+Expr Parser::parse_primary_expr(void){}
+
+/*
 
 // -*-
 Expr Parser::parse_pow_expr(void){
