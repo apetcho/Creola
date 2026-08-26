@@ -583,6 +583,7 @@ static inline SystemExpr as_system_expr(const Expr& expr){
     return *self;
 }
 
+// -*-
 static inline bool is_zero(const Expr& expr){
     if(is_number_expr(expr)){
         auto num = as_number_expr(expr);
@@ -595,6 +596,18 @@ static inline bool is_zero(const Expr& expr){
     return false;
 }
 
+// -*-
+bool is_one(const Expr& expr){
+    if(is_number_expr(expr)){
+        auto num = as_number_expr(expr);
+        if(num.is_integer()){
+            return num.as_integer() == 1;
+        }
+        return almost_zero((num.as_float()-1.0));
+    }
+
+    return false;
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-
