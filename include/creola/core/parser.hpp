@@ -15,7 +15,7 @@ public:
     explicit Parser(const Str& src);
     ~Parser() = default;
 
-    Expr parse(void);
+    Option<Expr> parse(void);
 
 private:
     Lexer m_lexer;
@@ -25,8 +25,8 @@ private:
     bool match(TokenKind kind);
     void expect(TokenKind kind, const Str& msg);
 
-    Stmt parse_let(void);
-    Stmt parse_fun(void);
+    void parse_let(void);
+    void parse_fun(void);
 
     Expr parse_equation(void);
     Expr parse_system(void);
@@ -44,6 +44,8 @@ private:
     Expr parse_factorial(void);
     Expr parse_modulo(void);
     Expr parse_prime(void);
+    Expr parse_gcd(void);
+    Expr parse_lcm(void);
     Expr parse_help(void);
     Expr parse_show(void);
     Expr parse_plot(void);

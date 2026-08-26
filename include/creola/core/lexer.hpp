@@ -34,6 +34,8 @@ namespace creola::core{
     CREOLA_DEF(Factorial, "factorial")  \
     CREOLA_DEF(Modulo, "modulo")        \
     CREOLA_DEF(Prime, "prime")          \
+    CREOLA_DEF(Gcd, "gcd")              \
+    CREOLA_DEF(Lcm, "lcm")              \
     CREOLA_DEF(Help, "help")            \
     CREOLA_DEF(Show, "show")            \
     CREOLA_DEF(Plot, "plot")            \
