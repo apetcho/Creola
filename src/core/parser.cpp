@@ -220,50 +220,44 @@ Expr Parser::parse_unary_expr(void){
 }
 
 // -*-
-Expr Parser::parse_primary_expr(void){}
-
-/*
-// -
 Expr Parser::parse_primary_expr(void){
-    // (1) <number>
-    // (2.a) <name>
-    // (2.b) <name(args)>
-    // (3) <(expr)>
-    
-    if(this->m_current.kind==TokenKind::NUM){
-        f64 num = this->m_current.num;
-        this->consume(TokenKind::NUM);
-        return ExprNode::make_number(num);
+    if(this->m_current.kind==TokenKind::Integer || this->m_current.kind==TokenKind::Float){
+        if(this->m_current.kind==TokenKind::Integer){
+            auto num = std::stoll(this->m_current.text);
+            return make_number_expr(num);
+        }
+        auto num = std::stod(this->m_current.text);
+        return make_number_expr(num);
     }
-    if(this->m_current.kind==TokenKind::IDENT){
+
+    if(this->m_current.kind==TokenKind::Ident){
         auto name = this->m_current.text;
-        this->consume(TokenKind::IDENT);                    // name
-        if(this->m_current.kind==TokenKind::LPAREN){        // (
-            this->consume(TokenKind::LPAREN);
-            Vec<Expr> args{};                               // x, y, ...
-            if(this->m_current.kind != TokenKind::RPAREN){
+        this->consume(TokenKind::Ident);
+        if(this->m_current.kind==TokenKind::LParen){
+            this->consume(TokenKind::LParen);
+            Vec<Expr> args{};
+            if(this->m_current.kind != TokenKind::RParen){
                 args.push_back(this->parse_expr());
-                while(this->match(TokenKind::COMMA)){
-                    if(this->m_current.kind == TokenKind::RPAREN){ break; } // XXX
+                while(this->match(TokenKind::Comma)){
+                    if(this->m_current.kind == TokenKind::RParen){ break; }
                     args.push_back(this->parse_expr());
                 }
             }
-            this->consume(TokenKind::RPAREN);
-            return ExprNode::make_call(name, args); // name(args)
+            this->consume(TokenKind::RParen);
+            return make_call_expr(name, args);
         }
-        return ExprNode::make_var(name);            // name
+        return make_symbol_expr(name);
     }
 
-    if(this->m_current.kind==TokenKind::LPAREN){        // (expr)
-        this->consume(TokenKind::LPAREN);
+    if(this->m_current.kind==TokenKind::LParen){        // (expr)
+        this->consume(TokenKind::LParen);
         auto expr = this->parse_expr();
-        this->consume(TokenKind::RPAREN);
+        this->consume(TokenKind::RParen);
         return expr;
     }
 
-    throw CasError("Unexpected token in primary-expression: " + this->m_current.text);
+    throw CreolaError("unexpected token in primary-expression: " + this->m_current.text);
 }
-*/
 
 /*
 // -*- Parser
