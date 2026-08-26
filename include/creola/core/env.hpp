@@ -19,8 +19,8 @@ public:
     ~Env() = default;
 
     void define(const Str& name, const Expr& expr);
-    Expr assign(const Str& name, const Expr& expr);
-    Expr& get(const Str& name) const;
+    void assign(const Str& name, const Expr& expr);
+    Expr get(const Str& name) const;
 
     void pprint(PrettyPrinter& pprinter) const;
 
