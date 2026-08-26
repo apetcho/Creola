@@ -127,26 +127,6 @@ Option<Expr> Parser::parse(void){
     return expr;
 }
 
-/*
-
-// -*-
-bool Parser::match(TokenKind kind){
-    if(this->m_current.kind == kind){
-        // this->m_current = this->peek();
-        // this->advance();
-        this->m_current = this->m_lexer.next();
-        return true;
-    }
-    return false;
-}
-
-void Parser::expect(TokenKind kind, const Str& msg){
-    if(this->m_current.kind!=kind){
-        throw CasError(msg);
-    }
-}
-*/
-
 // -*-
 void Parser::consume(TokenKind kind){
     if(this->m_current.kind != kind){
@@ -164,7 +144,11 @@ bool Parser::match(TokenKind kind){
     return false;
 }
 
-void Parser::expect(TokenKind kind, const Str& msg){}
+void Parser::expect(TokenKind kind, const Str& msg){
+    if(this->m_current.kind!=kind){
+        throw CreolaError(msg);
+    }
+}
 
 
 
