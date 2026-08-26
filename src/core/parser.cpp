@@ -155,7 +155,15 @@ void Parser::consume(TokenKind kind){
     this->m_current = this->m_lexer.next();
 }
 
-bool Parser::match(TokenKind kind){}
+// -*-
+bool Parser::match(TokenKind kind){
+    if(this->m_current.kind == kind){
+        this->m_current = this->m_lexer.next();
+        return true;
+    }
+    return false;
+}
+
 void Parser::expect(TokenKind kind, const Str& msg){}
 
 
