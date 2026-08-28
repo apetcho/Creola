@@ -9,8 +9,14 @@ namespace creola::core{
 // -
 class Factorizer final: protected FactorVisitor{
 public:
-    explicit Factorizer(const Expr& expr, const Str& var);
-    explicit Factorizer(Expr&& expr, Str&& var);
+    explicit Factorizer()
+    : m_expr{nullptr}, m_var{}
+    {}
+
+    void setup(const Expr& expr, const Str& var){
+        this->m_expr = expr;
+        this->m_var = var;
+    }
 
     Expr factor(void);
 
@@ -24,9 +30,11 @@ private:
     Expr factor(const AddExpr& expr, const Str& var) override;
     Expr factor(const MulExpr& expr, const Str& var) override;
     Expr factor(const PowExpr& expr, const Str& var) override;
+    Expr factor(const LambdaExpr& expr, const Str& var) override;
     Expr factor(const CallExpr& expr, const Str& var) override;
     Expr factor(const EquationExpr& expr, const Str& var) override;
     Expr factor(const SystemExpr& expr, const Str& var) override;
+    Expr factor(const SeqExpr& expr, const Str& var) override;
 };
 
 

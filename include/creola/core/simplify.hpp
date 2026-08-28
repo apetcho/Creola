@@ -10,9 +10,12 @@ namespace creola::core{
 
 class Simplifier final: protected SimplifyVisitor{
 public:
-    explicit Simplifier(const Expr& expr);
-    explicit Simplifier(Expr&& expr);
+    explicit Simplifier(): m_expr{nullptr} {}
     ~Simplifier() = default;
+
+    void setup(const Expr& expr){
+        this->m_expr = expr;
+    }
 
     Expr simplify(void);
 
@@ -25,9 +28,11 @@ private:
     Expr simplify(const AddExpr& expr) override;
     Expr simplify(const MulExpr& expr) override;
     Expr simplify(const PowExpr& expr) override;
+    Expr simplify(const LambdaExpr& expr) override;
     Expr simplify(const CallExpr& expr) override;
     Expr simplify(const EquationExpr& expr) override;
     Expr simplify(const SystemExpr& expr) override;
+    Expr simplify(const SeqExpr& expr) override;
 };
 
 

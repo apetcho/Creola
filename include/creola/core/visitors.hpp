@@ -20,6 +20,7 @@ class LambdaExpr;
 class CallExpr;
 class EquationExpr;
 class SystemExpr;
+class SeqExpr;
 
 class LetStmt;
 class FunStmt;
@@ -41,6 +42,7 @@ struct EvalVisitor{
     virtual Expr eval(const CallExpr& expr, Env& ctx) const = 0;
     virtual Expr eval(const EquationExpr& expr, Env& ctx) const = 0;
     virtual Expr eval(const SystemExpr& expr, Env& ctx) const = 0;
+    virtual Expr eval(const SeqExpr& expr, Env& ctx) const = 0;
 };
 
 // -
@@ -65,6 +67,7 @@ struct SimplifyVisitor{
     virtual Expr simplify(const CallExpr& expr) = 0;
     virtual Expr simplify(const EquationExpr& expr) = 0;
     virtual Expr simplify(const SystemExpr& expr) = 0;
+    virtual Expr simplify(const SeqExpr& expr) = 0;
 };
 
 struct ExpandVisitor{
@@ -79,6 +82,7 @@ struct ExpandVisitor{
     virtual Expr expand(const CallExpr& expr) = 0;
     virtual Expr expand(const EquationExpr& expr) = 0;
     virtual Expr expand(const SystemExpr& expr) = 0;
+    virtual Expr expand(const SeqExpr& expr) = 0;
 };
 
 struct FactorVisitor{
@@ -93,6 +97,7 @@ struct FactorVisitor{
     virtual Expr factor(const CallExpr& expr, const Str& var) = 0;
     virtual Expr factor(const EquationExpr& expr, const Str& var) = 0;
     virtual Expr factor(const SystemExpr& expr, const Str& var) = 0;
+    virtual Expr factor(const SeqExpr& expr, const Str& var) = 0;
 };
 
 // -
@@ -108,6 +113,7 @@ struct DiffVisitor{
     virtual Expr diff(const CallExpr& expr, const Str& var) = 0;
     virtual Expr diff(const EquationExpr& expr, const Str& var) = 0;
     virtual Expr diff(const SystemExpr& expr, const Str& var) = 0;
+    virtual Expr diff(const SeqExpr& expr, const Str& var) = 0;
 };
 
 
@@ -123,6 +129,7 @@ struct IntegralVisitor{
     virtual Expr integral(const CallExpr& expr, const Str& var) = 0;
     virtual Expr integral(const EquationExpr& expr, const Str& var) = 0;
     virtual Expr integral(const SystemExpr& expr, const Str& var) = 0;
+    virtual Expr integral(const SeqExpr& expr, const Str& var) = 0;
 };
 
 
@@ -138,6 +145,7 @@ struct TaylorVisitor{
     virtual Expr taylor(const CallExpr& expr, const Str& var, f64 center, u32 order) = 0;
     virtual Expr taylor(const EquationExpr& expr, const Str& var, f64 center, u32 order) = 0;
     virtual Expr taylor(const SystemExpr& expr, const Str& var, f64 center, u32 order) = 0;
+    virtual Expr taylor(const SeqExpr& expr, const Str& var, f64 center, u32 order) = 0;
 };
 
 struct LimitVisitor{
@@ -152,28 +160,30 @@ struct LimitVisitor{
     virtual Expr limit(const CallExpr& expr, const Str& var, f64 loc) = 0;
     virtual Expr limit(const EquationExpr& expr, const Str& var, f64 loc) = 0;
     virtual Expr limit(const SystemExpr& expr, const Str& var, f64 loc) = 0;
+    virtual Expr limit(const SeqExpr& expr, const Str& var, f64 loc) = 0;
 };
 
 // -
 struct RootsVisitor{
     virtual ~RootsVisitor() = default;
-    virtual Vec<Expr> roots(const SymbolExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const NumberExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const NegExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const AddExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const MulExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const PowExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const LambdaExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const CallExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const EquationExpr& expr, const Str& var, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> roots(const SystemExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const SymbolExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const NumberExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const NegExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const AddExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const MulExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const PowExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const LambdaExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const CallExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const EquationExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const SystemExpr& expr, const Str& var, f64 tol=1e-6) = 0;
+    virtual Expr roots(const SeqExpr& expr, const Str& var, f64 tol=1e-6) = 0;
 };
 
 // -*-
 struct SolveVisitor{
     virtual ~SolveVisitor() = default;
-    virtual Vec<Expr> solve(const EquationExpr& expr, f64 tol=1e-6) = 0;
-    virtual Vec<Expr> solve(const SystemExpr& expr, f64 tol=1e-6) = 0;
+    virtual Expr solve(const EquationExpr& expr, f64 tol=1e-6) = 0;
+    virtual Expr solve(const SystemExpr& expr, f64 tol=1e-6) = 0;
 };
 
 
@@ -192,6 +202,7 @@ struct PrintVisitor{
     virtual void print(std::ostream& os, const CallExpr& expr) = 0;
     virtual void print(std::ostream& os, const EquationExpr& expr) = 0;
     virtual void print(std::ostream& os, const SystemExpr& expr) = 0;
+    virtual void print(std::ostream& os, const SeqExpr& expr) = 0;
 };
 
 struct ToBoxVisitor{
@@ -206,6 +217,7 @@ struct ToBoxVisitor{
     virtual void to_box(const CallExpr& expr, Box& box) const = 0;
     virtual void to_box(const EquationExpr& expr, Box& box) const = 0;
     virtual void to_box(const SystemExpr& expr, Box& box) const = 0;
+    virtual void to_box(const SeqExpr& expr, Box& box) const = 0;
 };
 
 // -*----------------------------------------------------------------*-

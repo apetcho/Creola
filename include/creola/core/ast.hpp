@@ -263,6 +263,30 @@ private:
     Vec<EquationExpr> m_equations;
 };
 
+class SeqExpr final: public ExprBase{
+public:
+    explicit SeqExpr(const Vec<Expr>& exprs)
+    : m_exprs{exprs} {}
+
+    explicit SeqExpr(Vec<Expr>&& exprs)
+    : m_exprs{std::move(exprs)} {}
+
+    SeqExpr(const SeqExpr&) = default;
+    SeqExpr(SeqExpr&&) = default;
+    SeqExpr& operator=(const SeqExpr&) = default;
+    SeqExpr& operator=(SeqExpr&&) = default;
+    ~SeqExpr() = default;
+
+    Expr eval(const EvalVisitor& visitor, Env& ctx) const override{
+        return visitor.eval(*this, ctx);
+    }
+
+    const Vec<Expr>& exprs(void) const { return this->m_exprs; }
+
+private:
+    Vec<Expr> m_exprs;
+};
+
 // -*-
 class LetStmt final: public StmtBase{
 public:
@@ -334,6 +358,8 @@ Expr make_equation_expr(const Expr& lhs, const Expr& rhs);
 Expr make_equation_expr(Expr&& lhs, Expr&& rhs);
 Expr make_system_expr(const Vec<EquationExpr>& equations);
 Expr make_system_expr(Vec<EquationExpr>&& equations);
+Expr make_seq_expr(const Vec<Expr>& expr);
+Expr make_seq_expr(Vec<Expr>&& expr);
 
 Stmt make_let_stmt(const Str& name, const Expr& expr);
 Stmt make_let_stmt(Str&& name, Expr&& expr);

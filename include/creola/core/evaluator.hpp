@@ -15,8 +15,48 @@ public:
     Expr eval(const Expr& expr);
     Expr eval(Expr&& expr);
 
+    // -*---------------------*-
+    // -*-  C O M M A N D S  -*-
+    // -*---------------------*-
+    static Expr diff(const Expr& expr, const Str& var);
+    static Expr simplify(const Expr& expr);
+    static Expr expand(const Expr& expr);
+    static Expr factor(const Expr& expr);
+    static Expr integral(const Expr& expr, const Str& var);
+    static Expr integrate(const Expr& expr, const Str& var, f64 vmin, f64 vmax);
+    static Expr taylor(const Expr& expr, const Str& var, f64 center, u32 order);
+    static Expr limit(const Expr& expr, const Str& var, f64 loc);
+    static Expr roots(const Expr& expr, const Str& var);
+    static Expr roots(const Expr& expr, const Str& var, f64 tolerance);
+    static Expr solve(const EquationExpr& equation);
+    static Expr solve(const EquationExpr& equation, f64 tolerance);
+    static Expr solve(const SystemExpr& system);
+    static Expr solve(const SystemExpr& system, f64 tolerance);
+    static Expr fibonacci(u32 idx);
+    static Expr factorial(u32 idx);
+    static Expr modulo(const NumberExpr& lhs, const NumberExpr rhs);
+    static Expr prime(u32 idx);
+    static Expr gcd(i64 x, i64 y);
+    static Expr lcm(i64 x, i64 y);
+    static Expr help(const Str& cmd);
+    static Expr show(const Str& query);
+    static Expr plot(const Vec<Expr>& args);
+    static Expr config(const Str& query, const Expr& expr);
+    static Expr equation(const Expr& lhs, const Expr& rhs);
+    static Expr system(const Vec<Expr>& lhs, const Vec<Expr>& rhs);
+    // -*-
+
 private:
     Env& m_ctx;
+    // rootsFinder: RootsFinder
+    // limitFinder: Limitfinder
+    // differentiator: Differentiator
+    // simplifier: Simplifier
+    // expander: Expander
+    // solver: Solver;
+    // factorizer: Factorizer
+    // taylorExpander: TaylorExpander
+    // integrator: Integrator
 
     Expr eval(const SymbolExpr& expr, Env& ctx) const override;
     Expr eval(const NumberExpr& expr, Env& ctx) const override;
