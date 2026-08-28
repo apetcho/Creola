@@ -1,5 +1,6 @@
 #include "creola/core/parser.hpp"
 #include "creola/core/ast.hpp"
+#include "creola/core/evaluator.hpp"
 
 #include<cctype>
 #include<string>
@@ -296,6 +297,147 @@ Stmt Parser::parse_fun(void){
     return make_fun_stmt(fname, as_lambda_expr(lambda));
 }
 
+// -*-
+Expr Parser::parse_equation(void){
+    //! @todo
+    throw CreolaError("`equation()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_system(void){
+    //! @todo
+    throw CreolaError("`system()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_simplify(void){
+    //! @todo
+    throw CreolaError("`simplify()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_diff(void){
+    // diff(expr, var);
+    this->consume(TokenKind::Diff);
+    this->consume(TokenKind::LParen);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::Comma);
+    this->expect(TokenKind::Ident, "Expected variable in derivative");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::Ident);
+    this->consume(TokenKind::RParen);
+
+    return Evaluator::diff(expr, var);
+}
+
+// -*-
+Expr Parser::parse_expand(void){
+    //! @todo
+    throw CreolaError("`expand()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_factor(void){
+    //! @todo
+    throw CreolaError("`factor()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_integral(void){
+    //! @todo
+    throw CreolaError("`integral()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_integrate(void){
+    //! @todo
+    throw CreolaError("`integrate()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_taylor(void){
+    //! @todo
+    throw CreolaError("`taylor()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_limit(void){
+    //! @todo
+    throw CreolaError("`limit()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_roots(void){
+    //! @todo
+    throw CreolaError("`roots()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_solve(void){
+    //! @todo
+    throw CreolaError("`solve()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_fibonacci(void){
+    //! @todo
+    throw CreolaError("`fibonacci()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_factorial(void){
+    //! @todo
+    throw CreolaError("`factorial()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_modulo(void){
+    //! @todo
+    throw CreolaError("`modulo()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_prime(void){
+    //! @todo
+    throw CreolaError("`prime()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_gcd(void){
+    //! @todo
+    throw CreolaError("`gcd()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_lcm(void){
+    //! @todo
+    throw CreolaError("`lcm()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_help(void){
+    //! @todo
+    throw CreolaError("`help()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_show(void){
+    //! @todo
+    throw CreolaError("`show()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_plot(void){
+    //! @todo
+    throw CreolaError("`plot()`: not implemented yet.");
+}
+
+// -*-
+Expr Parser::parse_config(void){
+    //! @todo
+    throw CreolaError("`config()`: not implemented yet.");
+}
+
 
 /*
 // -*-
@@ -348,28 +490,6 @@ class Parser{
 public:
 
 
-Expr Parser::parse_equation(void){}
-Expr Parser::parse_system(void){}
-Expr Parser::parse_simplify(void){}
-Expr Parser::parse_diff(void){}
-Expr Parser::parse_expand(void){}
-Expr Parser::parse_factor(void){}
-Expr Parser::parse_integral(void){}
-Expr Parser::parse_integrate(void){}
-Expr Parser::parse_taylor(void){}
-Expr Parser::parse_limit(void){}
-Expr Parser::parse_roots(void){}
-Expr Parser::parse_solve(void){}
-Expr Parser::parse_fibonacci(void){}
-Expr Parser::parse_factorial(void){}
-Expr Parser::parse_modulo(void){}
-Expr Parser::parse_prime(void){}
-Expr Parser::parse_gcd(void);
-Expr Parser::parse_lcm(void);
-Expr Parser::parse_help(void){}
-Expr Parser::parse_show(void){}
-Expr Parser::parse_plot(void){}
-Expr Parser::parse_config(void){}
 
 
 private:
