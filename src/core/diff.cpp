@@ -73,8 +73,15 @@ Expr Differentiator::diff(const AddExpr& expr, const Str& var){
 }
 
 Expr Differentiator::diff(const MulExpr& expr, const Str& var){
-    //! @todo
-    return nullptr;
+    //! (uv)' = u'v + uv'
+    auto u = expr.lhs();
+    auto v = expr.rhs();
+    auto du = this->diff(u, var);
+    auto dv = this->diff(v, var);
+    auto udv = make_mul_expr(u, dv);
+    auto vdu = make_mul_expr(v, du);
+    
+    return make_add_expr(udv, vdu);
 }
 
 Expr Differentiator::diff(const PowExpr& expr, const Str& var){
