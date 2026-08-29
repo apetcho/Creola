@@ -111,9 +111,11 @@ Expr Differentiator::diff(const PowExpr& expr, const Str& var){
     return make_pow_expr(lhs, rhs);
 }
 
+// -*-
 Expr Differentiator::diff(const LambdaExpr& expr, const Str& var){
-    //! @todo
-    return nullptr;
+    auto body = this->diff(expr.body(), var);
+    auto params = expr.params();
+    return make_lambda_expr(params, body);
 }
 
 Expr Differentiator::diff(const CallExpr& expr, const Str& var){
