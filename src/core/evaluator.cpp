@@ -3,6 +3,7 @@
 #include "creola/core/env.hpp"
 
 #include<cmath>
+#include<numeric>
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -329,10 +330,10 @@ Expr Evaluator::prime(Evaluator& evaluator, u32 idx){
     return make_number_expr(num);
 }
 
-
+// -*-
 Expr Evaluator::gcd(Evaluator& evaluator, i64 x, i64 y){
-    //! @todo
-    return nullptr;
+    auto num = std::gcd(x, y);
+    return make_number_expr(num);
 }
 
 Expr Evaluator::lcm(Evaluator& evaluator, i64 x, i64 y){
