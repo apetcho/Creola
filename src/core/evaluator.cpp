@@ -1,5 +1,6 @@
 #include "creola/core/evaluator.hpp"
-
+#include "creola/core/ast.hpp"
+#include "creola/core/env.hpp"
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -111,8 +112,22 @@ Expr Evaluator::integral(Evaluator& evaluator, const Expr& expr, const Str& var)
 }
 
 Expr Evaluator::integrate(Evaluator& evaluator, const Expr& expr, const Str& var, f64 vmin, f64 vmax){
-    //! @todo
-    return nullptr;
+    auto integral = evaluator.m_integrator.integral(expr, var);
+    Env& ctx = evaluator.m_ctx;
+    Str name{"__f("};
+    name += var + ")__";
+    auto lambda = make_lambda_expr(Vec<Str>{var}, integral);
+    Env env(&evaluator.m_ctx);
+    env.define(name, lambda);
+    auto caller = make_call_expr(name, Vec<Expr>{make_number_expr(vmin)});
+    evaluator.m_ctx = env;
+    auto f1 = evaluator.eval(caller);
+    caller = make_call_expr(name, Vec<Expr>{make_number_expr(vmax)});
+    auto f2 = evaluator.eval(caller);
+    auto result =  make_add_expr(f2, make_neg_expr(f1));
+    result = Evaluator::simplify(evaluator, result);
+    evaluator.m_ctx = ctx;
+    return result;
 }
 
 
