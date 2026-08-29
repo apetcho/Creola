@@ -648,6 +648,14 @@ bool is_one(const Expr& expr){
     return false;
 }
 
+/*
+static Expr mathfn_(const Str& var){}
+Dict<Str, Expr> BUILTIN_MATHFUNCTIONS = {
+    {"ln", make_lambda_expr()}
+};
+
+*/
+
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-
 // -*----------------------------------------------------------------*-
