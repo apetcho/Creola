@@ -337,8 +337,8 @@ Expr Evaluator::gcd(Evaluator& evaluator, i64 x, i64 y){
 }
 
 Expr Evaluator::lcm(Evaluator& evaluator, i64 x, i64 y){
-    //! @todo
-    return nullptr;
+    auto num = std::lcm(x, y);
+    return make_number_expr(num);
 }
 
 Expr Evaluator::help(Evaluator& evaluator, const Str& cmd){
