@@ -343,8 +343,13 @@ Expr Parser::parse_expand(void){
 
 // -*-
 Expr Parser::parse_factor(void){
-    //! @todo
-    throw CreolaError("`factor()`: not implemented yet.");
+    // factor(expr)
+    this->consume(TokenKind::Factor);
+    this->consume(TokenKind::LParen);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::RParen);
+
+    return Evaluator::factor(expr);
 }
 
 // -*-
