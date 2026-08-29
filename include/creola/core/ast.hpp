@@ -247,8 +247,8 @@ private:
 // -*-
 class SystemExpr final: public ExprBase{
 public:
-    explicit SystemExpr(const Vec<EquationExpr>& equations, const Vec<Str>& vars);
-    explicit SystemExpr(Vec<EquationExpr>&& equations, Vec<Str>&& vars);
+    explicit SystemExpr(const Vec<Expr>& lhs, const Vec<Expr>& rhs, const Vec<Str>& vars);
+    explicit SystemExpr(Vec<Expr>&& lhs, Vec<Expr>&& rhs, Vec<Str>&& vars);
     SystemExpr(const SystemExpr&) = default;
     SystemExpr(SystemExpr&&) = default;
     ~SystemExpr() = default;
@@ -257,11 +257,17 @@ public:
 
     Expr eval(const EvalVisitor& visitor, Env& ctx) const override;
 
-    const Vec<EquationExpr>& equations(void) const{ return this->m_equations; }
-    Vec<EquationExpr>& equations(void){ return this->m_equations; }
+    const Vec<Expr>& lhs(void) const{ return this->m_lhs; }
+    const Vec<Expr>& rhs(void) const{ return this->m_rhs; }
+    const Vec<Str>& vars(void) const{ return this->m_vars; }
+    Vec<Expr>& lhs(void){ return this->m_lhs; }
+    Vec<Expr>& rhs(void){ return this->m_rhs; }
+    Vec<Str>& vars(void){ return this->m_vars; }
 
 private:
-    Vec<EquationExpr> m_equations;
+    //Vec<EquationExpr> m_equations;
+    Vec<Expr> m_lhs;
+    Vec<Expr> m_rhs;
     Vec<Str> m_vars;
 };
 
@@ -358,8 +364,8 @@ Expr make_call_expr(const Str& name, const Vec<Expr>& args);
 Expr make_call_expr(Str&& name, Vec<Expr>&& args);
 Expr make_equation_expr(const Expr& lhs, const Expr& rhs, const Str& var);
 Expr make_equation_expr(Expr&& lhs, Expr&& rhs, Str&& var);
-Expr make_system_expr(const Vec<EquationExpr>& equations, const Vec<Str>& vars);
-Expr make_system_expr(Vec<EquationExpr>&& equations, Vec<Str>&& vars);
+Expr make_system_expr(const Vec<Expr>& lhs, const Vec<Expr>& rhs, const Vec<Str>& vars);
+Expr make_system_expr(Vec<Expr>&& lhs, Vec<Expr>&& rhs, Vec<Str>&& vars);
 Expr make_seq_expr(const Vec<Expr>& expr);
 Expr make_seq_expr(Vec<Expr>&& expr);
 

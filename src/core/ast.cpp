@@ -183,14 +183,16 @@ Expr EquationExpr::eval(const EvalVisitor& visitor, Env& ctx) const{
 // ------------------
 // -*- SystemExpr -*-
 // ------------------
-SystemExpr::SystemExpr(const Vec<EquationExpr>& equations, const Vec<Str>& vars)
-: m_equations{equations}
+SystemExpr::SystemExpr(const Vec<Expr>& lhs, const Vec<Expr>& rhs, const Vec<Str>& vars)
+: m_lhs{lhs}
+, m_rhs{rhs}
 , m_vars{vars}
 {}
 
 // -
-SystemExpr::SystemExpr(Vec<EquationExpr>&& equations, Vec<Str>&& vars)
-: m_equations{std::move(equations)}
+SystemExpr::SystemExpr(Vec<Expr>&& lhs, Vec<Expr>&& rhs, Vec<Str>&& vars)
+: m_lhs{std::move(lhs)}
+, m_rhs{std::move(rhs)}
 , m_vars{vars}
 {}
 
@@ -335,13 +337,13 @@ Expr make_equation_expr(Expr&& lhs, Expr&& rhs, Str&& var){
 // ------------------
 // -*- SystemExpr -*-
 // ------------------
-Expr make_system_expr(const Vec<EquationExpr>& equations, const Vec<Str>& vars){
-    return std::make_shared<SystemExpr>(equations, vars);
+Expr make_system_expr(const Vec<Expr>& lhs, const Vec<Expr>& rhs, const Vec<Str>& vars){
+    return std::make_shared<SystemExpr>(lhs, rhs, vars);
 }
 
 // -*-
-Expr make_system_expr(Vec<EquationExpr>&& equations, Vec<Str>&& vars){
-    return std::make_shared<SystemExpr>(equations, vars);
+Expr make_system_expr(Vec<Expr>&& lhs, Vec<Expr>&& rhs, Vec<Str>&& vars){
+    return std::make_shared<SystemExpr>(lhs, rhs, vars);
 }
 
 // -*-

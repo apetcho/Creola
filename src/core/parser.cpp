@@ -316,9 +316,42 @@ Expr Parser::parse_equation(void){
 
 // -*-
 Expr Parser::parse_system(void){
-    //! @todo
-    // system({lhs1=rhs1,lhs2=rhs2, ...})
-    throw CreolaError("`system()`: not implemented yet.");
+    // system({lhs1=rhs1,lhs2=rhs2, ...}, {...})
+    Vec<Expr> lhs{}, rhs{};
+    Vec<Str> vars{};
+    this->consume(TokenKind::System);
+    this->consume(TokenKind::LParen);
+    this->expect(TokenKind::LBrace, "`system()`: expected '{'.");
+    this->consume(TokenKind::LBrace);
+    while(this->m_current.kind!=TokenKind::RBrace){
+        auto _lhs = this->parse_expr();
+        lhs.push_back(std::move(_lhs));
+        this->consume(TokenKind::Equal);
+        auto _rhs = this->parse_expr();
+        rhs.push_back(std::move(_rhs));
+        if(this->m_current.kind==TokenKind::Comma){
+            this->consume(TokenKind::Comma);
+            continue;
+        }
+    }
+    this->expect(TokenKind::RBrace, "`system()`: expected '}'.");
+    this->consume(TokenKind::RBrace);
+    this->consume(TokenKind::Comma);
+    this->expect(TokenKind::LBrace, "`system()`: expected '{'.");
+    this->consume(TokenKind::LBrace);
+    while(this->m_current.kind!=TokenKind::RBrace){
+        this->expect(TokenKind::Ident, "`system()`: expected a variable.");
+        vars.push_back(this->m_current.text);
+        this->consume(TokenKind::Ident);
+        if(this->m_current.kind==TokenKind::Comma){
+            this->consume(TokenKind::Comma);
+            continue;
+        }
+    }
+    this->expect(TokenKind::RBrace, "`system()`: expected '}'.");
+    this->consume(TokenKind::RBrace);
+
+    return Evaluator::system(lhs, rhs, vars);
 }
 
 // -*-
