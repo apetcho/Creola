@@ -132,8 +132,7 @@ Expr Evaluator::integrate(Evaluator& evaluator, const Expr& expr, const Str& var
 
 
 Expr Evaluator::taylor(Evaluator& evaluator, const Expr& expr, const Str& var, f64 center, u32 order){
-    //! @todo
-    return nullptr;
+    return evaluator.m_taylorExpander.taylor(expr, var, center, order);
 }
 
 
