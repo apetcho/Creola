@@ -300,19 +300,26 @@ Stmt Parser::parse_fun(void){
 // -*-
 Expr Parser::parse_equation(void){
     //! @todo
+    // equation(lhs=rhs)
     throw CreolaError("`equation()`: not implemented yet.");
 }
 
 // -*-
 Expr Parser::parse_system(void){
     //! @todo
+    // system({lhs1=rhs1,lhs2=rhs2, ...})
     throw CreolaError("`system()`: not implemented yet.");
 }
 
 // -*-
 Expr Parser::parse_simplify(void){
-    //! @todo
-    throw CreolaError("`simplify()`: not implemented yet.");
+    // simplify(expr)
+    this->consume(TokenKind::Simplify);
+    this->consume(TokenKind::LParen);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::RParen);
+
+    return Evaluator::simplify(expr);
 }
 
 // -*-
@@ -510,51 +517,6 @@ Expr Parser::parse_config(void){
     //! @todo
     throw CreolaError("`config()`: not implemented yet.");
 }
-
-
-/*
-// -*-
-Expr Parser::parse_integrate(void){
-    // integrate(expr, var)
-    bool evaled{false};
-    Expr x1{}, x2{}, result{};
-    this->consume(TokenKind::INTEGRATE);
-    this->consume(TokenKind::LPAREN);
-    auto expr = this->parse_expr();
-    this->consume(TokenKind::COMMA);
-    this->expect(TokenKind::IDENT, "Expected variable in integral");
-    auto var = this->m_current.text;
-    this->consume(TokenKind::IDENT);
-    if(this->m_current.kind == TokenKind::COMMA){
-        x1 = this->parse_expr();
-        this->expect(TokenKind::COMMA, "Expected comma in intregal evaluation");
-        x2 = this->parse_expr();
-    }
-    this->consume(TokenKind::RPAREN);
-
-    if(evaled){
-        result = CasEngine::integrate(expr, var, x1, x2);
-    }else{
-        result = CasEngine::integrate(expr, var);
-    }
-    return CasEngine::simplify(result);
-}
-*/
-
-/*
-// -*- Parser
-class Parser{
-public:
-
-
-
-
-private:
-    Lexer m_lexer;
-    Token m_current;
-
-};
-*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-

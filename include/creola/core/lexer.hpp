@@ -45,6 +45,8 @@ namespace creola::core{
 #define CREOLA_SYMBOLS()        \
     CREOLA_DEF(LParen, "(")     \
     CREOLA_DEF(RParen, ")")     \
+    CREOLA_DEF(LBrace, "{")     \
+    CREOLA_DEF(RBrace, "}")     \
     CREOLA_DEF(Comma, ",")      \
     CREOLA_DEF(Semi, ";")       \
     CREOLA_DEF(Equal, "=")

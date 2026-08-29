@@ -44,6 +44,8 @@ Token Lexer::next(void){
         case '^': return Token(TokenKind::Caret, "^");
         case '(': return Token(TokenKind::LParen, "(");
         case ')': return Token(TokenKind::RParen, ")");
+        case '{': return Token(TokenKind::LParen, "{");
+        case '}': return Token(TokenKind::RParen, "}");
         case ',': return Token(TokenKind::Comma, ",");
         case '=': return Token(TokenKind::Equal, "=");
         case ';': return Token(TokenKind::Semi, ";");
