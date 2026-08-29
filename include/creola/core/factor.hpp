@@ -13,16 +13,16 @@ public:
     : m_expr{nullptr}, m_var{}
     {}
 
-    void setup(const Expr& expr, const Str& var){
-        this->m_expr = expr;
-        this->m_var = var;
-    }
-
-    Expr factor(void);
+    Expr factor(const Expr& expr, const Str& var);
 
 private:
     Expr m_expr;
     Str m_var;
+
+    void setup(const Expr& expr, const Str& var){
+        this->m_expr = expr;
+        this->m_var = var;
+    }
 
     Expr factor(const SymbolExpr& expr, const Str& var) override;
     Expr factor(const NumberExpr& expr, const Str& var) override;

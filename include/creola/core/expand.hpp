@@ -11,15 +11,16 @@ namespace creola::core{
 class Expander final: protected ExpandVisitor{
 public:
     Expander(): m_expr{nullptr}{}
-    
-    void setup(const Expr& expr){
-        this->m_expr = expr;
-    }
 
-    Expr expand(void);
+    Expr expand(const Expr& expr);
 
 private:
     Expr m_expr;
+
+    // -*-
+    void setup(const Expr& expr){
+        this->m_expr = expr;
+    }
 
     // -*-
     Expr expand(const SymbolExpr& expr) override;

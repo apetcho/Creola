@@ -17,20 +17,21 @@ public:
     , m_order{}
     {}
 
-    void setup(Expr&& expr, Str&& var, f64 center, u32 order){
-        this->m_expr = expr;
-        this->m_var = var;
-        this->m_center = center;
-        this->m_order = order;
-    }
-
-    Expr taylor(void);
+    Expr taylor(const Expr& expr, const Str& var, f64 center, u32 order);
 
 private:
     Expr m_expr;
     Str m_var;
     f64 m_center;
     u32 m_order;
+
+    // -*-
+    void setup(Expr&& expr, Str&& var, f64 center, u32 order){
+        this->m_expr = expr;
+        this->m_var = var;
+        this->m_center = center;
+        this->m_order = order;
+    }
 
     Expr taylor(const SymbolExpr& expr, const Str& var, f64 center, u32 order) override;
     Expr taylor(const NumberExpr& expr, const Str& var, f64 center, u32 order) override;

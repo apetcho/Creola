@@ -1,6 +1,15 @@
 #pragma once
 
 #include "creola/core/visitors.hpp"
+#include "creola/core/diff.hpp"
+#include "creola/core/expand.hpp"
+#include "creola/core/factor.hpp"
+#include "creola/core/integrate.hpp"
+#include "creola/core/limit.hpp"
+#include "creola/core/roots.hpp"
+#include "creola/core/simplify.hpp"
+#include "creola/core/taylor.hpp"
+#include "creola/core/solver.hpp"
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -48,15 +57,18 @@ public:
 
 private:
     Env& m_ctx;
-    // rootsFinder: RootsFinder
-    // limitFinder: Limitfinder
-    // differentiator: Differentiator
-    // simplifier: Simplifier
-    // expander: Expander
-    // solver: Solver;
-    // factorizer: Factorizer
-    // taylorExpander: TaylorExpander
-    // integrator: Integrator
+    // -----------------------------------------------------------------------
+    // -*- diff, factor, expand, integrate, limit, roots, simplify, taylor -*-
+    // -----------------------------------------------------------------------
+    RootsFinder m_rootsFinder;
+    LimitFinder m_limitFinder;
+    Differentiator m_differentiator;
+    Integrator m_integrator;
+    Simplifier m_simplifier;
+    Expander m_expander;
+    Factorizer m_factorizer;
+    TaylorExpander m_taylorExpander;
+    Solver m_solver;
 
     Expr eval(const SymbolExpr& expr, Env& ctx) const override;
     Expr eval(const NumberExpr& expr, Env& ctx) const override;

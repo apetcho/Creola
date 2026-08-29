@@ -14,18 +14,18 @@ public:
     : m_expr{nullptr}, m_var{}, m_tol{1e-6}
     {}
 
-    void setup(const Expr& expr, const Str& var, f64 tol=1e-6){
-        this->m_expr = expr;
-        this->m_var = var;
-        this->m_tol = tol;
-    }
-
-    Vec<Expr> roots(void);
+    Expr roots(const Expr& expr, const Str& var, f64 tol=1e-6);
 
 private:
     Expr m_expr;
     Str m_var;
     f64 m_tol;
+
+    void setup(const Expr& expr, const Str& var, f64 tol=1e-6){
+        this->m_expr = expr;
+        this->m_var = var;
+        this->m_tol = tol;
+    }
 
     Expr roots(const SymbolExpr& expr, const Str& var, f64 tol=1e-6) override;
     Expr roots(const NumberExpr& expr, const Str& var, f64 tol=1e-6) override;

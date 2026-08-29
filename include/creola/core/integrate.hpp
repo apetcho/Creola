@@ -14,16 +14,16 @@ public:
     : m_expr{nullptr}, m_var{}
     {}
 
-    void setup(const Expr& expr, const Str& var){
-        this->m_expr = expr;
-        this->m_var = var;
-    }
-
-    Expr integral(void);
+    Expr integral(const Expr& expr, const Str& var);
 
 private:
     Expr m_expr;
     Str m_var;
+
+    void setup(const Expr& expr, const Str& var){
+        this->m_expr = expr;
+        this->m_var = var;
+    }
 
     Expr integral(const SymbolExpr& expr, const Str& var) override;
     Expr integral(const NumberExpr& expr, const Str& var) override;

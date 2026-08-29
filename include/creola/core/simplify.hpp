@@ -13,14 +13,14 @@ public:
     explicit Simplifier(): m_expr{nullptr} {}
     ~Simplifier() = default;
 
-    void setup(const Expr& expr){
-        this->m_expr = expr;
-    }
-
-    Expr simplify(void);
+    Expr simplify(const Expr& expr);
 
 private:
     Expr m_expr;
+
+    void setup(const Expr& expr){
+        this->m_expr = expr;
+    }
 
     Expr simplify(const SymbolExpr& expr) override;
     Expr simplify(const NumberExpr& expr) override;

@@ -15,18 +15,18 @@ public:
     : m_expr{nullptr}, m_var{}, m_loc{}
     {}
 
-    void setup(const Expr& expr, const Str& var, f64 loc){
-        this->m_expr = expr;
-        this->m_var = var;
-        this->m_loc = loc;
-    }
-
-    Expr limit(void);
+    Expr limit(const Expr& expr, const Str& var, f64 loc);
 
 private:
     Expr m_expr;
     Str m_var;
     f64 m_loc;
+
+    void setup(const Expr& expr, const Str& var, f64 loc){
+        this->m_expr = expr;
+        this->m_var = var;
+        this->m_loc = loc;
+    }
 
     Expr limit(const SymbolExpr& expr, const Str& var, f64 loc) override;
     Expr limit(const NumberExpr& expr, const Str& var, f64 loc) override;

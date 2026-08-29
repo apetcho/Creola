@@ -344,8 +344,17 @@ Expr Parser::parse_factor(void){
 
 // -*-
 Expr Parser::parse_integral(void){
-    //! @todo
-    throw CreolaError("`integral()`: not implemented yet.");
+    // integral(expr, var)
+    this->consume(TokenKind::Integral);
+    this->consume(TokenKind::LParen);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::Comma);
+    this->expect(TokenKind::Ident, "Expected variable in integral");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::Ident);
+    this->consume(TokenKind::RParen);
+    
+    return Evaluator::integral(expr, var);
 }
 
 // -*-
@@ -440,22 +449,6 @@ Expr Parser::parse_config(void){
 
 
 /*
-// -*-
-Expr Parser::parse_diff(void){
-    // diff(expr, var);
-    this->consume(TokenKind::DIFF);
-    this->consume(TokenKind::LPAREN);
-    auto expr = this->parse_expr();
-    this->consume(TokenKind::COMMA);
-    this->expect(TokenKind::IDENT, "Expected variable in derivative");
-    auto var = this->m_current.text;
-    this->consume(TokenKind::IDENT);
-    this->consume(TokenKind::RPAREN);
-    auto result = CasEngine::diff(expr, var);
-
-    return CasEngine::simplify(result);
-}
-
 // -*-
 Expr Parser::parse_integrate(void){
     // integrate(expr, var)
