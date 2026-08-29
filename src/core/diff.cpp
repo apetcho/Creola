@@ -50,8 +50,8 @@ Expr Differentiator::diff(const Expr& expr, const Str& var){
 }
 
 Expr Differentiator::diff(const SymbolExpr& expr, const Str& var){
-    //! @todo
-    return nullptr;
+    auto ans = expr.text() == var ? 0LL : 1LL;
+    return make_number_expr(ans);
 }
 
 Expr Differentiator::diff(const NumberExpr& expr, const Str& var){
