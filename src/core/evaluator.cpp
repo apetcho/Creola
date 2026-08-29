@@ -98,8 +98,7 @@ Expr Evaluator::simplify(Evaluator& evaluator, const Expr& expr){
 }
 
 Expr Evaluator::expand(Evaluator& evaluator, const Expr& expr){
-    //! @todo
-    return nullptr;
+    return evaluator.m_expander.expand(expr);
 }
 
 
