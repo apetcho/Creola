@@ -16,6 +16,9 @@
 // -*----------------------------------------------------------------*-
 namespace creola::core{
 // -
+struct Helper;
+
+// -*-
 class Evaluator final: protected EvalVisitor {
 public:
     explicit Evaluator(Env& ctx);
@@ -70,6 +73,8 @@ private:
     TaylorExpander m_taylorExpander;
     Solver m_solver;
 
+    Helper m_helper;
+
     Expr eval(const SymbolExpr& expr, Env& ctx) const override;
     Expr eval(const NumberExpr& expr, Env& ctx) const override;
     Expr eval(const NegExpr& expr, Env& ctx) const override;
@@ -80,6 +85,66 @@ private:
     Expr eval(const EquationExpr& expr, Env& ctx) const override;
     Expr eval(const SystemExpr& expr, Env& ctx) const override;
 };
+
+struct Helper{
+    Str help(const Str& name){
+        using HelpFn = Str (*)(void);
+        HashMap<Str, HelpFn> helpers = {
+            { "diff", Helper::help_diff },
+            { "simplify", Helper::help_simplify },
+            { "expand", Helper::help_expand },
+            { "factor", Helper::help_factor },
+            { "integral", Helper::help_integral },
+            { "integrate", Helper::help_integrate },
+            { "taylor", Helper::help_taylor },
+            { "limit", Helper::help_limit },
+            { "roots", Helper::help_roots },
+            { "solve", Helper::help_solve },
+            { "fibonacci", Helper::help_fibonacci },
+            { "factorial", Helper::help_factorial },
+            { "modulo", Helper::help_modulo },
+            { "prime", Helper::help_prime },
+            { "gcd", Helper::help_gcd },
+            { "lcm", Helper::help_lcm },
+            { "help", Helper::help_help },
+            { "show", Helper::help_show },
+            { "plot", Helper::help_plot },
+            { "config", Helper::help_config },
+            { "equation", Helper::help_equation },
+            { "system", Helper::help_system },
+        };
+
+        auto entry = helpers.find(name);
+        if(entry == helpers.end()){ return ""; }
+        return entry->second();
+    }
+
+private:
+    static std::set<Str> commands;
+    static Str help_diff(void);
+    static Str help_simplify(void);
+    static Str help_expand(void);
+    static Str help_factor(void);
+    static Str help_integral(void);
+    static Str help_integrate(void);
+    static Str help_taylor(void);
+    static Str help_limit(void);
+    static Str help_roots(void);
+    static Str help_solve(void);
+    static Str help_fibonacci(void);
+    static Str help_factorial(void);
+    static Str help_modulo(void);
+    static Str help_prime(void);
+    static Str help_gcd(void);
+    static Str help_lcm(void);
+    static Str help_help(void);
+    static Str help_show(void);
+    static Str help_plot(void);
+    static Str help_config(void);
+    static Str help_equation(void);
+    static Str help_system(void);
+};
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola::core                                 -*-

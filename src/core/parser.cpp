@@ -332,8 +332,13 @@ Expr Parser::parse_diff(void){
 
 // -*-
 Expr Parser::parse_expand(void){
-    //! @todo
-    throw CreolaError("`expand()`: not implemented yet.");
+    // expand(expr)
+    this->consume(TokenKind::Expand);
+    this->consume(TokenKind::LParen);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::RParen);
+
+    return Evaluator::expand(expr);
 }
 
 // -*-
