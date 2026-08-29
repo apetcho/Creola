@@ -266,10 +266,69 @@ Expr Evaluator::modulo(Evaluator& evaluator, const NumberExpr& lhs, const Number
     return make_number_expr(num);
 }
 
+// -*-
+class MemoizedPrimeFinder{
+private:
+    Vec<u32> m_primes;
+
+    bool is_prime(u32 n){
+        if(n <= 1){ return false; }
+        if(n <= 3){ return true; }
+        if(n % 2 == 0 || n % 3 == 0){
+            return false;
+        }
+
+        // Check divisibility
+        for(const auto& p: this->m_primes){
+            if(p * p > n){ break; }
+            if(n % p == 0){ return false; }
+        }
+
+        return true;
+    }
+
+public:
+    MemoizedPrimeFinder(){
+        this->m_primes = {
+            2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,
+            43,  47,  53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101,
+            103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167,
+            173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239,
+            241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313,
+            317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397,
+            401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467,
+            479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569,
+            571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643,
+            647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719
+        };
+    }
+
+
+    i64 nth_prime(u32 nth){
+        if(nth < this->m_primes.size()){
+            return this->m_primes[nth];
+        }
+
+        auto n = this->m_primes[this->m_primes.size()-1];
+        while(this->m_primes.size() < nth){
+            n += 2;
+            if(this->is_prime(n)){
+                this->m_primes.push_back(n);
+            }
+        }
+        auto result = this->m_primes[this->m_primes.size()-1];
+
+        return result;
+    }
+};
+
+// -*-
 Expr Evaluator::prime(Evaluator& evaluator, u32 idx){
-    //! @todo
-    return nullptr;
+    MemoizedPrimeFinder primeFinder;
+    auto num = primeFinder.nth_prime(idx);
+    return make_number_expr(num);
 }
+
 
 Expr Evaluator::gcd(Evaluator& evaluator, i64 x, i64 y){
     //! @todo
