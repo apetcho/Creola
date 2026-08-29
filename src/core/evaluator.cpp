@@ -2,6 +2,8 @@
 #include "creola/core/ast.hpp"
 #include "creola/core/env.hpp"
 
+#include<cmath>
+
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
 // -*----------------------------------------------------------------*-
@@ -250,53 +252,18 @@ Expr Evaluator::factorial(Evaluator& evaluator, u32 n){
     return make_number_expr(num);
 }
 
-/*
-#include <iostream>
-#include <vector>
-#include <stdexcept>
-
-{
-    1, 1, 2, 6,	24,	120, 720, 5'040, 40'320, 362'880,
-    3'628'800, 39'916'800, 479'001'600,	6'227'020'800,
-    87'178'291'200,	1'307'674'368'000, 20'922'789'888'000,
-    355'687'428'096'000, 6'402'373'705'728'000,
-    121'645'100'408'832'000, 2'432'902'008'176'640'000,
-}
-
-unsigned long long factorial(int n) {
-    // Static vector persists across calls; index i stores i!
-    static std::vector<unsigned long long> memo = {1};
-
-    if (n < 0) {
-        throw std::invalid_argument("Factorial is not defined for negative numbers.");
-    }
-
-    // If the value is already computed, return it immediately
-    if (n < memo.size()) {
-        return memo[n];
-    }
-
-    // Compute and store new values up to n
-    // Start from the last known value to avoid redundant multiplication
-    unsigned long long result = memo.back();
-    for (int i = memo.size(); i <= n; ++i) {
-        result *= i;
-        memo.push_back(result);
-    }
-
-    return result;
-}
-
-int main() {
-    std::cout << "5! = " << factorial(5) << std::endl; // Output: 120
-    std::cout << "6! = " << factorial(6) << std::endl; // Output: 720 (uses cached 5!)
-    return 0;
-}
-*/
-
+//
 Expr Evaluator::modulo(Evaluator& evaluator, const NumberExpr& lhs, const NumberExpr& rhs){
-    //! @todo
-    return nullptr;
+    if(lhs.is_integer() && rhs.is_integer()){
+        auto xnum = lhs.as_integer();
+        auto ynum = rhs.as_integer();
+        auto num = xnum % ynum;
+        return make_number_expr(num);
+    }
+    auto xnum = lhs.as_float();
+    auto ynum = rhs.as_float();
+    auto num = std::fmod(xnum, ynum);
+    return make_number_expr(num);
 }
 
 Expr Evaluator::prime(Evaluator& evaluator, u32 idx){
