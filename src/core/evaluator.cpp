@@ -147,8 +147,7 @@ Expr Evaluator::roots(Evaluator& evaluator, const Expr& expr, const Str& var){
 
 
 Expr Evaluator::roots(Evaluator& evaluator, const Expr& expr, const Str& var, f64 tolerance){
-    //! @todo
-    return nullptr;
+    return evaluator.m_rootsFinder.roots(expr, var, tolerance);
 }
 
 
