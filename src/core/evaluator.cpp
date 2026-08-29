@@ -152,25 +152,21 @@ Expr Evaluator::roots(Evaluator& evaluator, const Expr& expr, const Str& var, f6
 
 
 Expr Evaluator::solve(Evaluator& evaluator, const EquationExpr& equation){
-    //! @todo
-    return nullptr;
+    return evaluator.m_solver.solve(equation);
 }
 
 
 Expr Evaluator::solve(Evaluator& evaluator, const EquationExpr& equation, f64 tolerance){
-    //! @todo
-    return nullptr;
+    return evaluator.m_solver.solve(equation, tolerance);
 }
 
 
 Expr Evaluator::solve(Evaluator& evaluator, const SystemExpr& system){
-    //! @todo
-    return nullptr;
+    return evaluator.m_solver.solve(system);
 }
 
 Expr Evaluator::solve(Evaluator& evaluator, const SystemExpr& system, f64 tolerance){
-    //! @todo
-    return nullptr;
+    return evaluator.m_solver.solve(system, tolerance);
 }
 
 Expr Evaluator::fibonacci(Evaluator& evaluator, u32 idx){

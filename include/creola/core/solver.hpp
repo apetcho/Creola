@@ -8,7 +8,7 @@
 namespace creola::core{
 // -
 
-class Solver final: SolveVisitor{
+class Solver final: public SolveVisitor{
 public:
     explicit Solver()
     : m_expr{nullptr}, m_tol{1e-6}{}
@@ -16,6 +16,8 @@ public:
     ~Solver(){}
 
     Expr solve(const Expr& expr, f64 tol=1e-6);
+    Expr solve(const EquationExpr& expr, f64 tol=1e-6) override;
+    Expr solve(const SystemExpr& expr, f64 tol=1e-6) override;
 
 private:
     Expr m_expr;
@@ -26,9 +28,6 @@ private:
         this->m_expr = expr;
         this->m_tol = tol;
     }
-
-    Expr solve(const EquationExpr& expr, f64 tol=1e-6) override;
-    Expr solve(const SystemExpr& expr, f64 tol=1e-6) override;
 };
 
 
