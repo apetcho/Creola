@@ -359,8 +359,35 @@ Expr Parser::parse_integral(void){
 
 // -*-
 Expr Parser::parse_integrate(void){
-    //! @todo
-    throw CreolaError("`integrate()`: not implemented yet.");
+    // integrate(expr, var, vmin, vmax)
+    this->consume(TokenKind::Integral);
+    this->consume(TokenKind::LParen);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::Comma);
+    this->expect(TokenKind::Ident, "Expected variable in integral");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::Ident);
+    this->consume(TokenKind::Comma);
+    f64 vmin{};
+    if(this->m_current.kind==TokenKind::Integer){
+        vmin = static_cast<f64>(std::stoll(this->m_current.text));
+    }else if(this->m_current.kind==TokenKind::Float){
+        vmin = std::stod(this->m_current.text);
+    }else{
+        throw CreolaError("`integrate()`: expected a number.");
+    }
+    this->consume(TokenKind::Comma);
+    f64 vmax{};
+    if(this->m_current.kind==TokenKind::Integer){
+        vmax = static_cast<f64>(std::stoll(this->m_current.text));
+    }else if(this->m_current.kind==TokenKind::Float){
+        vmax = std::stod(this->m_current.text);
+    }else{
+        throw CreolaError("`integrate()`: expected a number.");
+    }
+    this->consume(TokenKind::RParen);
+
+    return Evaluator::integrate(expr, var, vmin, vmax);
 }
 
 // -*-
