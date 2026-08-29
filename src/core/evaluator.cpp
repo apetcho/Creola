@@ -94,8 +94,7 @@ Expr Evaluator::diff(Evaluator& evaluator, const Expr& expr, const Str& var){
 
 
 Expr Evaluator::simplify(Evaluator& evaluator, const Expr& expr){
-    //! @todo
-    return nullptr;
+    return evaluator.m_simplifier.simplify(expr);
 }
 
 Expr Evaluator::expand(Evaluator& evaluator, const Expr& expr){
