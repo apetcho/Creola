@@ -142,8 +142,7 @@ Expr Evaluator::limit(Evaluator& evaluator, const Expr& expr, const Str& var, f6
 
 
 Expr Evaluator::roots(Evaluator& evaluator, const Expr& expr, const Str& var){
-    //! @todo
-    return nullptr;
+    return evaluator.m_rootsFinder.roots(expr, var);
 }
 
 
