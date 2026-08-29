@@ -343,33 +343,33 @@ Expr Evaluator::lcm(Evaluator& evaluator, i64 x, i64 y){
 
 Expr Evaluator::help(Evaluator& evaluator, const Str& cmd){
     //! @todo
-    return nullptr;
+    throw CreolaError("`help()`: not implemented yet");
 }
 
 Expr Evaluator::show(Evaluator& evaluator, const Str& query){
     //! @todo
-    return nullptr;
+    throw CreolaError("`help()`: not implemented yet");
 }
 
 
 Expr Evaluator::plot(Evaluator& evaluator, const Vec<Expr>& args){
     //! @todo
-    return nullptr;
+    throw CreolaError("`plot()`: not implemented yet");
 }
 
 Expr Evaluator::config(Evaluator& evaluator, const Str& query, const Expr& expr){
     //! @todo
-    return nullptr;
+    throw CreolaError("`config()`: not implemented yet");
 }
 
 Expr Evaluator::equation(Evaluator& evaluator, const Expr& lhs, const Expr& rhs, const Str& var){
     //! @todo
-    return nullptr;
+    throw CreolaError("`equation()`: not implemented yet");
 }
 
 Expr Evaluator::system(Evaluator& evaluator, const Vec<Expr>& lhs, const Vec<Expr>& rhs, const Vec<Str>& vars){
     //! @todo
-    return nullptr;
+    throw CreolaError("`system()`: not implemented yet");
 }
 
 // -----------------------------------
