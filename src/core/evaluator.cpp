@@ -107,8 +107,7 @@ Expr Evaluator::factor(Evaluator& evaluator, const Expr& expr, const Str& var){
 }
 
 Expr Evaluator::integral(Evaluator& evaluator, const Expr& expr, const Str& var){
-    //! @todo
-    return nullptr;
+    return evaluator.m_integrator.integral(expr, var);
 }
 
 Expr Evaluator::integrate(Evaluator& evaluator, const Expr& expr, const Str& var, f64 vmin, f64 vmax){
