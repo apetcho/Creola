@@ -1,4 +1,5 @@
 #include "creola/core/diff.hpp"
+#include "creola/core/ast.hpp"
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola::core                               -*-
@@ -54,8 +55,9 @@ Expr Differentiator::diff(const SymbolExpr& expr, const Str& var){
 }
 
 Expr Differentiator::diff(const NumberExpr& expr, const Str& var){
-    //! @todo
-    return nullptr;
+    CREOLA_UNUSED(expr);
+    CREOLA_UNUSED(var);
+    return make_number_expr(0LL);
 }
 
 Expr Differentiator::diff(const NegExpr& expr, const Str& var){
