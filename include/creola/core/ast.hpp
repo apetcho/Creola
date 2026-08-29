@@ -223,8 +223,8 @@ private:
 // -*-
 class EquationExpr final: public ExprBase{
 public:
-    explicit EquationExpr(const Expr& lhs, const Expr& rhs);
-    explicit EquationExpr(Expr&& lhs, Expr&& rhs);
+    explicit EquationExpr(const Expr& lhs, const Expr& rhs, const Str& var);
+    explicit EquationExpr(Expr&& lhs, Expr&& rhs, Str&& var);
     EquationExpr(const EquationExpr&) = default;
     EquationExpr(EquationExpr&&) = default;
     ~EquationExpr() = default;
@@ -241,13 +241,14 @@ public:
 private:
     Expr m_lhs;
     Expr m_rhs;
+    Str m_var;
 };
 
 // -*-
 class SystemExpr final: public ExprBase{
 public:
-    explicit SystemExpr(const Vec<EquationExpr>& equations);
-    explicit SystemExpr(Vec<EquationExpr>&& equations);
+    explicit SystemExpr(const Vec<EquationExpr>& equations, const Vec<Str>& vars);
+    explicit SystemExpr(Vec<EquationExpr>&& equations, Vec<Str>&& vars);
     SystemExpr(const SystemExpr&) = default;
     SystemExpr(SystemExpr&&) = default;
     ~SystemExpr() = default;
@@ -261,6 +262,7 @@ public:
 
 private:
     Vec<EquationExpr> m_equations;
+    Vec<Str> m_vars;
 };
 
 class SeqExpr final: public ExprBase{
@@ -354,10 +356,10 @@ Expr make_lambda_expr(const Vec<Str>& params, const Expr& body);
 Expr make_lambda_expr(Vec<Str>&& params, Expr&& body);
 Expr make_call_expr(const Str& name, const Vec<Expr>& args);
 Expr make_call_expr(Str&& name, Vec<Expr>&& args);
-Expr make_equation_expr(const Expr& lhs, const Expr& rhs);
-Expr make_equation_expr(Expr&& lhs, Expr&& rhs);
-Expr make_system_expr(const Vec<EquationExpr>& equations);
-Expr make_system_expr(Vec<EquationExpr>&& equations);
+Expr make_equation_expr(const Expr& lhs, const Expr& rhs, const Str& var);
+Expr make_equation_expr(Expr&& lhs, Expr&& rhs, Str&& var);
+Expr make_system_expr(const Vec<EquationExpr>& equations, const Vec<Str>& vars);
+Expr make_system_expr(Vec<EquationExpr>&& equations, Vec<Str>&& vars);
 Expr make_seq_expr(const Vec<Expr>& expr);
 Expr make_seq_expr(Vec<Expr>&& expr);
 

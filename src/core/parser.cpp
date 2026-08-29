@@ -293,15 +293,25 @@ Stmt Parser::parse_fun(void){
     this->consume(TokenKind::RParen);
     this->consume(TokenKind::Equal);
     auto body = this->parse_expr();
+    if(this->match(TokenKind::Semi)){}
     auto lambda = make_lambda_expr(params, body);
     return make_fun_stmt(fname, as_lambda_expr(lambda));
 }
 
 // -*-
 Expr Parser::parse_equation(void){
-    //! @todo
-    // equation(lhs=rhs)
-    throw CreolaError("`equation()`: not implemented yet.");
+    // equation(lhs=rhs, var)
+    this->consume(TokenKind::Equation);
+    this->consume(TokenKind::LParen);
+    auto lhs = this->parse_expr();
+    this->consume(TokenKind::Equal);
+    auto rhs = this->parse_expr();
+    this->expect(TokenKind::Ident, "`equation()`: expected a variable");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::Ident);
+    this->consume(TokenKind::RParen);
+
+    return Evaluator::equation(lhs, rhs, var);
 }
 
 // -*-

@@ -54,8 +54,8 @@ public:
     static Expr show(const Str& query);
     static Expr plot(const Vec<Expr>& args);
     static Expr config(const Str& query, const Expr& expr);
-    static Expr equation(const Expr& lhs, const Expr& rhs);
-    static Expr system(const Vec<Expr>& lhs, const Vec<Expr>& rhs);
+    static Expr equation(const Expr& lhs, const Expr& rhs, const Str& var);
+    static Expr system(const Vec<Expr>& lhs, const Vec<Expr>& rhs, const Vec<Str>& vars);
     // -*-
 
 private:
