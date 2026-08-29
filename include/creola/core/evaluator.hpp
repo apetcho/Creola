@@ -33,7 +33,7 @@ public:
     static Expr diff(Evaluator& evaluator, const Expr& expr, const Str& var);
     static Expr simplify(Evaluator& evaluator, const Expr& expr);
     static Expr expand(Evaluator& evaluator, const Expr& expr);
-    static Expr factor(Evaluator& evaluator, const Expr& expr);
+    static Expr factor(Evaluator& evaluator, const Expr& expr, const Str& var);
     static Expr integral(Evaluator& evaluator, const Expr& expr, const Str& var);
     static Expr integrate(Evaluator& evaluator, const Expr& expr, const Str& var, f64 vmin, f64 vmax);
     static Expr taylor(Evaluator& evaluator, const Expr& expr, const Str& var, f64 center, u32 order);

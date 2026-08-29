@@ -102,9 +102,8 @@ Expr Evaluator::expand(Evaluator& evaluator, const Expr& expr){
 }
 
 
-Expr Evaluator::factor(Evaluator& evaluator, const Expr& expr){
-    //! @todo
-    return nullptr;
+Expr Evaluator::factor(Evaluator& evaluator, const Expr& expr, const Str& var){
+    return evaluator.m_factorizer.factor(expr, var);
 }
 
 Expr Evaluator::integral(Evaluator& evaluator, const Expr& expr, const Str& var){

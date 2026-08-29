@@ -393,13 +393,16 @@ Expr Parser::parse_expand(Evaluator& evaluator){
 
 // -*-
 Expr Parser::parse_factor(Evaluator& evaluator){
-    // factor(expr)
+    // factor(expr, var)
     this->consume(TokenKind::Factor);
     this->consume(TokenKind::LParen);
     auto expr = this->parse_expr();
+    this->expect(TokenKind::Ident, "");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::Ident);
     this->consume(TokenKind::RParen);
 
-    return Evaluator::factor(evaluator, expr);
+    return Evaluator::factor(evaluator, expr, var);
 }
 
 // -*-
