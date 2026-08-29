@@ -65,9 +65,11 @@ Expr Differentiator::diff(const NegExpr& expr, const Str& var){
     return make_neg_expr(this->diff(expr.rhs(), var));
 }
 
+// -*-
 Expr Differentiator::diff(const AddExpr& expr, const Str& var){
-    //! @todo
-    return nullptr;
+    auto lhs = this->diff(expr.lhs(), var);
+    auto rhs = this->diff(expr.rhs(), var);
+    return make_add_expr(lhs, rhs);
 }
 
 Expr Differentiator::diff(const MulExpr& expr, const Str& var){
