@@ -15,7 +15,7 @@ public:
     explicit Parser(const Str& src);
     ~Parser() = default;
 
-    Ast parse(void);
+    Ast parse(Evaluator& evaluator);
 
 private:
     Lexer m_lexer;
@@ -28,28 +28,28 @@ private:
     Stmt parse_let(void);
     Stmt parse_fun(void);
 
-    Expr parse_equation(void);
-    Expr parse_system(void);
-    Expr parse_simplify(void);
-    Expr parse_diff(void);
-    Expr parse_expand(void);
-    Expr parse_factor(void);
-    Expr parse_integral(void);
-    Expr parse_integrate(void);
-    Expr parse_taylor(void);
-    Expr parse_limit(void);
-    Expr parse_roots(void);
-    Expr parse_solve(void);
-    Expr parse_fibonacci(void);
-    Expr parse_factorial(void);
-    Expr parse_modulo(void);
-    Expr parse_prime(void);
-    Expr parse_gcd(void);
-    Expr parse_lcm(void);
-    Expr parse_help(void);
-    Expr parse_show(void);
-    Expr parse_plot(void);
-    Expr parse_config(void);
+    Expr parse_equation(Evaluator& evaluator);
+    Expr parse_system(Evaluator& evaluator);
+    Expr parse_simplify(Evaluator& evaluator);
+    Expr parse_diff(Evaluator& evaluator);
+    Expr parse_expand(Evaluator& evaluator);
+    Expr parse_factor(Evaluator& evaluator);
+    Expr parse_integral(Evaluator& evaluator);
+    Expr parse_integrate(Evaluator& evaluator);
+    Expr parse_taylor(Evaluator& evaluator);
+    Expr parse_limit(Evaluator& evaluator);
+    Expr parse_roots(Evaluator& evaluator);
+    Expr parse_solve(Evaluator& evaluator);
+    Expr parse_fibonacci(Evaluator& evaluator);
+    Expr parse_factorial(Evaluator& evaluator);
+    Expr parse_modulo(Evaluator& evaluator);
+    Expr parse_prime(Evaluator& evaluator);
+    Expr parse_gcd(Evaluator& evaluator);
+    Expr parse_lcm(Evaluator& evaluator);
+    Expr parse_help(Evaluator& evaluator);
+    Expr parse_show(Evaluator& evaluator);
+    Expr parse_plot(Evaluator& evaluator);
+    Expr parse_config(Evaluator& evaluator);
 
     Expr parse_expr(void);
     Expr parse_add_expr(void);

@@ -21,7 +21,7 @@ Parser::Parser(const Str& src)
 }
 
 // -*-
-Ast Parser::parse(void){
+Ast Parser::parse(Evaluator& evaluator){
     if(this->m_current.kind==TokenKind::Let){
         return this->parse_let();
     }
@@ -31,92 +31,92 @@ Ast Parser::parse(void){
 
     // equation
     if(this->m_current.kind==TokenKind::Equation){
-        return this->parse_equation();
+        return this->parse_equation(evaluator);
     }
     // system
     if(this->m_current.kind==TokenKind::System){
-        return this->parse_system();
+        return this->parse_system(evaluator);
     }
     // simplify
     if(this->m_current.kind==TokenKind::Simplify){
-        return this->parse_simplify();
+        return this->parse_simplify(evaluator);
     }
     // diff
     if(this->m_current.kind==TokenKind::Diff){
-        return this->parse_diff();
+        return this->parse_diff(evaluator);
     }
     // expand
     if(this->m_current.kind==TokenKind::Expand){
-        return this->parse_expand();
+        return this->parse_expand(evaluator);
     }
     // fatcor
     if(this->m_current.kind==TokenKind::Factor){
-        return this->parse_factor();
+        return this->parse_factor(evaluator);
     }
     // integral
     if(this->m_current.kind==TokenKind::Integral){
-        return this->parse_integral();
+        return this->parse_integral(evaluator);
     }
     // integrate
     if(this->m_current.kind==TokenKind::Integrate){
-        this->parse_integrate();
+        this->parse_integrate(evaluator);
     }
     // taylor
     if(this->m_current.kind==TokenKind::Taylor){
-        return this->parse_taylor();
+        return this->parse_taylor(evaluator);
     }
     // limit
     if(this->m_current.kind==TokenKind::Limit){
-        return this->parse_limit();
+        return this->parse_limit(evaluator);
     }
     // roots
     if(this->m_current.kind==TokenKind::Roots){
-        return this->parse_roots();
+        return this->parse_roots(evaluator);
     }
     // solve
     if(this->m_current.kind==TokenKind::Solve){
-        return this->parse_solve();
+        return this->parse_solve(evaluator);
     }
     // fibonacci
     if(this->m_current.kind==TokenKind::Fibonacci){
-        return this->parse_fibonacci();
+        return this->parse_fibonacci(evaluator);
     }
     // factorial
     if(this->m_current.kind==TokenKind::Factorial){
-        return this->parse_factorial();
+        return this->parse_factorial(evaluator);
     }
     // modulo
     if(this->m_current.kind==TokenKind::Modulo){
-        return this->parse_modulo();
+        return this->parse_modulo(evaluator);
     }
     // prime
     if(this->m_current.kind==TokenKind::Prime){
-        return this->parse_prime();
+        return this->parse_prime(evaluator);
     }
     // gcd
     if(this->m_current.kind==TokenKind::Gcd){
-        return this->parse_gcd();
+        return this->parse_gcd(evaluator);
     }
     // lcm
     if(this->m_current.kind==TokenKind::Lcm){
-        return this->parse_lcm();
+        return this->parse_lcm(evaluator);
     }
 
     // help
     if(this->m_current.kind==TokenKind::Help){
-        return this->parse_help();
+        return this->parse_help(evaluator);
     }
     // show
     if(this->m_current.kind==TokenKind::Show){
-        return this->parse_show();
+        return this->parse_show(evaluator);
     }
     // plot
     if(this->m_current.kind==TokenKind::Plot){
-        return this->parse_plot();
+        return this->parse_plot(evaluator);
     }
     // config
     if(this->m_current.kind==TokenKind::Config){
-        return this->parse_config();
+        return this->parse_config(evaluator);
     }
 
     auto expr = this->parse_expr();
@@ -299,7 +299,7 @@ Stmt Parser::parse_fun(void){
 }
 
 // -*-
-Expr Parser::parse_equation(void){
+Expr Parser::parse_equation(Evaluator& evaluator){
     // equation(lhs=rhs, var)
     this->consume(TokenKind::Equation);
     this->consume(TokenKind::LParen);
@@ -311,11 +311,11 @@ Expr Parser::parse_equation(void){
     this->consume(TokenKind::Ident);
     this->consume(TokenKind::RParen);
 
-    return Evaluator::equation(lhs, rhs, var);
+    return Evaluator::equation(evaluator, lhs, rhs, var);
 }
 
 // -*-
-Expr Parser::parse_system(void){
+Expr Parser::parse_system(Evaluator& evaluator){
     // system({lhs1=rhs1,lhs2=rhs2, ...}, {...})
     Vec<Expr> lhs{}, rhs{};
     Vec<Str> vars{};
@@ -351,22 +351,22 @@ Expr Parser::parse_system(void){
     this->expect(TokenKind::RBrace, "`system()`: expected '}'.");
     this->consume(TokenKind::RBrace);
 
-    return Evaluator::system(lhs, rhs, vars);
+    return Evaluator::system(evaluator, lhs, rhs, vars);
 }
 
 // -*-
-Expr Parser::parse_simplify(void){
+Expr Parser::parse_simplify(Evaluator& evaluator){
     // simplify(expr)
     this->consume(TokenKind::Simplify);
     this->consume(TokenKind::LParen);
     auto expr = this->parse_expr();
     this->consume(TokenKind::RParen);
 
-    return Evaluator::simplify(expr);
+    return Evaluator::simplify(evaluator, expr);
 }
 
 // -*-
-Expr Parser::parse_diff(void){
+Expr Parser::parse_diff(Evaluator& evaluator){
     // diff(expr, var);
     this->consume(TokenKind::Diff);
     this->consume(TokenKind::LParen);
@@ -377,33 +377,33 @@ Expr Parser::parse_diff(void){
     this->consume(TokenKind::Ident);
     this->consume(TokenKind::RParen);
 
-    return Evaluator::diff(expr, var);
+    return Evaluator::diff(evaluator, expr, var);
 }
 
 // -*-
-Expr Parser::parse_expand(void){
+Expr Parser::parse_expand(Evaluator& evaluator){
     // expand(expr)
     this->consume(TokenKind::Expand);
     this->consume(TokenKind::LParen);
     auto expr = this->parse_expr();
     this->consume(TokenKind::RParen);
 
-    return Evaluator::expand(expr);
+    return Evaluator::expand(evaluator, expr);
 }
 
 // -*-
-Expr Parser::parse_factor(void){
+Expr Parser::parse_factor(Evaluator& evaluator){
     // factor(expr)
     this->consume(TokenKind::Factor);
     this->consume(TokenKind::LParen);
     auto expr = this->parse_expr();
     this->consume(TokenKind::RParen);
 
-    return Evaluator::factor(expr);
+    return Evaluator::factor(evaluator, expr);
 }
 
 // -*-
-Expr Parser::parse_integral(void){
+Expr Parser::parse_integral(Evaluator& evaluator){
     // integral(expr, var)
     this->consume(TokenKind::Integral);
     this->consume(TokenKind::LParen);
@@ -414,11 +414,11 @@ Expr Parser::parse_integral(void){
     this->consume(TokenKind::Ident);
     this->consume(TokenKind::RParen);
     
-    return Evaluator::integral(expr, var);
+    return Evaluator::integral(evaluator, expr, var);
 }
 
 // -*-
-Expr Parser::parse_integrate(void){
+Expr Parser::parse_integrate(Evaluator& evaluator){
     // integrate(expr, var, vmin, vmax)
     this->consume(TokenKind::Integral);
     this->consume(TokenKind::LParen);
@@ -451,11 +451,11 @@ Expr Parser::parse_integrate(void){
     }
     this->consume(TokenKind::RParen);
 
-    return Evaluator::integrate(expr, var, vmin, vmax);
+    return Evaluator::integrate(evaluator, expr, var, vmin, vmax);
 }
 
 // -*-
-Expr Parser::parse_taylor(void){
+Expr Parser::parse_taylor(Evaluator& evaluator){
     // taylor(expr, var, center, order)
     this->consume(TokenKind::Taylor);
     this->consume(TokenKind::LParen);
@@ -480,84 +480,144 @@ Expr Parser::parse_taylor(void){
     this->consume(TokenKind::Integer);
     this->consume(TokenKind::RParen);
 
-    return Evaluator::taylor(expr, var, center, order);
+    return Evaluator::taylor(evaluator, expr, var, center, order);
 }
 
 // -*-
-Expr Parser::parse_limit(void){
+Expr Parser::parse_limit(Evaluator& evaluator){
     //! @todo
+    // limit(expr, center)
+    // limit(expr, center, :left)
+    // limit(expr, center, :right)
     throw CreolaError("`limit()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_roots(void){
+Expr Parser::parse_roots(Evaluator& evaluator){
     //! @todo
+    // roots(expr, var)
+    // roots(expr, var, tolerance)
     throw CreolaError("`roots()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_solve(void){
+Expr Parser::parse_solve(Evaluator& evaluator){
     //! @todo
+    // solve(equation)
+    // solve(equation, tolerance)
+    // solve(system)
+    // solve(system, tolerance)
     throw CreolaError("`solve()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_fibonacci(void){
+Expr Parser::parse_fibonacci(Evaluator& evaluator){
     //! @todo
+    // fibonacci(n)
     throw CreolaError("`fibonacci()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_factorial(void){
+Expr Parser::parse_factorial(Evaluator& evaluator){
     //! @todo
+    // factorial(n)
     throw CreolaError("`factorial()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_modulo(void){
+Expr Parser::parse_modulo(Evaluator& evaluator){
     //! @todo
+    // module(x, y)
     throw CreolaError("`modulo()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_prime(void){
+Expr Parser::parse_prime(Evaluator& evaluator){
     //! @todo
+    // prime(n)
     throw CreolaError("`prime()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_gcd(void){
+Expr Parser::parse_gcd(Evaluator& evaluator){
     //! @todo
+    // gcd(x, y)
     throw CreolaError("`gcd()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_lcm(void){
+Expr Parser::parse_lcm(Evaluator& evaluator){
     //! @todo
+    // lcm(x, y)
     throw CreolaError("`lcm()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_help(void){
+Expr Parser::parse_help(Evaluator& evaluator){
     //! @todo
+    // help(ident)
     throw CreolaError("`help()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_show(void){
+Expr Parser::parse_show(Evaluator& evaluator){
     //! @todo
+    /*
+        show("variables")
+        show("functions")
+        show("env")
+        show("builtin.constants")
+        show("builtin.functions")
+    */
     throw CreolaError("`show()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_plot(void){
+Expr Parser::parse_plot(Evaluator& evaluator){
     //! @todo
+    /*
+        config("plot.xmin", -1)
+        config("plot.xmax", 1.0)
+        config("plot.ymin", -1)
+        config("plot.ymax", 1.0)
+        config("plot.color", ...)
+        plot(expr)
+        plot(expr, ...)
+    */
     throw CreolaError("`plot()`: not implemented yet.");
 }
 
 // -*-
-Expr Parser::parse_config(void){
+Expr Parser::parse_config(Evaluator& evaluator){
     //! @todo
+    /*
+        - format.long
+        - tolerance
+        - ps1
+        - ps2
+        - diff.[...]
+        - roots.[...]
+        - solve.[...]
+        - limit.[...]
+        - integrate.[...] 
+        - plot.xmin
+        - plot.xmax
+        - plot.ymin
+        - plot.ymax
+        - plot.linewidth
+        - plot.linecolor
+        - plot.font.size
+        - plot.font.family
+        - plot.font.weight
+        - plot.font.bold
+        - plot.xlabel.[color, font, ]
+        - plot.ylabel.[color, font, ]
+        - plot.title.[color, font, ]
+        - plot.gird.[minor, major]
+        - plot.legend.[boxon, location]
+        -
+        config("plot.xmin", -1)
+    */
     throw CreolaError("`config()`: not implemented yet.");
 }
 
