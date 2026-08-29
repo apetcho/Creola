@@ -137,8 +137,7 @@ Expr Evaluator::taylor(Evaluator& evaluator, const Expr& expr, const Str& var, f
 
 
 Expr Evaluator::limit(Evaluator& evaluator, const Expr& expr, const Str& var, f64 loc){
-    //! @todo
-    return nullptr;
+    return evaluator.m_limitFinder.limit(expr, var, loc);
 }
 
 
