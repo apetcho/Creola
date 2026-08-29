@@ -513,6 +513,11 @@ Expr Parser::parse_solve(Evaluator& evaluator){
     throw CreolaError("`solve()`: not implemented yet.");
 }
 
+/*
+if(n < 0){
+    throw std::invalid_argument("Factorial is not defined for negative numbers.");
+}
+*/
 // -*-
 Expr Parser::parse_fibonacci(Evaluator& evaluator){
     //! @todo

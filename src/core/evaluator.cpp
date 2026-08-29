@@ -170,17 +170,6 @@ Expr Evaluator::solve(Evaluator& evaluator, const SystemExpr& system, f64 tolera
 }
 
 // -*-
-static Dict<u32, i64> fibMemo = {
-    {0,  0},      {1,  1},      {2,  1},      {3,  2},      {4,  3},
-    {5,  5},      {6, 8},       {7,  13},     {8,  21},     {9,  34},
-    {10, 55},     {11, 89},     {12, 144},    {13, 233},    {14, 377},
-    {15, 610},    {15, 987},    {17, 1597},   {18, 2584},   {19, 4181},
-    {20, 6765},   {21, 10946},  {22, 17711},  {23, 28657},  {24, 46368},
-    {25, 75025},  {26, 121393}, {27, 196418}, {28, 317811}, {29, 514229},
-    {30, 832040}, {31, 1346269}, {32, 2178309},
-};
-
-// -*-
 static i64 fibonacci_helper(u32 idx){
     static Vec<i64> memo = {
         0,             1,             1,             2,
@@ -220,10 +209,90 @@ Expr Evaluator::fibonacci(Evaluator& evaluator, u32 idx){
     return make_number_expr(num);
 }
 
-Expr Evaluator::factorial(Evaluator& evaluator, u32 idx){
-    //! @todo
-    return nullptr;
+// -*-
+static i64 factorial_helper(u32 n){
+    static Vec<i64> memo = {
+        1LL,
+        1LL,                       2LL,
+        6LL,                       24LL,
+        120LL,                     720LL,
+        5'040LL,                   40'320LL,
+        362'880LL,                 3'628'800LL,
+        39'916'800LL,              479'001'600LL,
+        6'227'020'800LL,           87'178'291'200LL,
+        1'307'674'368'000LL,       20'922'789'888'000LL,
+        355'687'428'096'000LL,     6'402'373'705'728'000LL,
+        121'645'100'408'832'000LL, 2'432'902'008'176'640'000LL,
+    };
+
+    // If the value is already computed, return it immediately
+    if(n < memo.size()) {
+        return memo[n];
+    }
+
+    // Compute and store new values up to n
+    // Start from the last known value to avoid redundant multiplication
+    auto result = memo.back();
+    for(int i = memo.size(); i <= n; ++i) {
+        result *= i;
+        memo.push_back(result);
+    }
+
+    return result;
 }
+
+Expr Evaluator::factorial(Evaluator& evaluator, u32 n){
+    // i64::MAX = 9223372036854775807;
+    if(n > 20){
+        throw CreolaError("factorial(" + std::to_string(n) + " is out of range.");
+    }
+    auto num = factorial_helper(n);
+    return make_number_expr(num);
+}
+
+/*
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+
+{
+    1, 1, 2, 6,	24,	120, 720, 5'040, 40'320, 362'880,
+    3'628'800, 39'916'800, 479'001'600,	6'227'020'800,
+    87'178'291'200,	1'307'674'368'000, 20'922'789'888'000,
+    355'687'428'096'000, 6'402'373'705'728'000,
+    121'645'100'408'832'000, 2'432'902'008'176'640'000,
+}
+
+unsigned long long factorial(int n) {
+    // Static vector persists across calls; index i stores i!
+    static std::vector<unsigned long long> memo = {1};
+
+    if (n < 0) {
+        throw std::invalid_argument("Factorial is not defined for negative numbers.");
+    }
+
+    // If the value is already computed, return it immediately
+    if (n < memo.size()) {
+        return memo[n];
+    }
+
+    // Compute and store new values up to n
+    // Start from the last known value to avoid redundant multiplication
+    unsigned long long result = memo.back();
+    for (int i = memo.size(); i <= n; ++i) {
+        result *= i;
+        memo.push_back(result);
+    }
+
+    return result;
+}
+
+int main() {
+    std::cout << "5! = " << factorial(5) << std::endl; // Output: 120
+    std::cout << "6! = " << factorial(6) << std::endl; // Output: 720 (uses cached 5!)
+    return 0;
+}
+*/
 
 Expr Evaluator::modulo(Evaluator& evaluator, const NumberExpr& lhs, const NumberExpr& rhs){
     //! @todo
