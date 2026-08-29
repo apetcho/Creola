@@ -381,8 +381,10 @@ Expr Parser::parse_integrate(void){
     f64 vmin{};
     if(this->m_current.kind==TokenKind::Integer){
         vmin = static_cast<f64>(std::stoll(this->m_current.text));
+        this->consume(TokenKind::Integer);
     }else if(this->m_current.kind==TokenKind::Float){
         vmin = std::stod(this->m_current.text);
+        this->consume(TokenKind::Float);
     }else{
         throw CreolaError("`integrate()`: expected a number.");
     }
@@ -390,8 +392,10 @@ Expr Parser::parse_integrate(void){
     f64 vmax{};
     if(this->m_current.kind==TokenKind::Integer){
         vmax = static_cast<f64>(std::stoll(this->m_current.text));
+        this->consume(TokenKind::Integer);
     }else if(this->m_current.kind==TokenKind::Float){
         vmax = std::stod(this->m_current.text);
+        this->consume(TokenKind::Float);
     }else{
         throw CreolaError("`integrate()`: expected a number.");
     }
@@ -402,8 +406,31 @@ Expr Parser::parse_integrate(void){
 
 // -*-
 Expr Parser::parse_taylor(void){
-    //! @todo
-    throw CreolaError("`taylor()`: not implemented yet.");
+    // taylor(expr, var, center, order)
+    this->consume(TokenKind::Taylor);
+    this->consume(TokenKind::LParen);
+    auto expr = this->parse_expr();
+    this->consume(TokenKind::Comma);
+    this->expect(TokenKind::Ident, "Expected variable in integral");
+    auto var = this->m_current.text;
+    this->consume(TokenKind::Ident);
+    this->consume(TokenKind::Comma);
+    f64 center{};
+    if(this->m_current.kind==TokenKind::Integer){
+        center = static_cast<f64>(std::stoll(this->m_current.text));
+        this->consume(TokenKind::Integer);
+    }else if(this->m_current.kind==TokenKind::Float){
+        center = std::stod(this->m_current.text);
+        this->consume(TokenKind::Float);
+    }else{
+        throw CreolaError("`taylor()`: expected a number");
+    }
+    this->expect(TokenKind::Integer, "`taylor()`: expected an integer");
+    auto order = static_cast<u32>(std::stoul(this->m_current.text));
+    this->consume(TokenKind::Integer);
+    this->consume(TokenKind::RParen);
+
+    return Evaluator::taylor(expr, var, center, order);
 }
 
 // -*-
