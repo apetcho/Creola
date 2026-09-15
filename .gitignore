@@ -9,4 +9,8 @@
 /creola-cli
 /creola-desktop
 /creola-web
+<<<<<<< HEAD
 >>>>>>> 56b259b (Refactor creola project structure and build the static library creola.)
+=======
+/old_unfinished
+>>>>>>> 6adcc70 (Update .gitignore)
