@@ -37,6 +37,10 @@ struct StmtBase {
     virtual void execute(ExecuteVisitor&, Env&) const = 0;
 };
 
+struct Number final : public ExprBase {
+    Value value;
+    Expr eval(EvalVisitor& visitor, Env& env) const override;
+};
 
 
 // -*----------------------------------------------------------------*-
