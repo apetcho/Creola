@@ -37,6 +37,11 @@ struct StmtBase {
     virtual void execute(ExecuteVisitor&, Env&) const = 0;
 };
 
+struct Symbol final : public ExprBase {
+    std::string name;
+    Expr eval(EvalVisitor& visitor, Env&) const override;
+};
+
 struct Number final : public ExprBase {
     Value value;
     Expr eval(EvalVisitor& visitor, Env& env) const override;
