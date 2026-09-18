@@ -83,6 +83,11 @@ struct Call final : public ExprBase {
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
+struct Lambda final : public ExprBase {
+    std::vector<std::string> params;
+    Expr body;
+    Expr eval(EvalVisitor& visitor, Env& env) const override;
+};
 
 
 
