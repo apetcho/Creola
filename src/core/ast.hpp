@@ -47,6 +47,12 @@ struct Negate final : public ExprBase {
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
+struct Add final : public ExprBase {
+    Expr lhs;
+    Expr rhs;
+    Expr eval(EvalVisitor& visitor, Env& env) const override;
+};
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
