@@ -27,8 +27,11 @@ TEST(EvaluatorTest, BasicArithmetic){
     EXPECT_DOUBLE_EQ(std::get<double>(num), 5.0);
 }
 
-
-// TEST(ParserTest, FunctionDefinition){}
+TEST(ParserTest, FunctionDefinition){
+    Parser parser("fun f(x) = x^2");
+    auto stmt = parser.parse();
+    EXPECT_NE(stmt, nullptr);
+}
 
 // TEST(EvaluatorTest, FunctionCall){}
 
