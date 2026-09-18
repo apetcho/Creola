@@ -71,6 +71,12 @@ struct Div final : public ExprBase {
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
+struct Pow final : public ExprBase {
+    Expr base;
+    Expr expo;
+    Expr eval(EvalVisitor& visitor, Env& env) const override;
+};
+
 
 
 
