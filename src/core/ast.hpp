@@ -89,6 +89,13 @@ struct Lambda final : public ExprBase {
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
+// --- Concrete Statements ---
+struct Let final : public StmtBase {
+    std::string name;
+    Expr expr;
+    void execute(ExecuteVisitor& visitor, Env& env) const override;
+};
+
 
 
 // -*----------------------------------------------------------------*-
