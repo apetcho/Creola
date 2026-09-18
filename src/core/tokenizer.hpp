@@ -1,11 +1,46 @@
 #pragma once
 
+#include<string>
+#include<vector>
+#include<cctype>
+
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
 // -*----------------------------------------------------------------*-
 namespace creola{
 // -
+
+enum class TokenKind {
+    Num, Ident, Let, Fun,
+    Eq, Plus, Minus, Star, Slash, Caret,
+    LParen, RParen, LBrace, RBrace, Comma,
+    End
+};
+
+// -
+struct Token final {
+    TokenKind kind;
+    std::string lexeme;
+};
+
+// -
+class Tokenizer final {
+public:
+    Tokenizer(const std::string& source);
+    std::vector<Token> tokenize(void);
+
+private:
+    std::string m_src;
+    std::size_t m_pos;
+
+    char peek(void) const;
+    char advance(void);
+    void skipWhitespace(void);
+    Token scanNumber(void);
+    Token scanIdent(void);
+};
+
 
 
 // -*----------------------------------------------------------------*-
