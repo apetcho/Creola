@@ -97,6 +97,13 @@ struct Let final : public StmtBase {
 };
 
 
+struct Fun final : public StmtBase {
+    std::string name;
+    Lambda lambda;
+    void execute(ExecuteVisitor& visitor, Env& env) const override;
+};
+
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
