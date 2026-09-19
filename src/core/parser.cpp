@@ -1,3 +1,4 @@
+#include "ast.hpp"
 #include "parser.hpp"
 
 #include<functional>
@@ -85,7 +86,7 @@ Stmt Parser::parseLet(void){
     }
 
     auto expr = this->parseExpression();
-    return std::make_shared<Let>(name, expr);
+    return makeLet(name, std::move(expr));
 }
 
 /*
