@@ -188,17 +188,34 @@ Expr Parser::parseUnary(void){
     return this->parsePrimary();
 }
 
-/*
-class Parser final {
-public:
-private:
-    std::vector<Token> m_tokens;
-    std::size_t m_cur;
+// -*-
+Expr Parser::parsePrimary(void){
+    if(this->match(TokenKind::Num)){
+        auto numstr = this->consume(TokenKind::Num, "Expected a number").lexeme;
+        if(numstr.find('.')!=std::string::npos){
+            auto num = std::stod(numstr);
+            return makeNumber(num);
+        }
+        auto num = std::stoll(numstr);
+        return makeNumber(num);
+    }
+    if(this->match(TokenKind::Ident)){
+        auto name = this->consume(TokenKind::Ident, "Expected identifier").lexeme;
+        return makeSymbol(name);
+    }
+    if(this->match(TokenKind::LParen)){
+        this->consume(TokenKind::LParen, "Expected '('");
+        auto expr = this->parseExpression();
+        this->consume(TokenKind::RParen, "Expected ')'");
+        return expr;
+    }
+    //! @note: We probably need to parse expression in the format '{' expr... '}'
+    throw std::runtime_error("Enexpected token in expression");
+}
 
-Expr Parser::parsePrimary(void){}
+/*
 Expr Parser::parseCall(void){}
 Expr Parser::parseLambda(void){}
-};
 */
 
 // -*----------------------------------------------------------------*-

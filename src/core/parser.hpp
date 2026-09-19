@@ -35,8 +35,8 @@ private:
     Expr parsePow(void);
     Expr parseUnary(void);
     Expr parsePrimary(void);
-    Expr parseCall(void);
-    Expr parseLambda(void);
+    //Expr parseCall(void);
+    //Expr parseLambda(void);
 };
 
 
