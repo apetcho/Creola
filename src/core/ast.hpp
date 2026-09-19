@@ -49,6 +49,11 @@ struct Number final : public ExprBase {
 
 struct Negate final : public ExprBase {
     Expr arg;
+
+    Negate(Expr&& arg)
+    : arg{std::move(arg)}
+    {}
+
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
