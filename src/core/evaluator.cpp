@@ -287,11 +287,58 @@ Expr Interpreter::eval(const Div& div, Env& env) const{
     return makeBinary('/', std::move(lhs), std::move(rhs));
 }
 
+// -*-
+Expr Interpreter::eval(const Pow& pow, Env& env) const{
+    auto lhs = this->eval(pow.base, env);
+    auto rhs = this->eval(pow.expo, env);
+    if(is_number(lhs) && is_number(rhs)){
+        auto xnum = as_number(lhs);
+        auto ynum = as_number(rhs);
+        if(std::holds_alternative<std::int64_t>(xnum.value) && std::holds_alternative<std::int64_t>(ynum.value)){
+            auto deno = std::get<std::int64_t>(ynum.value);
+            auto num = std::pow(std::get<std::int64_t>(xnum.value), deno);
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<double>(xnum.value) && std::holds_alternative<std::int64_t>(ynum.value)){
+            auto deno = std::get<std::int64_t>(ynum.value);
+            auto num = std::pow(std::get<double>(xnum.value), static_cast<double>(deno));
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<std::int64_t>(xnum.value) && std::holds_alternative<double>(ynum.value)){
+            auto deno = std::get<double>(ynum.value);
+            auto num = std::pow(static_cast<double>(std::get<std::int64_t>(xnum.value)), deno);
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<double>(xnum.value) && std::holds_alternative<double>(ynum.value)){
+            auto deno = std::get<double>(ynum.value);
+            auto num = std::pow(std::get<double>(xnum.value), deno);
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<std::complex<double>>(xnum.value)){
+            auto x = std::get<std::complex<double>>(xnum.value);
+            if(std::holds_alternative<std::int64_t>(ynum.value)){
+                auto y = static_cast<double>(std::get<std::int64_t>(ynum.value));
+                auto num = std::pow(x, y);
+                return makeNumber(num);
+            }
+            if(std::holds_alternative<double>(ynum.value)){
+                auto y = std::get<double>(ynum.value);
+                auto num = std::pow(x, y);
+                return makeNumber(num);
+            }
+            auto y = std::get<std::complex<double>>(ynum.value);
+            auto num = std::pow(x, y);
+            return makeNumber(num);
+        }
+    }
+
+    return makeBinary('^', std::move(lhs), std::move(rhs));
+}
+
 /*
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
 Expr Interpreter::eval(Expr expr, Env& env){}
-Expr Interpreter::eval(const Pow& pow, Env& env) const{}
 Expr Interpreter::eval(const Call& call, Env& env) const{}
 Expr Interpreter::eval(const Lambda& lambda, Env& env) const{}
 
