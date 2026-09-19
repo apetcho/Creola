@@ -65,15 +65,11 @@ void Let::execute(ExecuteVisitor& visitor, Env& env) const {
     visitor.execute(*this, env);
 }
 
-/*
+// -
+void Fun::execute(ExecuteVisitor& visitor, Env& env) const {
+    visitor.execute(*this, env);
+}
 
-struct Fun final : public StmtBase {
-    std::string name;
-    Lambda lambda;
-    void execute(ExecuteVisitor& visitor, Env& env) const override;
-};
-
-*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
