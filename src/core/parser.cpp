@@ -1,3 +1,9 @@
+#include "parser.hpp"
+
+#include<functional>
+#include<stdexcept>
+#include<memory>
+#include<cmath>
 
 
 // -*----------------------------------------------------------------*-
@@ -6,6 +12,40 @@
 namespace creola{
 // -
 
+// -*-
+Parser::Parser(const std::string& src)
+: m_tokens(Tokenizer(src).tokenize())
+, m_cur{0}
+{}
+
+/*
+class Parser final {
+public:
+
+Stmt Parser::parse(void){}
+
+private:
+    std::vector<Token> m_tokens;
+    std::size_t m_cur;
+
+Token Parser::current(void) const{}
+bool Parser::match(TokenKind kind) const{}
+Token Parser::consume(TokenKind kind, const std::string& msg){}
+
+Stmt Parser::parseStatement(void){}
+Stmt Parser::parseLet(void){}
+Stmt Parser::parseFun(void){}
+
+Expr Parser::parseExpression(void){}
+Expr Parser::parseAddSub(void){}
+Expr Parser::parseMulDiv(void){}
+Expr Parser::parsePow(void){}
+Expr Parser::parseUnary(void){}
+Expr Parser::parsePrimary(void){}
+Expr Parser::parseCall(void){}
+Expr Parser::parseLambda(void){}
+};
+*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-

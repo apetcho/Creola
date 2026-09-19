@@ -2,7 +2,7 @@
 
 #include "ast.hpp"
 #include "tokenizer.hpp"
-#include<memory>
+
 #include<vector>
 
 // -*----------------------------------------------------------------*-
