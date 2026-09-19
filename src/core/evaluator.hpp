@@ -106,6 +106,16 @@ static inline Symbol as_symbol(Expr expr){
     return *self;
 }
 
+// -*-
+static inline Negate as_(Expr expr){
+    if(!is_negate(expr)){
+        throw std::runtime_error("Expected a negate-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Negate>(expr);
+    return *self;
+}
+
+
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-
