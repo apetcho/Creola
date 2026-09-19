@@ -15,12 +15,17 @@ Env::Env(Env* parent)
 : parent{parent}
 {}
 
+// -*-
+void Env::put(const std::string& key, Expr expr){
+    this->m_bindings[key] = expr;
+}
+
 /*
 class Env final {
 public:
 
 
-void Env::put(const std::string& key, Expr expr){}
+
 Expr Env::get(const std::string& key) const{}
 bool Env::hashKey(const std::string& key) const{}
     Env* parent;
