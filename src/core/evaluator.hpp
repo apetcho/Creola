@@ -78,6 +78,9 @@ static inline bool is_sub(Expr expr){
     return std::dynamic_pointer_cast<Sub>(expr)!=nullptr;
 }
 
+static inline bool is_mul(Expr expr){
+    return std::dynamic_pointer_cast<Mul>(expr)!=nullptr;
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
