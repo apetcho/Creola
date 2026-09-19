@@ -90,6 +90,10 @@ static inline bool is_pow(Expr expr){
     return std::dynamic_pointer_cast<Pow>(expr) != nullptr;
 }
 
+static inline bool is_call(Expr expr){
+    return std::dynamic_pointer_cast<Call>(expr) != nullptr;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
