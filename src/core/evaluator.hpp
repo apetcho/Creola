@@ -169,6 +169,15 @@ static inline Pow as_pow(Expr expr){
     return *self;
 }
 
+// -*-
+static inline Lambda as_lambda(Expr expr){
+    if(!is_negate(expr)){
+        throw std::runtime_error("Expected a lambda-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Lambda>(expr);
+    return *self;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
