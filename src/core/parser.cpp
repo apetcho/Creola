@@ -38,7 +38,7 @@ void Parser::advance(void){
 }
 
 // -*-
-void Parser::consume(TokenKind kind, const std::string& msg){
+[[maybe_unused]] Token Parser::consume(TokenKind kind, const std::string& msg){
     if(this->current().kind==TokenKind::End){
         throw std::runtime_error("Unexpected end of input");
     }
@@ -47,7 +47,9 @@ void Parser::consume(TokenKind kind, const std::string& msg){
         stream << msg << " got " << std::quoted(this->current().lexeme);
         throw std::runtime_error(stream.str());
     }
+    auto token = this->current();
     this->advance();
+    return token;
 }
 
 // -*-
@@ -67,6 +69,12 @@ Stmt Parser::parseStatement(void){
     throw std::runtime_error("Expected 'let' or 'fun'.");
 }
 
+// -*-
+Stmt Parser::parseLet(void){
+    this->consume(TokenKind::Let, "Expected 'let'");
+
+}
+
 /*
 class Parser final {
 public:
@@ -75,8 +83,6 @@ private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
-
-Stmt Parser::parseLet(void){}
 Stmt Parser::parseFun(void){}
 
 Expr Parser::parseExpression(void){}
