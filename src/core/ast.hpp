@@ -85,6 +85,11 @@ struct Pow final : public ExprBase {
 struct Call final : public ExprBase {
     std::string name;
     std::vector<Expr> args;
+
+    Call(std::string& name, std::vector<Expr>&& args)
+    : name{name}, args{std::move(args)}
+    {}
+
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
