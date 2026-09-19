@@ -166,6 +166,11 @@ struct Fun final : public StmtBase {
 };
 
 // -
+static inline Stmt makeFun(const std::string& name, const Lambda& lambda){
+    return std::make_shared<Fun>(name, lambda);
+}
+
+// -
 static inline Stmt makeLet(const std::string& name, Expr expr){
     return std::make_shared<Let>(name, expr);
 }
