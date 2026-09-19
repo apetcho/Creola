@@ -166,6 +166,18 @@ Expr Parser::parseMulDiv(void){
     return lhs;
 }
 
+// -*-
+Expr Parser::parsePow(void){
+    Expr base = this->parseUnary();
+    if(this->match(TokenKind::Caret)){
+        this->consume(TokenKind::Caret, "Expected '^'");
+        Expr expo = this->parseUnary();
+        return makeBinary('^', std::move(base), std::move(expo));
+    }
+
+    return base;
+}
+
 /*
 class Parser final {
 public:
@@ -173,8 +185,6 @@ private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
-
-Expr Parser::parsePow(void){}
 Expr Parser::parseUnary(void){}
 Expr Parser::parsePrimary(void){}
 Expr Parser::parseCall(void){}
