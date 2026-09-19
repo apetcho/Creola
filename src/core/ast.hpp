@@ -50,6 +50,27 @@ struct Symbol final : public ExprBase {
 
 struct Number final : public ExprBase {
     Value value;
+
+    Number()
+    : value{std::int64_t(0)}
+    {}
+
+    Number(std::int64_t num)
+    : value{num}
+    {}
+
+    Number(double num)
+    : value{num}
+    {}
+
+    Number(std::complex<double> z)
+    : value{z}
+    {}
+
+    Number(const Value& val)
+    : value{val}
+    {}
+
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
@@ -164,6 +185,9 @@ struct Fun final : public StmtBase {
 
     void execute(ExecuteVisitor& visitor, Env& env) const override;
 };
+
+
+static inline Expr makeCall(){}
 
 // -
 static inline Stmt makeFun(const std::string& name, const Lambda& lambda){
