@@ -142,6 +142,15 @@ static inline Sub as_sub(Expr expr){
     return *self;
 }
 
+// -*-
+static inline Mul as_mul(Expr expr){
+    if(!is_mul(expr)){
+        throw std::runtime_error("Expected mul-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Mul>(expr);
+    return *self;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
