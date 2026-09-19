@@ -1,4 +1,5 @@
 #include "env.hpp"
+#include<stdexcept>
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-

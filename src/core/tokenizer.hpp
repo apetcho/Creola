@@ -2,7 +2,6 @@
 
 #include<string>
 #include<vector>
-#include<cctype>
 
 
 // -*----------------------------------------------------------------*-
@@ -40,8 +39,6 @@ private:
     Token scanNumber(void);
     Token scanIdent(void);
 };
-
-
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
