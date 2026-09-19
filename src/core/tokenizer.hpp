@@ -38,6 +38,9 @@ private:
     void skipWhitespace(void);
     Token scanNumber(void);
     Token scanIdent(void);
+    bool is_at_end(void) const;
+    bool is_eof(char c) const;
+    char next_char(void) const;
 };
 
 // -*----------------------------------------------------------------*-
