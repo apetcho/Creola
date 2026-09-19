@@ -58,6 +58,36 @@ struct MathFn{
     }
 };
 
+// -*-
+Expr Interpreter::eval(const Symbol& sym, Env& env) const{
+    return env.get(sym.name);
+}
+
+/*
+
+class Interpreter final : public EvalVisitor, public ExecuteVisitor {
+public:
+Expr Interpreter::eval(const Number& num, Env& env) const{}
+Expr Interpreter::eval(const Negate& negate, Env& env) const{}
+Expr Interpreter::eval(const Add& add, Env& env) const{}
+Expr Interpreter::eval(const Sub& sub, Env& env) const{}
+Expr Interpreter::eval(const Mul& mul, Env& env) const{}
+Expr Interpreter::eval(const Div& div, Env& env) const{}
+Expr Interpreter::eval(const Pow& pow, Env& env) const{}
+Expr Interpreter::eval(const Call& call, Env& env) const{}
+Expr Interpreter::eval(const Lambda& lambda, Env& env) const{}
+
+void Interpreter::execute(const Let& let, Env& env) const{}
+void Interpreter::execute(const Fun& fun, Env& env) const{}
+
+private:
+Value Interpreter::applyBinaryOp(Value lhs, Value rhs, std::function<double(double, double)> op){}
+
+};
+
+*/
+
+
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-
