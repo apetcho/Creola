@@ -191,6 +191,26 @@ static inline Expr makeSymbol(const std::string& name){
     return std::make_shared<Symbol>(name);
 }
 
+static inline Expr makeNumber(){
+    return std::make_shared<Number>();
+}
+
+static inline Expr makeNumber(std::int64_t num){
+    return std::make_shared<Number>(num);
+}
+
+static inline Expr makeNumber(double num){
+    return std::make_shared<Number>(num);
+}
+
+static inline Expr makeNumber(std::complex<double> z){
+    return std::make_shared<Number>(z);
+}
+
+static inline Expr makeNumber(const Value& val){
+    return std::make_shared<Number>(val);
+}
+
 // -
 static inline Stmt makeFun(const std::string& name, const Lambda& lambda){
     return std::make_shared<Fun>(name, lambda);
