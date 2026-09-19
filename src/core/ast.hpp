@@ -111,7 +111,10 @@ struct Fun final : public StmtBase {
     void execute(ExecuteVisitor& visitor, Env& env) const override;
 };
 
-
+// -
+static inline Stmt makeLet(const std::string& name, Expr expr){
+    return std::make_shared<Let>(name, expr);
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
