@@ -91,6 +91,11 @@ struct Call final : public ExprBase {
 struct Lambda final : public ExprBase {
     std::vector<std::string> params;
     Expr body;
+
+    Lambda(std::vector<std::string>& params, Expr&& body)
+    : params{params}, body{std::move(body)}
+    {}
+
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
@@ -98,8 +103,8 @@ struct Lambda final : public ExprBase {
 struct Let final : public StmtBase {
     std::string name;
     Expr expr;
-    Let(const std::string& name, Expr e)
-    : name{name}, expr{e}{}
+    Let(const std::string& name, Expr&& e)
+    : name{name}, expr{std::move(e)}{}
 
     void execute(ExecuteVisitor& visitor, Env& env) const override;
 };
