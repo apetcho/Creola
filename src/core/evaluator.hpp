@@ -98,6 +98,14 @@ static inline bool is_lambda(Expr expr){
     return std::dynamic_pointer_cast<Lambda>(expr) != nullptr;
 }
 
+static inline Symbol as_symbol(Expr expr){
+    if(!is_symbol(expr)){
+        throw std::runtime_error("Expected a symbol");
+    }
+    auto self = std::dynamic_pointer_cast<Symbol>(expr);
+    return *self;
+}
+
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-
