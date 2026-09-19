@@ -211,6 +211,10 @@ static inline Expr makeNumber(const Value& val){
     return std::make_shared<Number>(val);
 }
 
+static inline Expr makeNegate(Expr&& arg){
+    return std::make_shared<Negate>(std::move(arg));
+}
+
 // -
 static inline Stmt makeFun(const std::string& name, const Lambda& lambda){
     return std::make_shared<Fun>(name, lambda);
