@@ -187,7 +187,9 @@ struct Fun final : public StmtBase {
 };
 
 
-static inline Expr makeCall(){}
+static inline Expr makeSymbol(const std::string& name){
+    return std::make_shared<Symbol>(name);
+}
 
 // -
 static inline Stmt makeFun(const std::string& name, const Lambda& lambda){
