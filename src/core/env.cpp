@@ -31,18 +31,13 @@ Expr Env::get(const std::string& key) const{
     throw std::runtime_error("Undefined variable: " + key);
 }
 
-/*
-class Env final {
-public:
+// -*-
+bool Env::hashKey(const std::string& key) const{
+    if(this->m_bindings.count(key)){ return true; }
+    if(this->parent){ return this->parent->hashKey(key); }
 
-
-bool Env::hashKey(const std::string& key) const{}
-    Env* parent;
-
-private:
-    std::map<std::string, Expr> m_bindings;
-};
-*/
+    return false;
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
