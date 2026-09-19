@@ -98,6 +98,9 @@ struct Lambda final : public ExprBase {
 struct Let final : public StmtBase {
     std::string name;
     Expr expr;
+    Let(const std::string& name, Expr e)
+    : name{name}, expr{e}{}
+
     void execute(ExecuteVisitor& visitor, Env& env) const override;
 };
 
@@ -107,6 +110,8 @@ struct Fun final : public StmtBase {
     Lambda lambda;
     void execute(ExecuteVisitor& visitor, Env& env) const override;
 };
+
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-

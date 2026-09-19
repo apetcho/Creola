@@ -72,7 +72,20 @@ Stmt Parser::parseStatement(void){
 // -*-
 Stmt Parser::parseLet(void){
     this->consume(TokenKind::Let, "Expected 'let'");
+    auto name = this->consume(TokenKind::Ident, "Exepected variable name").lexeme;
+    if(name=="let"){
+        std::stringstream stream;
+        stream << "'let' is a reserved word. Variable name cannot be 'let'";
+        throw std::runtime_error(stream.str());
+    }
+    if(name=="fun"){
+        std::stringstream stream;
+        stream << "'fun' is a reserved word. Variable name cannot be 'fun'";
+        throw std::runtime_error(stream.str());
+    }
 
+    auto expr = this->parseExpression();
+    return std::make_shared<Let>(name, expr);
 }
 
 /*
