@@ -107,11 +107,20 @@ static inline Symbol as_symbol(Expr expr){
 }
 
 // -*-
-static inline Negate as_(Expr expr){
+static inline Negate as_negate(Expr expr){
     if(!is_negate(expr)){
         throw std::runtime_error("Expected a negate-expression");
     }
     auto self = std::dynamic_pointer_cast<Negate>(expr);
+    return *self;
+}
+
+// -*-
+static inline Number as_(Expr expr){
+    if(!is_number(expr)){
+        throw std::runtime_error("Expected a number");
+    }
+    auto self = std::dynamic_pointer_cast<Number>(expr);
     return *self;
 }
 
