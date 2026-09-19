@@ -13,6 +13,12 @@ Expr Symbol::eval(EvalVisitor& visitor, Env& env) const {
     return visitor.eval(*this, env);
 }
 
+
+// -
+Expr Negate::eval(EvalVisitor& visitor, Env& env) const {
+    return visitor.eval(*this, env);
+}
+
 /*
 
 struct Number final : public ExprBase {
@@ -20,10 +26,6 @@ struct Number final : public ExprBase {
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
-struct Negate final : public ExprBase {
-    Expr arg;
-    Expr eval(EvalVisitor& visitor, Env& env) const override;
-};
 
 struct Add final : public ExprBase {
     Expr lhs;
