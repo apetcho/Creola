@@ -2,6 +2,8 @@
 
 #include<functional>
 #include<stdexcept>
+#include<sstream>
+#include<iomanip>
 #include<memory>
 #include<cmath>
 
@@ -35,6 +37,19 @@ void Parser::advance(void){
     this->m_cur += 1;
 }
 
+// -*-
+void Parser::consume(TokenKind kind, const std::string& msg){
+    if(this->current().kind==TokenKind::End){
+        throw std::runtime_error("Unexpected end of input");
+    }
+    if(!this->match(kind)){
+        std::stringstream stream;
+        stream << msg << " got " << std::quoted(this->current().lexeme);
+        throw std::runtime_error(stream.str());
+    }
+    this->advance();
+}
+
 /*
 class Parser final {
 public:
@@ -47,7 +62,7 @@ private:
     std::size_t m_cur;
 
 
-Token Parser::consume(TokenKind kind, const std::string& msg){}
+
 
 Stmt Parser::parseStatement(void){}
 Stmt Parser::parseLet(void){}

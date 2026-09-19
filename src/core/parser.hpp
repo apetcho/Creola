@@ -22,7 +22,7 @@ private:
 
     Token current(void) const;
     bool match(TokenKind kind) const;
-    Token consume(TokenKind kind, const std::string& msg);
+    void consume(TokenKind kind, const std::string& msg);
     void advance(void);
 
     Stmt parseStatement(void);
