@@ -79,6 +79,11 @@ struct Div final : public ExprBase {
 struct Pow final : public ExprBase {
     Expr base;
     Expr expo;
+
+    Pow(Expr&& b, Expr&& e)
+    : base{std::move(b)}, expo{std::move(e)}
+    {}
+    
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
