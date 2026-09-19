@@ -23,6 +23,10 @@ char Tokenizer::peek(void) const{
     return this->m_src[this->m_pos];
 }
 
+// -
+void Tokenizer::advance(void){
+    this->m_pos += 1;
+}
 
 /*
 class Tokenizer final {
@@ -43,7 +47,7 @@ private:
     std::size_t m_pos;
 
 
-char Tokenizer::advance(void){}
+
 void Tokenizer::skipWhitespace(void){}
 Token Tokenizer::scanNumber(void){}
 Token Tokenizer::scanIdent(void){}

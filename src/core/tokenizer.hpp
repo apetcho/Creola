@@ -34,7 +34,7 @@ private:
     std::size_t m_pos;
 
     char peek(void) const;
-    char advance(void);
+    void advance(void);
     void skipWhitespace(void);
     Token scanNumber(void);
     Token scanIdent(void);
