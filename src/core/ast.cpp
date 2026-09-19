@@ -29,20 +29,12 @@ Expr Add::eval(EvalVisitor& visitor, Env& env) const {
     return visitor.eval(*this, env);
 }
 
+// -
+Expr Sub::eval(EvalVisitor& visitor, Env& env) const {
+    return visitor.eval(*this, env);
+}
+
 /*
-
-struct Add final : public ExprBase {
-    Expr lhs;
-    Expr rhs;
-
-};
-
-struct Sub final : public ExprBase {
-    Expr lhs;
-    Expr rhs;
-    Expr eval(EvalVisitor& visitor, Env& env) const override;
-};
-
 struct Mul final : public ExprBase {
     Expr lhs;
     Expr rhs;
