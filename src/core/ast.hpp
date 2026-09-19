@@ -146,7 +146,7 @@ struct Call final : public ExprBase {
     std::string name;
     std::vector<Expr> args;
 
-    Call(std::string& name, std::vector<Expr>&& args)
+    Call(const std::string& name, std::vector<Expr>&& args)
     : name{name}, args{std::move(args)}
     {}
 
@@ -157,7 +157,7 @@ struct Lambda final : public ExprBase {
     std::vector<std::string> params;
     Expr body;
 
-    Lambda(std::vector<std::string>& params, Expr&& body)
+    Lambda(const std::vector<std::string>& params, Expr&& body)
     : params{params}, body{std::move(body)}
     {}
 
@@ -232,6 +232,11 @@ static inline Expr makeBinary(char op, Expr&& lhs, Expr&& rhs){
         return std::make_shared<Pow>(std::move(lhs), std::move(rhs));
     }
     throw std::runtime_error("unknown binary operator '" + std::string(1, op)+"'");
+}
+
+// -
+static inline Expr makeLambda(const std::vector<std::string>& params, Expr&& body){
+    return std::make_shared<Lambda>(params, std::move(body));
 }
 
 // -
