@@ -19,11 +19,16 @@ Expr Negate::eval(EvalVisitor& visitor, Env& env) const {
     return visitor.eval(*this, env);
 }
 
+// -
+Expr Number::eval(EvalVisitor& visitor, Env& env) const{
+    return visitor.eval(*this, env);
+}
+
 /*
 
 struct Number final : public ExprBase {
     Value value;
-    Expr eval(EvalVisitor& visitor, Env& env) const override;
+
 };
 
 
