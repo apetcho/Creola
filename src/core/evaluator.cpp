@@ -513,19 +513,43 @@ void Interpreter::execute(const Fun& fun, Env& env) const{
     env.put(fun.name, makeLambda(params, std::move(body)));
 }
 
-/*
-class Interpreter final : public EvalVisitor, public ExecuteVisitor {
-public:
-Expr Interpreter::eval(Expr expr, Env& env){}
-
-
-private:
-Value Interpreter::applyBinaryOp(Value lhs, Value rhs, std::function<double(double, double)> op){}
-
-};
-
-*/
-
+// -*-
+Expr Interpreter::eval(Expr expr, Env& env) const {
+    if(is_symbol(expr)){ return expr; }
+    if(is_number(expr)){ return expr; }
+    if(is_add(expr)){
+        auto self = as_add(expr);
+        auto lhs = this->eval(self.lhs, env);
+        auto rhs = this->eval(self.rhs, env);
+        return makeBinary('+', std::move(lhs), std::move(rhs));
+    }
+    if(is_sub(expr)){
+        auto self = as_sub(expr);
+        auto lhs = this->eval(self.lhs, env);
+        auto rhs = this->eval(self.rhs, env);
+        return makeBinary('-', std::move(lhs), std::move(rhs));
+    }
+    if(is_mul(expr)){
+        auto self = as_mul(expr);
+        auto lhs = this->eval(self.lhs, env);
+        auto rhs = this->eval(self.rhs, env);
+        return makeBinary('*', std::move(lhs), std::move(rhs));
+    }
+    if(is_div(expr)){
+        auto self = as_add(expr);
+        auto lhs = this->eval(self.lhs, env);
+        auto rhs = this->eval(self.rhs, env);
+        return makeBinary('/', std::move(lhs), std::move(rhs));
+    }
+    if(is_pow(expr)){
+        auto self = as_pow(expr);
+        auto lhs = this->eval(self.base, env);
+        auto rhs = this->eval(self.expo, env);
+        return makeBinary('^', std::move(lhs), std::move(rhs));
+    }
+    
+    return expr;
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-

@@ -51,7 +51,7 @@ public:
     void execute(const Fun& fun, Env& env) const override;
 
 private:
-    Value applyBinaryOp(Value lhs, Value rhs, std::function<double(double, double)> op);
+    //Value applyBinaryOp(Value lhs, Value rhs, std::function<double(double, double)> op);
 
 };
 
