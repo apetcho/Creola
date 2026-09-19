@@ -55,6 +55,12 @@ struct Negate final : public ExprBase {
 struct Add final : public ExprBase {
     Expr lhs;
     Expr rhs;
+
+    Add(Expr&& left, Expr&& right)
+    : lhs{std::move(left)}, rhs(std::move(right))
+    {}
+
+
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
