@@ -215,6 +215,26 @@ static inline Expr makeNegate(Expr&& arg){
     return std::make_shared<Negate>(std::move(arg));
 }
 
+static inline Expr makeBinary(char op, Expr&& lhs, Expr&& rhs){
+    if(op=='+'){
+        return std::make_shared<Add>(std::move(lhs), std::move(rhs));
+    }
+    if(op=='-'){
+        return std::make_shared<Sub>(std::move(lhs), std::move(rhs));
+    }
+    if(op=='*'){
+        return std::make_shared<Mul>(std::move(lhs), std::move(rhs));
+    }
+    if(op=='/'){
+        return std::make_shared<Div>(std::move(lhs), std::move(rhs));
+    }
+    if(op=='^'){
+        return std::make_shared<Pow>(std::move(lhs), std::move(rhs));
+    }
+    throw std::runtime_error("unknown binary operator '" + std::string(1, op)+"'");
+}
+
+
 // -
 static inline Stmt makeFun(const std::string& name, const Lambda& lambda){
     return std::make_shared<Fun>(name, lambda);
