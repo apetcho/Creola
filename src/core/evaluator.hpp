@@ -56,34 +56,38 @@ private:
 
 // -*-
 static inline bool is_symbol(Expr expr){
-    return std::dynamic_pointer_cast<Symbol>(expr)!=nullptr;
+    return std::dynamic_pointer_cast<Symbol>(expr) != nullptr;
 }
 
 // -*-
 static inline bool is_number(Expr expr){
-    return std::dynamic_pointer_cast<Number>(expr)!=nullptr;
+    return std::dynamic_pointer_cast<Number>(expr) != nullptr;
 }
 
 // -*-
 static inline bool is_negate(Expr expr){
-    return std::dynamic_pointer_cast<Negate>(expr)!=nullptr;
+    return std::dynamic_pointer_cast<Negate>(expr) != nullptr;
 }
 
 // -*-
 static inline bool is_add(Expr expr){
-    return std::dynamic_pointer_cast<Add>(expr)!=nullptr;
+    return std::dynamic_pointer_cast<Add>(expr) != nullptr;
 }
 
 static inline bool is_sub(Expr expr){
-    return std::dynamic_pointer_cast<Sub>(expr)!=nullptr;
+    return std::dynamic_pointer_cast<Sub>(expr) != nullptr;
 }
 
 static inline bool is_mul(Expr expr){
-    return std::dynamic_pointer_cast<Mul>(expr)!=nullptr;
+    return std::dynamic_pointer_cast<Mul>(expr) != nullptr;
 }
 
 static inline bool is_div(Expr expr){
-    return std::dynamic_pointer_cast<Div>(expr)!=nullptr;
+    return std::dynamic_pointer_cast<Div>(expr) != nullptr;
+}
+
+static inline bool is_pow(Expr expr){
+    return std::dynamic_pointer_cast<Pow>(expr) != nullptr;
 }
 
 
