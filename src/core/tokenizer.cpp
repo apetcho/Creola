@@ -28,6 +28,13 @@ void Tokenizer::advance(void){
     this->m_pos += 1;
 }
 
+// -*-
+void Tokenizer::skipWhitespace(void){
+    while(!this->is_at_end() && std::isspace(this->peek())){
+        this->advance();
+    }
+}
+
 /*
 class Tokenizer final {
 public:
@@ -47,8 +54,6 @@ private:
     std::size_t m_pos;
 
 
-
-void Tokenizer::skipWhitespace(void){}
 Token Tokenizer::scanNumber(void){}
 Token Tokenizer::scanIdent(void){}
 bool Tokenizer::is_at_end(void) const{}
