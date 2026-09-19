@@ -69,6 +69,12 @@ static inline bool is_negate(Expr expr){
     return std::dynamic_pointer_cast<Negate>(expr)!=nullptr;
 }
 
+// -*-
+static inline bool is_add(Expr expr){
+    return std::dynamic_pointer_cast<Add>(expr)!=nullptr;
+}
+
+
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-
