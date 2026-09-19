@@ -39,18 +39,12 @@ Expr Mul::eval(EvalVisitor& visitor, Env& env) const {
     return visitor.eval(*this, env);
 }
 
-/*
-struct Mul final : public ExprBase {
-    Expr lhs;
-    Expr rhs;
-    
-};
+// -
+Expr Div::eval(EvalVisitor& visitor, Env& env) const {
+    return visitor.eval(*this, env);
+}
 
-struct Div final : public ExprBase {
-    Expr lhs;
-    Expr rhs;
-    Expr eval(EvalVisitor& visitor, Env& env) const override;
-};
+/*
 
 struct Pow final : public ExprBase {
     Expr base;
