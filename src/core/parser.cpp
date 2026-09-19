@@ -127,17 +127,18 @@ Stmt Parser::parseFun(void){
     return makeFun(name, lambda);
 }
 
+// -*-
+Expr Parser::parseExpression(void){
+    return this->parseAddSub();
+}
+
 /*
 class Parser final {
 public:
-
 private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
-
-
-Expr Parser::parseExpression(void){}
 Expr Parser::parseAddSub(void){}
 Expr Parser::parseMulDiv(void){}
 Expr Parser::parsePow(void){}
