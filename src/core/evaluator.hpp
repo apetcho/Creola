@@ -178,6 +178,15 @@ static inline Lambda as_lambda(Expr expr){
     return *self;
 }
 
+// -*-
+static inline Call as_call(Expr expr){
+    if(!is_call(expr)){
+        throw std::runtime_error("Expected call-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Call>(expr);
+    return *self;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
