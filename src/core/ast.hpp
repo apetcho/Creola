@@ -67,6 +67,12 @@ struct Sub final : public ExprBase {
 struct Mul final : public ExprBase {
     Expr lhs;
     Expr rhs;
+
+    Mul(Expr&& left, Expr&& right)
+    : lhs{std::move(left)}, rhs(std::move(right))
+    {}
+
+
     Expr eval(EvalVisitor& visitor, Env& env) const override;
 };
 
