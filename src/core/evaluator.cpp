@@ -506,12 +506,18 @@ void Interpreter::execute(const Let& let, Env& env) const{
     env.put(let.name, let.expr);
 }
 
+// -*-
+void Interpreter::execute(const Fun& fun, Env& env) const{
+    auto params = fun.lambda.params;
+    auto body = fun.lambda.body;
+    env.put(fun.name, makeLambda(params, std::move(body)));
+}
+
 /*
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
 Expr Interpreter::eval(Expr expr, Env& env){}
 
-void Interpreter::execute(const Fun& fun, Env& env) const{}
 
 private:
 Value Interpreter::applyBinaryOp(Value lhs, Value rhs, std::function<double(double, double)> op){}
