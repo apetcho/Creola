@@ -116,11 +116,20 @@ static inline Negate as_negate(Expr expr){
 }
 
 // -*-
-static inline Number as_(Expr expr){
+static inline Number as_number(Expr expr){
     if(!is_number(expr)){
         throw std::runtime_error("Expected a number");
     }
     auto self = std::dynamic_pointer_cast<Number>(expr);
+    return *self;
+}
+
+// -*-
+static inline Add as_add(Expr expr){
+    if(!is_add(expr)){
+        throw std::runtime_error("Expected add-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Add>(expr);
     return *self;
 }
 
