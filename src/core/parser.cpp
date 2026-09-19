@@ -18,6 +18,11 @@ Parser::Parser(const std::string& src)
 , m_cur{0}
 {}
 
+// -*-
+bool Parser::match(TokenKind kind) const{
+    return this->current().kind==kind;
+}
+
 /*
 class Parser final {
 public:
@@ -29,7 +34,6 @@ private:
     std::size_t m_cur;
 
 Token Parser::current(void) const{}
-bool Parser::match(TokenKind kind) const{}
 Token Parser::consume(TokenKind kind, const std::string& msg){}
 
 Stmt Parser::parseStatement(void){}
