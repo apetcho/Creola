@@ -54,10 +54,15 @@ private:
 
 };
 
+// -*-
 static inline bool is_symbol(Expr expr){
     return std::dynamic_pointer_cast<Symbol>(expr)!=nullptr;
 }
 
+// -*-
+static inline bool is_number(Expr expr){
+    return std::dynamic_pointer_cast<Number>(expr)!=nullptr;
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
