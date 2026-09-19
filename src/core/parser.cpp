@@ -89,6 +89,44 @@ Stmt Parser::parseLet(void){
     return makeLet(name, std::move(expr));
 }
 
+// -*-
+Stmt Parser::parseFun(void){
+    this->consume(TokenKind::Fun, "Expected 'fun'");
+    auto name = this->consume(TokenKind::Ident, "Expected function name").lexeme;
+    if(name=="let"){
+        std::stringstream stream;
+        stream << "'let' is a reserved word. Function name cannot be 'let'";
+        throw std::runtime_error(stream.str());
+    }
+    if(name=="fun"){
+        std::stringstream stream;
+        stream << "'fun' is a reserved word. Function name cannot be 'fun'";
+        throw std::runtime_error(stream.str());
+    }
+
+    this->consume(TokenKind::LParen, "Expected '('");
+    std::vector<std::string> params{};
+    if(!this->match(TokenKind::RParen)){
+        params.push_back(this->consume(TokenKind::Ident, "Expected parameter").lexeme);
+        while(this->match(TokenKind::Comma)){
+            this->consume(TokenKind::Comma, "Expected ','");
+            if(this->match(TokenKind::RParen) || this->current().kind==TokenKind::End){
+                break;
+            }
+            params.push_back(this->consume(TokenKind::Ident, "Expected parameter").lexeme);
+        }
+    }
+    if(!this->match(TokenKind::RParen)){
+        throw std::runtime_error("Malformed function statement. Expected ')'");
+    }
+    this->consume(TokenKind::RParen, "Expected ')'");
+    this->consume(TokenKind::Equal, "Expected '='");
+    Expr body = this->parseExpression();
+    Lambda lambda(params, std::move(body));
+
+    return makeFun(name, lambda);
+}
+
 /*
 class Parser final {
 public:
@@ -97,7 +135,7 @@ private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
-Stmt Parser::parseFun(void){}
+
 
 Expr Parser::parseExpression(void){}
 Expr Parser::parseAddSub(void){}
