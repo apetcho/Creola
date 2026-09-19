@@ -55,21 +55,27 @@ Stmt Parser::parse(void){
     return this->parseStatement();
 }
 
+// -*-
+Stmt Parser::parseStatement(void){
+    if(this->match(TokenKind::Let)){
+        return this->parseLet();
+    }
+    if(this->match(TokenKind::Fun)){
+        return this->parseFun();
+    }
+
+    throw std::runtime_error("Expected 'let' or 'fun'.");
+}
+
 /*
 class Parser final {
 public:
-
-
-
 
 private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
 
-
-
-Stmt Parser::parseStatement(void){}
 Stmt Parser::parseLet(void){}
 Stmt Parser::parseFun(void){}
 
