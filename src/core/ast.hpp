@@ -108,6 +108,11 @@ struct Let final : public StmtBase {
 struct Fun final : public StmtBase {
     std::string name;
     Lambda lambda;
+
+    Fun(const std::string& name, const Lambda& lambda)
+    : name{name}, lambda{lambda}
+    {}
+
     void execute(ExecuteVisitor& visitor, Env& env) const override;
 };
 
