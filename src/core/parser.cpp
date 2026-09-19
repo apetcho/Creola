@@ -201,6 +201,22 @@ Expr Parser::parsePrimary(void){
     }
     if(this->match(TokenKind::Ident)){
         auto name = this->consume(TokenKind::Ident, "Expected identifier").lexeme;
+        if(this->match(TokenKind::LParen)){
+            this->consume(TokenKind::LParen, "Expected '('");
+            std::vector<Expr> args{};
+            while((this->current().kind!=TokenKind::End) && !this->match(TokenKind::RParen)){
+                auto expr = this->parseExpression();
+                args.push_back(std::move(expr));
+                if(this->match(TokenKind::Comma)){
+                    this->consume(TokenKind::Comma, "Expected ','");
+                }
+            }
+            if(!this->match(TokenKind::RParen)){
+                throw std::runtime_error("Missing ')' in function call");
+            }
+            this->consume(TokenKind::RParen, "Expected ')'");
+            return makeCall(name, std::move(args));
+        }
         return makeSymbol(name);
     }
     if(this->match(TokenKind::LParen)){
@@ -209,14 +225,9 @@ Expr Parser::parsePrimary(void){
         this->consume(TokenKind::RParen, "Expected ')'");
         return expr;
     }
-    //! @note: We probably need to parse expression in the format '{' expr... '}'
+    
     throw std::runtime_error("Enexpected token in expression");
 }
-
-/*
-Expr Parser::parseCall(void){}
-Expr Parser::parseLambda(void){}
-*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
