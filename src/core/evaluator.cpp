@@ -494,12 +494,17 @@ Expr Interpreter::eval(const Call& call, Env& env) const{
     return std::move(ans);
 }
 
+// -
+Expr Interpreter::eval(const Lambda& lambda, Env& env) const{
+    auto params = lambda.params;
+    auto body = lambda.body;
+    return makeLambda(params, std::move(body));
+}
 
 /*
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
 Expr Interpreter::eval(Expr expr, Env& env){}
-Expr Interpreter::eval(const Lambda& lambda, Env& env) const{}
 
 void Interpreter::execute(const Let& let, Env& env) const{}
 void Interpreter::execute(const Fun& fun, Env& env) const{}
