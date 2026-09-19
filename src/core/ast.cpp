@@ -24,18 +24,17 @@ Expr Number::eval(EvalVisitor& visitor, Env& env) const{
     return visitor.eval(*this, env);
 }
 
+// -
+Expr Add::eval(EvalVisitor& visitor, Env& env) const {
+    return visitor.eval(*this, env);
+}
+
 /*
-
-struct Number final : public ExprBase {
-    Value value;
-
-};
-
 
 struct Add final : public ExprBase {
     Expr lhs;
     Expr rhs;
-    Expr eval(EvalVisitor& visitor, Env& env) const override;
+
 };
 
 struct Sub final : public ExprBase {
