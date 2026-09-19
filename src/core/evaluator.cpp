@@ -63,11 +63,14 @@ Expr Interpreter::eval(const Symbol& sym, Env& env) const{
     return env.get(sym.name);
 }
 
-/*
+// -*-
+Expr Interpreter::eval(const Number& num, Env& env) const{
+    return makeNumber(num.value);
+}
 
+/*
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
-Expr Interpreter::eval(const Number& num, Env& env) const{}
 Expr Interpreter::eval(const Negate& negate, Env& env) const{}
 Expr Interpreter::eval(const Add& add, Env& env) const{}
 Expr Interpreter::eval(const Sub& sub, Env& env) const{}
