@@ -501,12 +501,16 @@ Expr Interpreter::eval(const Lambda& lambda, Env& env) const{
     return makeLambda(params, std::move(body));
 }
 
+// -*-
+void Interpreter::execute(const Let& let, Env& env) const{
+    env.put(let.name, let.expr);
+}
+
 /*
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
 Expr Interpreter::eval(Expr expr, Env& env){}
 
-void Interpreter::execute(const Let& let, Env& env) const{}
 void Interpreter::execute(const Fun& fun, Env& env) const{}
 
 private:
