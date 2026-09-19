@@ -40,6 +40,11 @@ bool Tokenizer::is_at_end(void) const{
     return this->peek()==EOF ? true : false;
 }
 
+// -
+bool Tokenizer::is_eof(char c) const{
+    return (c==EOF) ? true : false;
+}
+
 /*
 class Tokenizer final {
 public:
@@ -61,7 +66,6 @@ private:
 
 Token Tokenizer::scanNumber(void){}
 Token Tokenizer::scanIdent(void){}
-bool Tokenizer::is_eof(char c) const{}
 char Tokenizer::next_char(void) const{}
 
 };
