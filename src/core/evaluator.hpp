@@ -133,6 +133,15 @@ static inline Add as_add(Expr expr){
     return *self;
 }
 
+// -*-
+static inline Sub as_sub(Expr expr){
+    if(!is_sub(expr)){
+        throw std::runtime_error("Expected sub-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Sub>(expr);
+    return *self;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
