@@ -31,9 +31,14 @@ Token Parser::current(void) const{
     return this->m_tokens[this->m_cur];
 }
 
+void Parser::advance(void){
+    this->m_cur += 1;
+}
+
 /*
 class Parser final {
 public:
+
 
 Stmt Parser::parse(void){}
 
