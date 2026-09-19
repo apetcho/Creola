@@ -74,6 +74,10 @@ static inline bool is_add(Expr expr){
     return std::dynamic_pointer_cast<Add>(expr)!=nullptr;
 }
 
+static inline bool is_sub(Expr expr){
+    return std::dynamic_pointer_cast<Sub>(expr)!=nullptr;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
