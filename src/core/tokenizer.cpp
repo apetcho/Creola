@@ -55,6 +55,22 @@ char Tokenizer::next_char(void) const{
     return this->m_src[pos];
 }
 
+// -*-
+Token Tokenizer::scanNumber(void){
+    auto pos = this->m_pos;
+    while(!this->is_at_end() && std::isdigit(this->peek())){
+        this->advance();
+    }
+    if(this->peek()=='.' && std::isdigit(this->next_char())){
+        this->advance(); // consume '.'
+        while(!this->is_at_end() && std::isdigit(this->peek())){
+            this->advance();
+        }
+    }
+    auto len = this->m_pos - pos;
+    return Token{TokenKind::Num, this->m_src.substr(pos, len)};
+}
+
 /*
 class Tokenizer final {
 public:
@@ -74,7 +90,7 @@ private:
     std::size_t m_pos;
 
 
-Token Tokenizer::scanNumber(void){}
+
 Token Tokenizer::scanIdent(void){}
 
 };
