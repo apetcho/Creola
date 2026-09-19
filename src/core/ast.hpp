@@ -39,6 +39,12 @@ struct StmtBase {
 
 struct Symbol final : public ExprBase {
     std::string name;
+
+    Symbol(const std::string& name)
+    : name{name}
+    {}
+
+
     Expr eval(EvalVisitor& visitor, Env&) const override;
 };
 
