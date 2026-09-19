@@ -45,6 +45,16 @@ bool Tokenizer::is_eof(char c) const{
     return (c==EOF) ? true : false;
 }
 
+// -
+char Tokenizer::next_char(void) const{
+    auto pos = this->m_pos + 1;
+    if(pos >= this->m_src.size()){
+        return EOF;
+    }
+
+    return this->m_src[pos];
+}
+
 /*
 class Tokenizer final {
 public:
@@ -66,7 +76,6 @@ private:
 
 Token Tokenizer::scanNumber(void){}
 Token Tokenizer::scanIdent(void){}
-char Tokenizer::next_char(void) const{}
 
 };
 
