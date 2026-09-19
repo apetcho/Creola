@@ -49,14 +49,13 @@ Expr Pow::eval(EvalVisitor& visitor, Env& env) const {
     return visitor.eval(*this, env);
 }
 
+// -
+Expr Call::eval(EvalVisitor& visitor, Env& env) const {
+    return visitor.eval(*this, env);
+}
+
+
 /*
-
-struct Call final : public ExprBase {
-    std::string name;
-    std::vector<Expr> args;
-    Expr eval(EvalVisitor& visitor, Env& env) const override;
-};
-
 struct Lambda final : public ExprBase {
     std::vector<std::string> params;
     Expr body;
