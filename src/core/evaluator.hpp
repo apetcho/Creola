@@ -160,6 +160,15 @@ static inline Div as_div(Expr expr){
     return *self;
 }
 
+// -*-
+static inline Pow as_pow(Expr expr){
+    if(!is_pow(expr)){
+        throw std::runtime_error("Expected pow-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Pow>(expr);
+    return *self;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
