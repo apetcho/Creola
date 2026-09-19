@@ -132,6 +132,23 @@ Expr Parser::parseExpression(void){
     return this->parseAddSub();
 }
 
+// -*-
+Expr Parser::parseAddSub(void){
+    Expr lhs = this->parseMulDiv();
+    while(this->match(TokenKind::Plus) || this->match(TokenKind::Minus)){
+        auto op = this->current().kind;
+        this->consume(op, "Expected '+' or '-'");
+        auto rhs = this->parseMulDiv();
+        if(op==TokenKind::Plus){
+            lhs = makeBinary('+', std::move(lhs), std::move(rhs));
+        }else{
+            lhs = makeBinary('-', std::move(lhs), std::move(rhs));
+        }
+    }
+
+    return lhs;
+}
+
 /*
 class Parser final {
 public:
@@ -139,7 +156,6 @@ private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
-Expr Parser::parseAddSub(void){}
 Expr Parser::parseMulDiv(void){}
 Expr Parser::parsePow(void){}
 Expr Parser::parseUnary(void){}
