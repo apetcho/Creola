@@ -12,7 +12,7 @@ namespace creola{
 
 enum class TokenKind {
     Num, Ident, Let, Fun,
-    Eq, Plus, Minus, Star, Slash, Caret,
+    Equal, Plus, Minus, Star, Slash, Caret,
     LParen, RParen, LBrace, RBrace, Comma,
     End
 };

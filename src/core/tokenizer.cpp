@@ -1,7 +1,7 @@
 #include "tokenizer.hpp"
 
 #include<cctype>
-
+#include<sstream>
 
 // -*----------------------------------------------------------------*-
 // -*- begin::namespace::creola                                     -*-
@@ -89,26 +89,79 @@ Token Tokenizer::scanIdent(void){
     return Token{TokenKind::Ident, lexeme};
 }
 
-/*
-class Tokenizer final {
-public:
-
 // -*-
 std::vector<Token> Tokenizer::tokenize(void){
     std::vector<Token> result{};
+    while(!this->is_at_end()){
+        this->skipWhitespace();
+        auto c = this->peek();
 
-    std::size_t i = 0;
-    while(i < this->m_src.size()){
-        //! @todo
+        // Numbers
+        if(std::isdigit(c)){
+            result.push_back(this->scanNumber());
+            continue;
+        }
+        if(std::isalpha(c) || c=='_'){
+            result.push_back(this->scanIdent());
+            continue;
+        }
+
+        // Operators
+        if(c=='+'){
+            result.push_back(Token{TokenKind::Plus, "+"});
+            continue;
+        }
+        if(c=='-'){
+            result.push_back(Token{TokenKind::Minus, "-"});
+            continue;
+        }
+        if(c=='*'){
+            result.push_back(Token{TokenKind::Star, "*"});
+            continue;
+        }
+        if(c=='/'){
+            result.push_back(Token{TokenKind::Slash, "/"});
+            continue;
+        }
+        if(c=='^'){
+            result.push_back(Token{TokenKind::Caret, "^"});
+            continue;
+        }
+        if(c=='('){
+            result.push_back(Token{TokenKind::LParen, "("});
+            continue;
+        }
+        if(c==')'){
+            result.push_back(Token{TokenKind::RParen, ")"});
+            continue;
+        }
+        if(c=='{'){
+            result.push_back(Token{TokenKind::LBrace, "{"});
+            continue;
+        }
+        if(c=='}'){
+            result.push_back(Token{TokenKind::RBrace, "}"});
+            continue;
+        }
+        if(c==','){
+            result.push_back(Token{TokenKind::Comma, ","});
+            continue;
+        }
+        if(c=='='){
+            result.push_back(Token{TokenKind::Equal, "="});
+            continue;
+        }
+
+        // All acceptable characters or token have been scanned. If we're here,
+        // then we probably encountered an invalid character
+
+        std::stringstream stream;
+        stream << "Invalid character '" << c << "' found in the input text";
+        throw std::runtime_error(stream.str());
     }
+    result.push_back(Token{TokenKind::End, ""});
+    return result;
 }
-
-private:
-    std::string m_src;
-    std::size_t m_pos;
-};
-
-*/
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
