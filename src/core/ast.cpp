@@ -44,13 +44,12 @@ Expr Div::eval(EvalVisitor& visitor, Env& env) const {
     return visitor.eval(*this, env);
 }
 
-/*
+// -
+Expr Pow::eval(EvalVisitor& visitor, Env& env) const {
+    return visitor.eval(*this, env);
+}
 
-struct Pow final : public ExprBase {
-    Expr base;
-    Expr expo;
-    Expr eval(EvalVisitor& visitor, Env& env) const override;
-};
+/*
 
 struct Call final : public ExprBase {
     std::string name;
