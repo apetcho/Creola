@@ -178,6 +178,16 @@ Expr Parser::parsePow(void){
     return base;
 }
 
+// -*-
+Expr Parser::parseUnary(void){
+    if(this->match(TokenKind::Minus)){
+        this->consume(TokenKind::Minus, "Expected '-'");
+        return makeNegate(std::move(this->parseUnary()));
+    }
+
+    return this->parsePrimary();
+}
+
 /*
 class Parser final {
 public:
@@ -185,7 +195,6 @@ private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
-Expr Parser::parseUnary(void){}
 Expr Parser::parsePrimary(void){}
 Expr Parser::parseCall(void){}
 Expr Parser::parseLambda(void){}
