@@ -234,6 +234,10 @@ static inline Expr makeBinary(char op, Expr&& lhs, Expr&& rhs){
     throw std::runtime_error("unknown binary operator '" + std::string(1, op)+"'");
 }
 
+// -
+static inline Expr makeCall(const std::string& name, std::vector<Expr>&& args){
+    return std::make_shared<Call>(name, std::move(args));
+}
 
 // -
 static inline Stmt makeFun(const std::string& name, const Lambda& lambda){
