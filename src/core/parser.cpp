@@ -50,12 +50,17 @@ void Parser::consume(TokenKind kind, const std::string& msg){
     this->advance();
 }
 
+// -*-
+Stmt Parser::parse(void){
+    return this->parseStatement();
+}
+
 /*
 class Parser final {
 public:
 
 
-Stmt Parser::parse(void){}
+
 
 private:
     std::vector<Token> m_tokens;
