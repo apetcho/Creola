@@ -151,6 +151,15 @@ static inline Mul as_mul(Expr expr){
     return *self;
 }
 
+// -*-
+static inline Div as_div(Expr expr){
+    if(!is_div(expr)){
+        throw std::runtime_error("Expected div-expression");
+    }
+    auto self = std::dynamic_pointer_cast<Div>(expr);
+    return *self;
+}
+
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
