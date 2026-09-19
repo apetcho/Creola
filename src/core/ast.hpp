@@ -108,8 +108,6 @@ struct Fun final : public StmtBase {
     void execute(ExecuteVisitor& visitor, Env& env) const override;
 };
 
-
-
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-
