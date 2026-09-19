@@ -54,6 +54,11 @@ private:
 
 };
 
+static inline bool is_symbol(Expr expr){
+    return std::dynamic_pointer_cast<Symbol>(expr)!=nullptr;
+}
+
+
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-
