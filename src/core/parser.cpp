@@ -149,6 +149,23 @@ Expr Parser::parseAddSub(void){
     return lhs;
 }
 
+// -*-
+Expr Parser::parseMulDiv(void){
+    Expr lhs = this->parsePow();
+    while(this->match(TokenKind::Star) || this->match(TokenKind::Slash)){
+        auto op = this->current().kind;
+        this->consume(op, "Expected '/' or '*'");
+        auto rhs = this->parseMulDiv();
+        if(op==TokenKind::Slash){
+            lhs = makeBinary('/', std::move(lhs), std::move(rhs));
+        }else{
+            lhs = makeBinary('*', std::move(lhs), std::move(rhs));
+        }
+    }
+
+    return lhs;
+}
+
 /*
 class Parser final {
 public:
@@ -156,7 +173,7 @@ private:
     std::vector<Token> m_tokens;
     std::size_t m_cur;
 
-Expr Parser::parseMulDiv(void){}
+
 Expr Parser::parsePow(void){}
 Expr Parser::parseUnary(void){}
 Expr Parser::parsePrimary(void){}
