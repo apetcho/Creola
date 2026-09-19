@@ -59,14 +59,13 @@ Expr Lambda::eval(EvalVisitor& visitor, Env& env) const {
     return visitor.eval(*this, env);
 }
 
-/*
-// --- Concrete Statements ---
-struct Let final : public StmtBase {
-    std::string name;
-    Expr expr;
-    void execute(ExecuteVisitor& visitor, Env& env) const override;
-};
+// ----------------------- Stmt implementations -----------------------
 
+void Let::execute(ExecuteVisitor& visitor, Env& env) const {
+    visitor.execute(*this, env);
+}
+
+/*
 
 struct Fun final : public StmtBase {
     std::string name;
