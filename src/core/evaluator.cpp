@@ -86,11 +86,54 @@ Expr Interpreter::eval(const Negate& negate, Env& env) const{
     return makeNegate(std::move(expr));
 }
 
+// -
+Expr Interpreter::eval(const Add& add, Env& env) const{
+    auto lhs = this->eval(add.lhs, env);
+    auto rhs = this->eval(add.rhs, env);
+    if(is_number(lhs) && is_number(rhs)){
+        auto xnum = as_number(lhs);
+        auto ynum = as_number(rhs);
+        if(std::holds_alternative<std::int64_t>(xnum.value) && std::holds_alternative<std::int64_t>(ynum.value)){
+            auto num = std::get<std::int64_t>(xnum.value) + std::get<std::int64_t>(ynum.value);
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<double>(xnum.value) && std::holds_alternative<std::int64_t>(ynum.value)){
+            auto num = std::get<double>(xnum.value) + static_cast<double>(std::get<std::int64_t>(ynum.value));
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<std::int64_t>(xnum.value) && std::holds_alternative<double>(ynum.value)){
+            auto num = static_cast<double>(std::get<std::int64_t>(xnum.value)) + std::get<double>(ynum.value);
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<double>(xnum.value) && std::holds_alternative<double>(ynum.value)){
+            auto num = std::get<double>(xnum.value) + std::get<double>(ynum.value);
+            return makeNumber(num);
+        }
+        if(std::holds_alternative<std::complex<double>>(xnum.value)){
+            auto x = std::get<std::complex<double>>(xnum.value);
+            if(std::holds_alternative<std::int64_t>(ynum.value)){
+                auto y = static_cast<double>(std::get<std::int64_t>(ynum.value));
+                auto num = x + y;
+                return makeNumber(num);
+            }
+            if(std::holds_alternative<double>(ynum.value)){
+                auto y = std::get<double>(ynum.value);
+                auto num = x + y;
+                return makeNumber(num);
+            }
+            auto y = std::get<std::complex<double>>(ynum.value);
+            auto num = x + y;
+            return makeNumber(num);
+        }
+    }
+
+    return makeBinary('+', std::move(lhs), std::move(rhs));
+}
+
 /*
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
 Expr Interpreter::eval(Expr expr, Env& env){}
-Expr Interpreter::eval(const Add& add, Env& env) const{}
 Expr Interpreter::eval(const Sub& sub, Env& env) const{}
 Expr Interpreter::eval(const Mul& mul, Env& env) const{}
 Expr Interpreter::eval(const Div& div, Env& env) const{}
