@@ -68,10 +68,28 @@ Expr Interpreter::eval(const Number& num, Env& env) const{
     return makeNumber(num.value);
 }
 
+// -*-
+Expr Interpreter::eval(const Negate& negate, Env& env) const{
+    auto expr = this->eval(negate.arg, env);
+    if(is_number(expr)){
+        auto num = as_number(expr);
+        if(std::holds_alternative<std::int64_t>(num.value)){
+            num = -1 * std::get<std::int64_t>(num.value);
+        }else if(std::holds_alternative<double>(num.value)){
+            num = -1.0 * std::get<double>(num.value);
+        }else{
+            num = -1.0 * std::get<std::complex<double>>(num.value);
+        }
+        return makeNumber(num.value);
+    }
+
+    return makeNegate(std::move(expr));
+}
+
 /*
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
-Expr Interpreter::eval(const Negate& negate, Env& env) const{}
+Expr Interpreter::eval(Expr expr, Env& env){}
 Expr Interpreter::eval(const Add& add, Env& env) const{}
 Expr Interpreter::eval(const Sub& sub, Env& env) const{}
 Expr Interpreter::eval(const Mul& mul, Env& env) const{}

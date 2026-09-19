@@ -35,6 +35,7 @@ struct ExecuteVisitor {
 
 class Interpreter final : public EvalVisitor, public ExecuteVisitor {
 public:
+    Expr eval(Expr expr, Env& env) const;
     Expr eval(const Symbol& sym, Env& env) const override;
     Expr eval(const Number& num, Env& env) const override;
     Expr eval(const Negate& negate, Env& env) const override;
