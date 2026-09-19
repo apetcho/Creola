@@ -71,6 +71,24 @@ Token Tokenizer::scanNumber(void){
     return Token{TokenKind::Num, this->m_src.substr(pos, len)};
 }
 
+// -*-
+Token Tokenizer::scanIdent(void){
+    auto pos = this->m_pos;
+    while(!this->is_at_end() && (std::isalnum(this->peek()) || this->peek()=='_')){
+        this->advance();
+    }
+    auto len = this->m_pos - pos;
+    auto lexeme = this->m_src.substr(pos, len);
+    if(lexeme=="let"){
+        return Token{TokenKind::Let, lexeme};
+    }
+    if(lexeme=="fun"){
+        return Token{TokenKind::Fun, lexeme};
+    }
+
+    return Token{TokenKind::Ident, lexeme};
+}
+
 /*
 class Tokenizer final {
 public:
@@ -88,11 +106,6 @@ std::vector<Token> Tokenizer::tokenize(void){
 private:
     std::string m_src;
     std::size_t m_pos;
-
-
-
-Token Tokenizer::scanIdent(void){}
-
 };
 
 */
