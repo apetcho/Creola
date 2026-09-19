@@ -82,6 +82,11 @@ static inline bool is_mul(Expr expr){
     return std::dynamic_pointer_cast<Mul>(expr)!=nullptr;
 }
 
+static inline bool is_div(Expr expr){
+    return std::dynamic_pointer_cast<Div>(expr)!=nullptr;
+}
+
+
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
 // -*----------------------------------------------------------------*-
