@@ -94,6 +94,9 @@ static inline bool is_call(Expr expr){
     return std::dynamic_pointer_cast<Call>(expr) != nullptr;
 }
 
+static inline bool is_lambda(Expr expr){
+    return std::dynamic_pointer_cast<Lambda>(expr) != nullptr;
+}
 
 // -*----------------------------------------------------------------*-
 }//-*- end::namespace::creola                                       -*-
