@@ -33,8 +33,9 @@ struct Ast{
 
     Kind kind{};
     double num{0.0};
+    std::string s;                      // identifier / operator / string / callee
     std::vector<AstPtr> children;
-    std::vector<std::string> params;
+    std::vector<std::string> params;    // Fun
 };
 
 std::vector<AstPtr> parse(const std::string& src, const std::function<bool(const std::string&)>& isCallable);
