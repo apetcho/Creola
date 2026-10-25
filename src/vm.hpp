@@ -174,7 +174,7 @@ private:
     Value call(const std::string& name, Args& args);
 
     std::vector<std::map<std::string, Value>> m_frams;
-    int depth = 0;
+    int m_depth = 0;
 };
 
 
