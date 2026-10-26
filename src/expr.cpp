@@ -389,8 +389,8 @@ std::optional<f64> numeric(const Expr& expr){
 }
 
 // -
-void setPrecision(i32 digits){
-    //! @todo
+void setPrecision(i32 prec){
+    g_precision = prec < 1 ? 1 : prec > 17 ? 17 : prec; 
 }
 
 // -
