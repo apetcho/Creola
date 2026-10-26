@@ -205,8 +205,60 @@ Expr add(std::vector<Expr> terms){
 
 // -
 Expr mul(std::vector<Expr> factors){
-    //! @todo
-    return nullptr;
+    f64 c = 1;
+    std::vector<Expr> flat;
+    for(auto& factor: factors){
+        if(factor->kind==Kind::Mul){
+            flat.insert(flat.end(), factor->args.begin(), factor->args.end());
+        }
+        else{
+            flat.push_back(factor);
+        }
+    }
+    std::map<std::string, std::pair<Expr, f64>> g;
+    for(auto& term: flat){
+        if(isNumber(term)){
+            c *= term->value;
+            continue;
+        }
+        Expr base = term;
+        f64 expo = 1;
+        if(term->kind==Kind::Pow && isNumber(term->args[1])){
+            base = term->args[0];
+            expo = term->args[1]->value;
+        }
+        auto key = str(base);
+        auto entry = g.find(key);
+        if(entry == g.end()){
+            g.emplace(key, std::make_pair(base, expo));
+        }else{
+            entry->second.second += expo;
+        }
+    }
+
+    if(c == 0){ number(0); }
+    std::vector<std::pair<std::string, Expr>> out;
+    for(auto& [key, pair]: g){
+        if(pair.second==0){ continue; }
+        if(pair.first->kind==Kind::Sym && pair.first->name == "i" && isInteger(pair.second)){
+            auto k = static_cast<i32>(((static_cast<i64>(pair.second) % 4) + 4) % 4); // i^2 = -i
+            if(k >= 2){ c = -c; }
+            if(k % 2){ out.emplace_back("i", pair.first); }
+            continue;
+        }
+        Expr f = power(pair.first, number(pair.second));
+        out.emplace_back(str(f), f);
+    }
+    std::sort(out.begin(), out.end(), [](auto& a, auto& b){
+        return a.first < b.first;
+    });
+    std::vector<Expr> myTerms;
+    if(c != 1 || out.empty()){ myTerms.push_back(number(c)); }
+    for(auto& item: out){
+        myTerms.push_back(item.second);
+    }
+    if(myTerms.size() == 1){ return myTerms[0]; }
+    return make(Kind::Mul, 0, {}, myTerms);
 }
 
 // -
