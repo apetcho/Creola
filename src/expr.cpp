@@ -732,8 +732,20 @@ Expr integral(const Expr& expr, const std::string& var){
 
 // -
 Expr taylor(const Expr& expr, const std::string& var, const Expr& center, i32 order){
-    //! @todo
-    return nullptr;
+    Expr cur = expr;
+    std::vector<Expr> terms;
+    f64 fact = 1;
+    for(int k=0; k <= order; ++k){
+        Expr coef = substitute(cur, var, center);
+        terms.push_back(make_mul({
+            coef,
+            make_number(1/fact),
+            make_power(make_add({make_symbol(var), negate(center)}), make_number(k))
+        }));
+        cur = diff(cur, var);
+        fact *= k + 1;
+    }
+    return expand(make_add(terms));
 }
 
 // -
