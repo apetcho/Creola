@@ -727,8 +727,7 @@ static Expr my_integral(const Expr& expr, const std::string& var){
 
 // -
 Expr integral(const Expr& expr, const std::string& var){
-    //! @todo
-    return nullptr;
+    return my_integral(expand(expr), var);
 }
 
 // -
