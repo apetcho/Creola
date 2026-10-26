@@ -13,10 +13,13 @@
 #include<memory>
 #include<optional>
 #include<complex>
+#include<cstdint>
 #include<cmath>
 #include<vector>
 #include<string>
 #include<set>
+
+#include "typedefs.hpp"
 
 // ----------------------------------------------------------------------------
 // begin::namespace::creola
@@ -32,23 +35,21 @@ enum class Kind {
     Fun,
 };
 
-struct Node;
-using Expr = std::shared_ptr<const Node>;
 
 struct Node {
     Kind kind{};
-    double value{0.0};          // Num
+    f64 value{0.0};          // Num
     std::string name;           // Sym / Fun
     std::vector<Expr> args;     // Add, Mul, Pow(base, expr), Fun(args)
 };
 
-inline bool isInteger(double val){
+inline bool isInteger(f64 val){
     return std::isfinite(val) && val == std::floor(val);
 }
 
 /// Smart constructors: always return canonical form (flattened, folded, sorted,
 /// loke terms collected).
-Expr number(double val);
+Expr number(f64 val);
 Expr symbol(const std::string& name);
 Expr add(std::vector<Expr> terms);
 Expr mul(std::vector<Expr> factors);
@@ -56,23 +57,23 @@ Expr power(const Expr& base, const Expr& exp);
 Expr fun(const std::string& name, const Expr& args);
 
 bool isNumber(const Expr& expr);
-bool isNumber(const Expr& expr, double val);
+bool isNumber(const Expr& expr, f64 val);
 bool contains(const Expr& expr, const std::string& var);
 
 std::string str(const Expr& expr);
-void setPrecision(int digits);
+void setPrecision(i32 digits);
 
-std::optional<double> numeric(const Expr& expr);
-std::optional<double> evalFun(const std::string& name, double x);
+std::optional<f64> numeric(const Expr& expr);
+std::optional<f64> evalFun(const std::string& name, f64 x);
 
-std::optional<std::pair<long long, long long>> asFraction(double val);
+std::optional<std::pair<i64, i64>> asFraction(f64 val);
 
-extern double g_displayTol;
+extern f64 g_displayTol;
 
-std::optional<double> numericAt(const Expr& expr, const std::string& var, double x);
-std::optional<std::complex<double>> numericC(const Expr& expr);
+std::optional<f64> numericAt(const Expr& expr, const std::string& var, f64 x);
+std::optional<Complex> numericC(const Expr& expr);
 Expr imag(void);
-Expr fromComplex(std::complex<double> z, double tol=1e-12);
+Expr fromComplex(Complex z, f64 tol=1e-12);
 void freeSymbols(const Expr& expr, std::set<std::string>& out);
 
 Expr subs(const Expr& expr, const std::string& var, const Expr& val);
@@ -80,7 +81,7 @@ Expr simplify(const Expr& expr);
 Expr expand(const Expr& expr);
 Expr diff(const Expr& expr, const std::string& var);
 Expr integral(const Expr& expr, const std::string& var);
-Expr taylor(const Expr& expr, const std::string& var, const Expr& center, int order);
+Expr taylor(const Expr& expr, const std::string& var, const Expr& center, i32 order);
 
 // ----------------------------------------------------------------------------
 }// end::namespace::creola
