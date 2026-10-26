@@ -66,6 +66,16 @@ void setPrecision(i32 digits);
 std::optional<f64> numeric(const Expr& expr);
 std::optional<f64> evalFun(const std::string& name, f64 x);
 
+/**
+ * @brief Transform a floating-point number into a fractional number.
+ * 
+ * Return std::nullopt is the argument `val` is an integer or infinite, or if
+ * the rounding noise does not fall under EPS [default: 1e-9] after MAX_ITERATIONS
+ * [default: 1000]
+ * 
+ * @param val 
+ * @return std::optional<std::pair<i64, i64>> 
+ */
 std::optional<std::pair<i64, i64>> asFraction(f64 val);
 
 extern f64 g_displayTol;

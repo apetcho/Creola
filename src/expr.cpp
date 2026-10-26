@@ -69,7 +69,30 @@ double g_displayTol = 1e-12;
 
 // -
 std::optional<std::pair<i64, i64>> asFraction(f64 val){
-    //! @todo
+    if(isInteger(val) || !std::isfinite(val)){
+        return std::nullopt;
+    }
+
+    //! @todo move this to the global settings with the default value set to 1e-9,
+    // fractional.eps = 1e-9
+    constexpr f64 EPS = 1e-9;
+    auto a = std::fabs(val);
+    // integer up to rounding noise
+    if(std::fabs(a - std::round(a)) < EPS*std::max(1.0, a)){
+        return std::nullopt;
+    }
+
+    // transform a floating-point number into a fractional number.
+    //! @todo: add fractional.maxIterations = 1000
+    constexpr i64 MAX_ITERATIONS = 1000; 
+    for(i64 q=2; q <= MAX_ITERATIONS; ++q){
+        auto p = a * q;
+        auto r = std::round(p);
+        if(r > 0 && std::fabs(p-r) < EPS){
+            return std::make_pair((val < 0 ? -1 : 1) * static_cast<i64>(r), q);
+        }
+    }
+
     return std::nullopt;
 }
 
