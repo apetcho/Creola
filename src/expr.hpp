@@ -86,7 +86,7 @@ Expr imag(void);
 Expr fromComplex(Complex z, f64 tol=1e-12);
 void freeSymbols(const Expr& expr, std::set<std::string>& out);
 
-Expr subs(const Expr& expr, const std::string& var, const Expr& val);
+Expr substitute(const Expr& expr, const std::string& var, const Expr& val);
 Expr simplify(const Expr& expr);
 Expr expand(const Expr& expr);
 Expr diff(const Expr& expr, const std::string& var);

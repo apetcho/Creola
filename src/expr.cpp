@@ -497,9 +497,26 @@ std::string str(const Expr& expr){
 }
 
 // -
-Expr subs(const Expr& expr, const std::string& var, const Expr& val){
-    //! @todo
-    return nullptr;
+Expr substitute(const Expr& expr, const std::string& var, const Expr& val){
+    switch(expr->kind){
+        case Kind::Num: return expr;
+        case Kind::Sym: return expr->name == var ? val : expr;
+        case Kind::Fun: return make_fun(expr->name, substitute(expr->args[0], var, val));
+        case Kind::Pow:
+            return make_power(
+                substitute(expr->args[0], var, val),
+                substitute(expr->args[1], var, val)
+            );
+        case Kind::Add:
+        case Kind::Mul:{
+            std::vector<Expr> args;
+            for(auto& arg: expr->args){
+                args.push_back(substitute(arg, var, val));
+            }
+            return expr->kind == Kind::Add ? make_add(args) : make_mul(args);
+        }
+    }
+    return expr;
 }
 
 // -
