@@ -122,9 +122,11 @@ namespace {
         return buf;
     }
 
-    bool atomic(const Expr& expr){
-        //! @todo
-        return false;
+    bool isAtom(const Expr& expr){
+        return (
+            expr->kind==Kind::Sym || expr->kind==Kind::Fun ||
+            (expr->kind==Kind::Num && isInteger(expr->value) && expr->value >= 0)
+        );
     }
 
     Expr negate(const Expr& expr){
