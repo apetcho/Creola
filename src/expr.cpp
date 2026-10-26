@@ -327,9 +327,20 @@ std::optional<f64> evalFun(const std::string& name, f64 x){
 }
 
 // -
-Expr make_fun(const std::string& name, const Expr& args){
-    //! @todo
-    return nullptr;
+Expr make_fun(const std::string& name, const Expr& arg){
+    if(auto x = numeric(arg)){
+        // fold only when the result is an exact integer (cos(pi) = -1)
+        if(auto r = evalFun(name, *x); r && std::isfinite(*r) && std::fabs(*r - std::round(*r)) < 1e-12){
+            return make_number(std::round(*r));
+        }
+    }
+    if(name == "exp" && arg->kind==Kind::Fun && arg->name=="ln"){
+        return arg->args[0];
+    }
+    if(name == "ln" && arg->kind == Kind::Fun && arg->name == "exp"){
+        return arg->args[0];
+    }
+    return make(Kind::Fun, 0, name, {arg});
 }
 
 bool contains(const Expr& expr, const std::string& var){
