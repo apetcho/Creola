@@ -762,7 +762,15 @@ Expr fromComplex(std::complex<double> z, f64 tol){
 
 // -
 void freeSymbols(const Expr& expr, std::set<std::string>& out){
-    //! @todo
+    if(expr->kind==Kind::Sym){
+        if(expr->name!="pi" && expr->name!="e", expr->name!="i" && expr->name!="\xCF\x80"){
+            out.insert(expr->name);
+        }
+        return;
+    }
+    for(auto& arg: expr->args){
+        freeSymbols(arg, out);
+    }
 }
 
 // -
