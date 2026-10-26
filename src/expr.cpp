@@ -262,9 +262,47 @@ Expr mul(std::vector<Expr> factors){
 }
 
 // -
-Expr power(const Expr& base, const Expr& exp){
-    //! @todo
-    return nullptr;
+Expr power(const Expr& base, const Expr& expo){
+    if(isNumber(expo, 0)){ return number(1); }
+    if(isNumber(expo, 1)){ return base; }
+    if(base->kind==Kind::Sym && base->name == "i" && isNumber(expo) && isInteger(expo->value)){
+        auto k = static_cast<i32>(((static_cast<i64>(expo->value) % 4) + 4) % 4);
+        return k == 0 ? number(1) : k == 1 ? base : k == 2 ? number(-1) : mul({number(-1), base});
+    }
+    if(isNumber(base, 1)){ return number(1); }
+    if(base->kind==Kind::Sym && base->name == "i" && isNumber(expo) && isInteger(expo->value)){
+        switch(((static_cast<i64>(expo->value)%4 + 4)%4)){
+            case 0: return number(1);
+            case 1: return base;
+            case 2: return number(-1);
+            default: return mul({number(-1), base});
+        }
+    }
+    if(isNumber(base) && base->value < 0 && isNumber(expo, 0.5)){
+        return mul({power(number(-base->value), expo), symbol("i")});
+    }
+    if(isNumber(base, 0) && isNumber(expo) && expo->value > 0){
+        return number(0);
+    }
+    if(isNumber(base) && isNumber(expo)){
+        auto r = std::pow(base->value, expo->value);
+        if(std::isfinite(r) && (isInteger(expo->value) || isInteger(r))){
+            return number(r);
+        }
+    }
+    if(isNumber(expo) && isInteger(expo->value)){
+        if(base->kind == Kind::Mul){
+            std::vector<Expr> factors;
+            for(auto& arg: base->args){
+                factors.push_back(power(arg, expo));
+            }
+            return mul(factors);
+        }
+        if(base->kind == Kind::Pow){
+            return power(base->args[0], mul({base->args[1], expo}));
+        }
+    }
+    return make(Kind::Pow, 0, {}, {base, expo});
 }
 
 // -
