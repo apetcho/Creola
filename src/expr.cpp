@@ -101,14 +101,25 @@ namespace {
 
     // -
     std::optional<std::pair<i64, i64>> frac(f64 val){
-        //! @todo
-        return std::nullopt;
+        return asFraction(val);
     }
 
     // -
-    std::string numstr(f64 v){
-        //! @todo
-        return "";
+    std::string numstr(f64 val){
+        if(std::fabs(val) < g_displayTol){ val = 0; }
+        if(std::isfinite(val) && std::fabs(val) < 1e15 && std::fabs(val-std::round(val)) < 1e-9*std::max(1.0, std::fabs(val))){
+            val = std::round(val) + 0.0;
+        }
+        if(auto f = frac(val)){
+            return std::to_string(f->first) + "/" + std::to_string(f->second);
+        }
+        char buf[64];
+        if(isInteger(val) && std::fabs(val) < 1e15){
+            std::snprintf(buf, sizeof(buf), "%.0f", val);
+        }else{
+            std::snprintf(buf, sizeof(buf), "%.*g", g_precision, val);
+        }
+        return buf;
     }
 
     bool atomic(const Expr& expr){
