@@ -46,9 +46,21 @@ namespace {
         return 0;
     }
 
-    std::pair<double, Expr> split(const Expr& expr){
-        //! @todo
-        return {};
+    /**
+     * @brief Split an expression into its numeric coefficient and terms
+     * 
+     * @param expr 
+     * @return std::pair<f64, Expr> 
+     */
+    std::pair<f64, Expr> split(const Expr& expr){
+        if(expr->kind == Kind::Mul && isNumber(expr->args[0])){
+            std::vector<Expr> rest(expr->args.begin()+1, expr->args.end());
+            return {
+                expr->args[0]->value,
+                rest.size() == 1 ? rest[0] : make(Kind::Mul, 0, {}, rest)
+            };
+        }
+        return {1, expr};
     }
 } // namespace
 
