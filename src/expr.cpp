@@ -657,8 +657,72 @@ Expr diff(const Expr& expr, const std::string& var){
 }
 
 static Expr my_integral(const Expr& expr, const std::string& var){
-    //! @todo
-    return nullptr;
+    auto fail = [&]() -> Expr {
+        throw std::runtime_error("integral: cannot integrate " + str(expr));
+    };
+
+    switch(expr->kind){
+        case Kind::Add: {
+            std::vector<Expr> terms;
+            for(auto& arg: expr->args){
+                terms.push_back(my_integral(arg, var));
+            }
+            return make_add(terms);
+        }
+        case Kind::Mul: {
+            std::vector<Expr> k;
+            std::vector<Expr> d;
+            for(auto& arg: expr->args){
+                (contains(arg, var) ? d : k).push_back(arg);
+            }
+            if(d.size()==1){
+                k.push_back(my_integral(d[0], var));
+                return make_mul(k);
+            }
+            Expr arg = expand(expr);
+            if(arg->kind==Kind::Add){
+                return my_integral(arg, var);
+            }
+            return fail();
+        }
+        case Kind::Sym:
+            return make_mul({make_number(0.5), make_power(make_symbol(var), make_number(2))});
+        case Kind::Pow: {
+            const Expr& base = expr->args[0];
+            const Expr& expo = expr->args[1];
+            if(contains(expo, var)){ return fail(); }
+            Expr deriv = diff(base, var);
+            if(contains(deriv, var)){ return fail(); }
+            if(isNumber(expo, -1)){
+                return make_mul({make_fun("ln", base), make_power(deriv, make_number(-1))});
+            }
+            Expr n1 = make_add({expo, make_number(1)});
+            return make_mul({
+                make_power(base, n1),
+                make_power(make_mul({n1, deriv}), make_number(-1))
+            });
+        }
+        case Kind::Fun: {
+            const Expr& arg = expr->args[0];
+            Expr deriv = diff(arg, var);
+            if(contains(deriv, var)){ return fail(); }
+            const std::string& name = expr->name;
+            Expr self;
+            if(name=="sin"){ self = negate(make_fun("cos", arg));}
+            else if(name=="cos"){ self = make_fun("sin", arg); }
+            else if(name=="exp"){ self = expr; }
+            else if(name=="sinh"){ self = make_fun("cosh", arg); }
+            else if(name=="cosh"){ self = make_fun("sinh", arg); }
+            else if(name=="tan"){ self = negate(make_fun("ln", make_fun("cos", arg))); }
+            else if(name=="ln"){ self = make_add({make_mul({arg, expr}), negate(arg)}); }
+            else {
+                return fail();
+            }
+            return make_mul({self, make_power(deriv, make_number(-1))});
+        }
+        default:
+            return fail();
+    }
 }
 
 // -
