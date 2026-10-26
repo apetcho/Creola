@@ -582,8 +582,78 @@ Expr expand(const Expr& expr){
 
 // -
 Expr diff(const Expr& expr, const std::string& var){
-    //! @todo
-    return nullptr;
+    switch(expr->kind){
+        case Kind::Num: return make_number(0);
+        case Kind::Sym: return make_number(expr->name==var ? 1 : 0);
+        case Kind::Add: {
+            std::vector<Expr> terms;
+            for(auto& arg: expr->args){
+                terms.push_back(diff(arg, var));
+            }
+            return make_add(terms);
+        }
+        case Kind::Mul: {
+            std::vector<Expr> terms;
+            for(size_t i=0; i < expr->args.size(); ++i){
+                std::vector<Expr> factors = expr->args;
+                factors[i] = diff(expr->args[i], var);
+                terms.push_back(make_mul(factors));
+            }
+            return make_add(terms);
+        }
+        case Kind::Pow: {
+            const Expr& base = expr->args[0];
+            const Expr& expo = expr->args[1];
+            if(!contains(expo, var)){
+                return make_mul({
+                    expo,
+                    make_power(base, make_add({expo, make_number(-1)})),
+                    diff(base, var)
+                });
+            }
+            return make_mul({
+                expr,
+                make_add({
+                    make_mul({diff(expo, var), make_fun("ln", base)}),
+                    make_mul({expo, diff(base, var), make_power(base, make_number(-1))})
+                })
+            });
+        }
+        case Kind::Fun: {
+            const Expr& arg = expr->args[0];
+            const std::string& name = expr->name;
+            Expr deriv;
+            if(name=="sin"){ deriv = make_fun("cos", arg); }
+            else if(name=="cos"){ deriv = negate(make_fun("sin", arg)); }
+            else if(name=="tan"){ deriv = make_power(make_fun("cos", arg), make_number(-2)); }
+            else if(name=="exp"){ deriv = expr; }
+            else if(name=="ln"){ deriv = make_power(arg, make_number(-1)); }
+            else if(name=="sinh"){ deriv = make_fun("cosh", arg); }
+            else if(name=="cosh"){ deriv = make_fun("sinh", arg); }
+            else if(name=="tanh"){
+                deriv = make_power(make_fun("cosh", arg), make_number(-2));
+            }else if(name=="atan"){
+                deriv = make_power(
+                    make_add({make_number(1), make_power(arg, make_number(2))}),
+                    make_number(-1)
+                );
+            }else if(name=="asin"){
+                deriv = make_power(
+                    make_add({make_number(1), negate(make_power(arg, make_number(2)))}),
+                    make_number(-0.5)
+                );
+            }else if(name=="acos"){
+                deriv = negate(make_power(
+                    make_add({make_number(1), negate(make_power(arg, make_number(2)))}),
+                    make_number(-0.5)
+                ));
+            }else{
+                throw std::runtime_error("diff: unsupported function '" + name + "'");
+            }
+            return make_mul({deriv, diff(arg, var)});
+        }
+    }
+    return make_number(0);
 }
 
 static Expr my_integral(const Expr& expr, const std::string& var){
