@@ -49,12 +49,12 @@ inline bool isInteger(f64 val){
 
 /// Smart constructors: always return canonical form (flattened, folded, sorted,
 /// loke terms collected).
-Expr number(f64 val);
-Expr symbol(const std::string& name);
-Expr add(std::vector<Expr> terms);
-Expr mul(std::vector<Expr> factors);
-Expr power(const Expr& base, const Expr& exp);
-Expr fun(const std::string& name, const Expr& args);
+Expr make_number(f64 val);
+Expr make_symbol(const std::string& name);
+Expr make_add(std::vector<Expr> terms);
+Expr make_mul(std::vector<Expr> factors);
+Expr make_power(const Expr& base, const Expr& exp);
+Expr make_fun(const std::string& name, const Expr& args);
 
 bool isNumber(const Expr& expr);
 bool isNumber(const Expr& expr, f64 val);

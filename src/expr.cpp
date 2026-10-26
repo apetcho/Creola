@@ -130,17 +130,17 @@ namespace {
     }
 
     Expr negate(const Expr& expr){
-        return mul({number(-1), expr});
+        return make_mul({make_number(-1), expr});
     }
 } // namespace
 
 // -
-Expr number(f64 val){
+Expr make_number(f64 val){
     return make(Kind::Num, val==0 ? 0.0 : val, {}, {});
 }
 
 // -
-Expr symbol(const std::string& name){
+Expr make_symbol(const std::string& name){
     return make(Kind::Sym, 0, name, {});
 }
 
@@ -155,7 +155,7 @@ bool isNumber(const Expr& expr, f64 val){
 }
 
 // -
-Expr add(std::vector<Expr> terms){
+Expr make_add(std::vector<Expr> terms){
     f64 c = 0;
     std::vector<Expr> flat;
     for(auto& term: terms){
@@ -180,7 +180,7 @@ Expr add(std::vector<Expr> terms){
     std::vector<std::pair<std::string, Expr>> out;
     for(auto& [key, pair]: g){
         if(pair.first==0){ continue; }
-        out.emplace_back(key, pair.first == 1 ? pair.second : mul({number(pair.first), pair.second}));
+        out.emplace_back(key, pair.first == 1 ? pair.second : make_mul({make_number(pair.first), pair.second}));
     }
     std::sort(out.begin(), out.end(), [](auto& a, auto& b){
         f64 x = degree(a.second);
@@ -195,16 +195,16 @@ Expr add(std::vector<Expr> terms){
         (contains(item.second, "i") ? myImaginary : myTerms).push_back(item.second);
     }
     if(c!=0){
-        myTerms.push_back(number(c));
+        myTerms.push_back(make_number(c));
     }
     myTerms.insert(myTerms.end(), myImaginary.begin(), myImaginary.end());
-    if(myTerms.empty()){ return number(0); }
+    if(myTerms.empty()){ return make_number(0); }
     if(myTerms.size()==1){ return myTerms[0]; }
     return make(Kind::Add, 0, {}, myTerms);
 }
 
 // -
-Expr mul(std::vector<Expr> factors){
+Expr make_mul(std::vector<Expr> factors){
     f64 c = 1;
     std::vector<Expr> flat;
     for(auto& factor: factors){
@@ -236,7 +236,7 @@ Expr mul(std::vector<Expr> factors){
         }
     }
 
-    if(c == 0){ number(0); }
+    if(c == 0){ make_number(0); }
     std::vector<std::pair<std::string, Expr>> out;
     for(auto& [key, pair]: g){
         if(pair.second==0){ continue; }
@@ -246,14 +246,14 @@ Expr mul(std::vector<Expr> factors){
             if(k % 2){ out.emplace_back("i", pair.first); }
             continue;
         }
-        Expr f = power(pair.first, number(pair.second));
+        Expr f = make_power(pair.first, make_number(pair.second));
         out.emplace_back(str(f), f);
     }
     std::sort(out.begin(), out.end(), [](auto& a, auto& b){
         return a.first < b.first;
     });
     std::vector<Expr> myTerms;
-    if(c != 1 || out.empty()){ myTerms.push_back(number(c)); }
+    if(c != 1 || out.empty()){ myTerms.push_back(make_number(c)); }
     for(auto& item: out){
         myTerms.push_back(item.second);
     }
@@ -262,44 +262,44 @@ Expr mul(std::vector<Expr> factors){
 }
 
 // -
-Expr power(const Expr& base, const Expr& expo){
-    if(isNumber(expo, 0)){ return number(1); }
+Expr make_power(const Expr& base, const Expr& expo){
+    if(isNumber(expo, 0)){ return make_number(1); }
     if(isNumber(expo, 1)){ return base; }
     if(base->kind==Kind::Sym && base->name == "i" && isNumber(expo) && isInteger(expo->value)){
         auto k = static_cast<i32>(((static_cast<i64>(expo->value) % 4) + 4) % 4);
-        return k == 0 ? number(1) : k == 1 ? base : k == 2 ? number(-1) : mul({number(-1), base});
+        return k == 0 ? make_number(1) : k == 1 ? base : k == 2 ? make_number(-1) : make_mul({make_number(-1), base});
     }
-    if(isNumber(base, 1)){ return number(1); }
+    if(isNumber(base, 1)){ return make_number(1); }
     if(base->kind==Kind::Sym && base->name == "i" && isNumber(expo) && isInteger(expo->value)){
         switch(((static_cast<i64>(expo->value)%4 + 4)%4)){
-            case 0: return number(1);
+            case 0: return make_number(1);
             case 1: return base;
-            case 2: return number(-1);
-            default: return mul({number(-1), base});
+            case 2: return make_number(-1);
+            default: return make_mul({make_number(-1), base});
         }
     }
     if(isNumber(base) && base->value < 0 && isNumber(expo, 0.5)){
-        return mul({power(number(-base->value), expo), symbol("i")});
+        return make_mul({make_power(make_number(-base->value), expo), make_symbol("i")});
     }
     if(isNumber(base, 0) && isNumber(expo) && expo->value > 0){
-        return number(0);
+        return make_number(0);
     }
     if(isNumber(base) && isNumber(expo)){
         auto r = std::pow(base->value, expo->value);
         if(std::isfinite(r) && (isInteger(expo->value) || isInteger(r))){
-            return number(r);
+            return make_number(r);
         }
     }
     if(isNumber(expo) && isInteger(expo->value)){
         if(base->kind == Kind::Mul){
             std::vector<Expr> factors;
             for(auto& arg: base->args){
-                factors.push_back(power(arg, expo));
+                factors.push_back(make_power(arg, expo));
             }
-            return mul(factors);
+            return make_mul(factors);
         }
         if(base->kind == Kind::Pow){
-            return power(base->args[0], mul({base->args[1], expo}));
+            return make_power(base->args[0], make_mul({base->args[1], expo}));
         }
     }
     return make(Kind::Pow, 0, {}, {base, expo});
@@ -327,7 +327,7 @@ std::optional<f64> evalFun(const std::string& name, f64 x){
 }
 
 // -
-Expr fun(const std::string& name, const Expr& args){
+Expr make_fun(const std::string& name, const Expr& args){
     //! @todo
     return nullptr;
 }
