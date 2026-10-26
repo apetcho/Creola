@@ -151,8 +151,7 @@ bool isNumber(const Expr& expr){
 
 // -
 bool isNumber(const Expr& expr, f64 val){
-    //! @todo
-    return false;
+    return isNumber(expr) && expr->value == val;
 }
 
 // -
