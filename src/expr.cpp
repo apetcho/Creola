@@ -307,8 +307,23 @@ Expr power(const Expr& base, const Expr& expo){
 
 // -
 std::optional<f64> evalFun(const std::string& name, f64 x){
-    //! @todo
-    return std::nullopt;
+    static const std::map<std::string, f64 (*)(f64)> funcTable = {
+        {"sin", [](f64 x){ return std::sin(x); }},
+        {"cos", [](f64 x){ return std::cos(x); }},
+        {"tan", [](f64 x){ return std::tan(x); }},
+        {"asin", [](f64 x){ return std::asin(x); }},
+        {"acos", [](f64 x){ return std::acos(x); }},
+        {"atan", [](f64 x){ return std::atan(x); }},
+        {"sinh", [](f64 x){ return std::sinh(x); }},
+        {"cosh", [](f64 x){ return std::cosh(x); }},
+        {"tanh", [](f64 x){ return std::tanh(x); }},
+        {"exp", [](f64 x){ return std::exp(x); }},
+        {"ln", [](f64 x){ return std::log(x); }},
+        {"abs", [](f64 x){ return std::abs(x); }},
+    };
+    auto entry = funcTable.find(name);
+    if(entry == funcTable.end()){ return std::nullopt; }
+    return entry->second(x);
 }
 
 // -
