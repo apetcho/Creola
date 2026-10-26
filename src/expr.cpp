@@ -146,8 +146,7 @@ Expr symbol(const std::string& name){
 
 // -
 bool isNumber(const Expr& expr){
-    //! @todo
-    return false;
+    return expr->kind == Kind::Num;
 }
 
 // -
