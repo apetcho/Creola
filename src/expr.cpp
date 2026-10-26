@@ -755,8 +755,9 @@ Expr imag(void){
 
 // -
 Expr fromComplex(std::complex<double> z, f64 tol){
-    //! @todo
-    return nullptr;
+    f64 re = std::fabs(z.real()) < tol ? 0 : z.real();
+    f64 im = std::fabs(z.imag()) < tol ? 0 : z.imag();
+    return make_add({make_number(re), make_mul({make_number(im), imag()})});
 }
 
 // -
