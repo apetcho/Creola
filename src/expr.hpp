@@ -81,7 +81,7 @@ std::optional<std::pair<i64, i64>> asFraction(f64 val);
 extern f64 g_displayTol;
 
 std::optional<f64> numericAt(const Expr& expr, const std::string& var, f64 x);
-std::optional<Complex> numericC(const Expr& expr);
+std::optional<Complex> numericComplex(const Expr& expr);
 Expr imag(void);
 Expr fromComplex(Complex z, f64 tol=1e-12);
 void freeSymbols(const Expr& expr, std::set<std::string>& out);

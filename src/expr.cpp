@@ -812,8 +812,57 @@ std::optional<f64> numericAt(const Expr& expr, const std::string& var, f64 val){
 }
 
 // -
-std::optional<Complex> numericC(const Expr& expr){
-    //! @todo
+std::optional<Complex> numericComplex(const Expr& expr){
+    switch(expr->kind){
+        case Kind::Num: return Complex(expr->value, 0);
+        case Kind::Sym:
+            if(expr->name=="i"){ return Complex(0, 1); }
+            if(auto n = numeric(expr)){ return Complex(*n, 0);}
+            return std::nullopt;
+        case Kind::Fun: {
+            auto z = numericComplex(expr->args[0]);
+            if(!z){ return std::nullopt; }
+            const auto& name = expr->name;
+            if(name=="sin"){ return std::sin(*z); }
+            if(name=="cos"){ return std::cos(*z); }
+            if(name=="tan"){ return std::tan(*z); }
+            if(name=="asin"){ return std::asin(*z); }
+            if(name=="acos"){ return std::acos(*z); }
+            if(name=="atan"){ return std::atan(*z); }
+            if(name=="sinh"){ return std::sinh(*z); }
+            if(name=="cosh"){ return std::cosh(*z); }
+            if(name=="tanh"){ return std::tanh(*z); }
+            if(name=="exp"){ return std::exp(*z); }
+            if(name=="ln"){ return std::log(*z); }
+            if(name=="abs"){ return Complex(std::abs(*z), 0); }
+            return std::nullopt;
+        }
+        case Kind::Pow: {
+            auto base = numericComplex(expr->args[0]);
+            auto expo = numericComplex(expr->args[1]);
+            if(!base || !expo){
+                return std::nullopt;
+            }
+            if(expo->imag() == 0 && isInteger(expo->real()) && std::fabs(expo->real()) < 1000){
+                return std::pow(*base, static_cast<int>(expo->real()));
+            }
+            return std::pow(*base, *expo);
+        }
+        case Kind::Add:
+        case Kind::Mul:{
+            Complex z = expr->kind == Kind::Add ? Complex(0) : Complex(1);
+            for(auto& arg: expr->args){
+                auto v = numericComplex(arg);
+                if(!v){ return std::nullopt; }
+                if(expr->kind == Kind::Add){
+                    z += *v;
+                }else{
+                    z *= *v;
+                }
+            }
+            return z;
+        }
+    }
     return std::nullopt;
 }
 
