@@ -141,8 +141,7 @@ Expr number(f64 val){
 
 // -
 Expr symbol(const std::string& name){
-    //! @todo
-    return nullptr;
+    return make(Kind::Sym, 0, name, {});
 }
 
 // -
