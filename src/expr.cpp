@@ -525,8 +525,21 @@ Expr simplify(const Expr& expr){
 }
 
 static Expr mulExpr(const Expr& lhs, const Expr& rhs){
-    //! @todo
-    return nullptr;
+    if(lhs->kind==Kind::Add){
+        std::vector<Expr> terms;
+        for(auto& arg: lhs->args){
+            terms.push_back(mulExpr(arg, rhs));
+        }
+        return make_add(terms);
+    }
+    if(rhs->kind == Kind::Add){
+        std::vector<Expr> terms;
+        for(auto& arg: rhs->args){
+            terms.push_back(mulExpr(lhs, arg));
+        }
+        return make_add(terms);
+    }
+    return make_mul({lhs, rhs});
 }
 
 // -
