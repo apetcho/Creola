@@ -395,8 +395,105 @@ void setPrecision(i32 prec){
 
 // -
 std::string str(const Expr& expr){
-    //! @todo
-    return "";
+    switch(expr->kind){
+        case Kind::Num: return numstr(expr->value);
+        case Kind::Sym: return expr->name;
+        case Kind::Fun: return expr->name + "(" + str(expr->args[0]) + ")";
+        case Kind::Add: {
+            std::string mystr;
+            bool first = true;
+            for(auto& term: expr->args){
+                auto txt = str(term);
+                if(txt=="0"){ continue; }
+                if(first){ mystr = txt; }
+                else if(!txt.empty() && txt[0] == '-'){
+                    mystr += " - " + txt.substr(1);
+                }else{
+                    mystr += " + " + txt;
+                }
+                first = false;
+            }
+            return first ? "0" : mystr;
+        } // -
+        case Kind::Pow: {
+            const Expr& base = expr->args[0];
+            const Expr& expo = expr->args[1];
+            if(isNumber(expo, 0.5)){ return "sqrt(" + str(base) + ")"; }
+            if(isNumber(expo) && expo->value < 0){
+                Expr deno = isNumber(expo, -1) ? base : make_power(base, make_number(-expo->value));
+                auto sdeno = str(deno);
+                return "1/" + (isAtom(deno) || deno->kind==Kind::Pow ? sdeno : "(" + sdeno + ")");
+            }
+            auto strBase = str(base);
+            auto strExpo = str(expo);
+            if(!isAtom(base)){ strBase = "(" + strBase + ")"; }
+            if(!isAtom(expo)){ strExpo = "(" + strExpo + ")"; }
+            return strBase + "^" + strExpo;
+        }// -
+        case Kind::Mul:{
+            f64 c = 1;
+            std::vector<Expr> numFactors, denoFactors;
+            for(auto& arg: expr->args){
+                if(isNumber(arg)){ c = arg->value; }
+                else if(arg->kind==Kind::Pow && isNumber(arg->args[1]) && arg->args[1]->value < 0){
+                    denoFactors.push_back(
+                        isNumber(arg->args[1], -1) ?
+                        arg->args[0] :
+                        make_power(arg->args[0], make_number(-arg->args[1]->value))
+                    );
+                }else{
+                    numFactors.push_back(arg);
+                }
+            }
+            if(c != 0 && std::fabs(c) < g_displayTol){
+                // below the display tolerance
+                return "0";
+            }
+            f64 ac = std::fabs(c);
+            std::vector<std::string> dens;
+            std::string coef;
+            if(auto f = frac(ac)){
+                if(f->first != 1){ coef = std::to_string(f->first); }
+                dens.push_back(std::to_string(f->second));
+            }else if(ac != 1){ coef = numstr(ac); }
+            std::string mystr;
+            if(numFactors.empty()){
+                mystr = coef.empty() ? "1": coef;
+            }else{
+                mystr = coef;
+                const Expr& f0 = numFactors[0];
+                bool implicit = (
+                    coef.empty() || f0->kind==Kind::Sym || f0->kind==Kind::Fun ||
+                    (f0->kind == Kind::Pow && f0->args[0]->kind == Kind::Sym && !isNumber(f0->args[1], 0.5))
+                );
+                if(!coef.empty() && !implicit){ mystr += "*"; }
+                for(size_t i=0; i < numFactors.size(); ++i){
+                    auto fs = str(numFactors[i]);
+                    if(numFactors[i]->kind==Kind::Add){
+                        fs = "(" + fs + ")";
+                    }
+                    mystr += (i ? "*" : "") + fs;
+                }
+            }
+            for(auto& deno: denoFactors){
+                auto ds = str(deno);
+                if(deno->kind==Kind::Add || deno->kind==Kind::Mul){
+                    ds = "(" + ds + ")";
+                }
+                dens.push_back(ds);
+            }
+            if(dens.size()==1){ mystr += "/" + dens[0]; }
+            else if(dens.size() > 1) {
+                mystr += "/(";
+                for(size_t i=0; i < dens.size(); ++i){
+                    mystr += (i ? "*": "") + dens[i];
+                }
+                mystr += ")";
+            }
+            return (c < 0 ? "-":"") + mystr;
+        }//
+    }
+    return "?";
 }
 
 // -
