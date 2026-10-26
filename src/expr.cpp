@@ -136,8 +136,7 @@ namespace {
 
 // -
 Expr number(f64 val){
-    //! @todo
-    return nullptr;
+    return make(Kind::Num, val==0 ? 0.0 : val, {}, {});
 }
 
 // -
