@@ -130,8 +130,7 @@ namespace {
     }
 
     Expr negate(const Expr& expr){
-        //! @todo
-        return nullptr;
+        return mul({number(-1), expr});
     }
 } // namespace
 
