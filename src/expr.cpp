@@ -355,7 +355,36 @@ bool contains(const Expr& expr, const std::string& var){
 
 // -
 std::optional<f64> numeric(const Expr& expr){
-    //! @todo
+    switch(expr->kind){
+        case Kind::Num: return expr->value;
+        case Kind::Sym:
+            if(expr->name == "pi" || expr->name == "\xCF\x80"){
+                return 3.14159265358979323846;
+            }
+            if(expr->name == "e"){ return 2.718281845904523536; }
+            return std::nullopt;
+        case Kind::Fun:{
+                auto x = numeric(expr->args[0]);
+                return x ? evalFun(expr->name, *x) : std::nullopt;
+            }// -
+        case Kind::Pow: {
+            auto a = numeric(expr->args[0]);
+            auto b = numeric(expr->args[0]);
+            if(!a || !b){ return std::nullopt; }
+            return std::pow(*a, *b);
+        }
+        case Kind::Add:
+        case Kind::Mul: {
+                f64 r = expr->kind == Kind::Add ? 0 : 1;
+                for(auto& arg: expr->args){
+                    auto x = numeric(arg);
+                    if(!x){ return std::nullopt; }
+                    if(expr->kind == Kind::Add){ r += *x; }
+                    else{ r *= *x; }
+                }
+                return r;
+            }//
+    }
     return std::nullopt;
 }
 
