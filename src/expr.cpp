@@ -344,7 +344,12 @@ Expr make_fun(const std::string& name, const Expr& arg){
 }
 
 bool contains(const Expr& expr, const std::string& var){
-    //! @todo
+    if(expr->kind==Kind::Sym){ return expr->name == var; }
+    for(auto& arg: expr->args){
+        if(contains(arg, var)){
+            return true;
+        }
+    }
     return false;
 }
 
