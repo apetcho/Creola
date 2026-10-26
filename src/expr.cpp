@@ -774,8 +774,40 @@ void freeSymbols(const Expr& expr, std::set<std::string>& out){
 }
 
 // -
-std::optional<f64> numericAt(const Expr& expr, const std::string& var, f64 x){
-    //! @todo
+std::optional<f64> numericAt(const Expr& expr, const std::string& var, f64 val){
+    switch(expr->kind){
+        case Kind::Num: return expr->value;
+        case Kind::Sym:
+            if(expr->name==var){ return val; }
+            if(expr->name=="pi" || expr->name=="\xCF\x80"){ return 3.14159265358979323846;}
+            if(expr->name=="e"){ return 2.71828182845904523536; }
+            return std::nullopt;
+        case Kind::Fun: {
+            auto arg = numericAt(expr->args[0], var, val);
+            return arg ? evalFun(expr->name, *arg) : std::nullopt;
+        }
+        case Kind::Pow: {
+            auto base = numericAt(expr->args[0], var, val);
+            auto expo = numericAt(expr->args[1], var, val);
+            if(!base || !expo){ return std::nullopt; }
+            return std::pow(*base, *expo);
+        }
+        case Kind::Add:
+        case Kind::Mul:{
+            f64 result = expr->kind==Kind::Add ? 0 : 1;
+            for(auto& arg: expr->args){
+                auto v = numericAt(arg, var, val);
+                if(!v){ return std::nullopt; }
+                if(expr->kind == Kind::Add){
+                    result += *v;
+                }
+                else{
+                    result *= *v;
+                }
+            }
+            return result;
+        }
+    }
     return std::nullopt;
 }
 
