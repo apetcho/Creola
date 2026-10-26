@@ -156,8 +156,51 @@ bool isNumber(const Expr& expr, f64 val){
 
 // -
 Expr add(std::vector<Expr> terms){
-    //! @todo
-    return nullptr;
+    f64 c = 0;
+    std::vector<Expr> flat;
+    for(auto& term: terms){
+        if(term->kind==Kind::Add){
+            flat.insert(flat.end(), term->args.begin(), term->args.end());
+        }else{
+            flat.push_back(term);
+        }
+    }
+    std::map<std::string, std::pair<f64, Expr>> g;
+    for(auto& term: flat){
+        if(isNumber(term)){ c += term->value; continue; }
+        auto [k, r] = split(term);
+        auto key = str(r);
+        auto entry = g.find(key);
+        if(entry == g.end()){
+            g.emplace(key, std::make_pair(k, r));
+        }else{
+            entry->second.first += k;
+        }
+    }
+    std::vector<std::pair<std::string, Expr>> out;
+    for(auto& [key, pair]: g){
+        if(pair.first==0){ continue; }
+        out.emplace_back(key, pair.first == 1 ? pair.second : mul({number(pair.first), pair.second}));
+    }
+    std::sort(out.begin(), out.end(), [](auto& a, auto& b){
+        f64 x = degree(a.second);
+        f64 y = degree(b.second);
+        return x != y ?  x > y : a.first < b.first;
+    });
+
+    // real parst first, then terms containing i: 5 + 5i, x + i*y
+    std::vector<Expr> myTerms;
+    std::vector<Expr> myImaginary;
+    for(auto& item: out){
+        (contains(item.second, "i") ? myImaginary : myTerms).push_back(item.second);
+    }
+    if(c!=0){
+        myTerms.push_back(number(c));
+    }
+    myTerms.insert(myTerms.end(), myImaginary.begin(), myImaginary.end());
+    if(myTerms.empty()){ return number(0); }
+    if(myTerms.size()==1){ return myTerms[0]; }
+    return make(Kind::Add, 0, {}, myTerms);
 }
 
 // -
