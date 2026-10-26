@@ -750,8 +750,7 @@ Expr taylor(const Expr& expr, const std::string& var, const Expr& center, i32 or
 
 // -
 Expr imag(void){
-    //! @todo
-    return nullptr;
+    return make_symbol("i");
 }
 
 // -
