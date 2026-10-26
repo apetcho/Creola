@@ -544,8 +544,40 @@ static Expr mulExpr(const Expr& lhs, const Expr& rhs){
 
 // -
 Expr expand(const Expr& expr){
-    //! @todo
-    return nullptr;
+    switch(expr->kind){
+        case Kind::Num:
+        case Kind::Sym:
+            return expr;
+        case Kind::Fun:
+            return make_fun(expr->name, expand(expr->args[0]));
+        case Kind::Add:{
+            std::vector<Expr> terms;
+            for(auto& arg: expr->args){
+                terms.push_back(expand(arg));
+            }
+            return make_add(terms);
+        }
+        case Kind::Mul:{
+            Expr acc = make_number(1);
+            for(auto& arg: expr->args){
+                acc = mulExpr(acc, expand(arg));
+            }
+            return acc;
+        }
+        case Kind::Pow: {
+            Expr base = expand(expr->args[0]);
+            const Expr& expo = expr->args[1];
+            if(isNumber(expo) && isInteger(expo->value) && expo->value >= 2 && base->kind==Kind::Add){
+                Expr acc = base;
+                for(int i=1; i < static_cast<int>(expo->value); ++i){
+                    acc = mulExpr(acc, base);
+                }
+                return acc;
+            }
+            return make_power(base, expand(expo));
+        }
+    }
+    return expr;
 }
 
 // -
