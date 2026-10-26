@@ -521,8 +521,7 @@ Expr substitute(const Expr& expr, const std::string& var, const Expr& val){
 
 // -
 Expr simplify(const Expr& expr){
-    //! @todo
-    return nullptr;
+    return substitute(substitute(expr, "", expr), "", expr);
 }
 
 static Expr mulExpr(const Expr& lhs, const Expr& rhs){
