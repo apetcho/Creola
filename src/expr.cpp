@@ -21,8 +21,28 @@ namespace {
         return self;
     }
 
-    double degree(const Expr& expr){
-        //! @todo
+    /**
+     * @brief Return the degree of an expression
+     * 
+     * @param expr 
+     * @return f64 
+     */
+    f64 degree(const Expr& expr){
+        switch(expr->kind){
+        case Kind::Sym:
+            return expr->name == "i" ? 0 : 1;
+        case Kind::Pow:
+            return isNumber(expr->args[1]) ? expr->args[1]->value*degree(expr->args[0]) : 0;
+        case Kind::Mul:{
+                f64 d = 0;
+                for(auto& arg: expr->args){
+                    d += degree(arg);
+                }
+                return d;
+            }//
+        default:
+            return 0;
+        }
         return 0;
     }
 
