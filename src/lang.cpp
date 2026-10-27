@@ -310,7 +310,21 @@ struct Parser {
     }
 
     // -*-
-    AstPtr parsePostfix(void);
+    AstPtr parsePostfix(void){
+        auto expr = this->parsePrimary();
+        while(this->accept("[")){
+            auto self = Parser::make(Ast::Index);
+            self->children = {expr};
+            do{
+                self->children.push_back(this->parseIndexSpec());
+            }while(this->accept(","));
+            this->expect("]");
+            expr = self;
+        }
+        return expr;
+    }
+
+    // -*-
     AstPtr parsePrimary(void);
 };
 
