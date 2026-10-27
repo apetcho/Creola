@@ -132,23 +132,32 @@ struct Parser {
         return tokens[pos].kind==TokenKind::Punct && tokens[pos].text==cstr;
     }
 
-    bool accept(const char* cstr);
+    // -*-
+    bool accept(const char* cstr){
+        if(this->isPunct(cstr)){
+            ++pos;
+            return true;
+        }
+        return false;
+    }
+
+    // -*-
     void expect(const char* cstr);
     static bool keyword(const std::string& str);
     static AstPtr make(Ast::Kind kind, std::string str={});
-    static AstPtr make_binary_op(const char* op, AstPtr lhs, AstPtr rhs);
+    static AstPtr makeBinaryOp(const char* op, AstPtr lhs, AstPtr rhs);
     std::string ident(void);
-    void skip_newline(void);
-    std::vector<AstPtr> parse_program(void);
-    AstPtr parse_statement(void);
-    AstPtr parse_expr(void);
-    bool is_implicit_mul(void) const;
-    AstPtr parse_term(void);
-    AstPtr parse_unary(void);
-    AstPtr parse_arg(void);
-    AstPtr parse_spec(void);
-    AstPtr parse_postfix(void);
-    AstPtr parse_primary(void);
+    void skipNewline(void);
+    std::vector<AstPtr> parseProgram(void);
+    AstPtr parseStatement(void);
+    AstPtr parseExpr(void);
+    bool isImplicitMul(void) const;
+    AstPtr parseTerm(void);
+    AstPtr parseUnary(void);
+    AstPtr parseArg(void);
+    AstPtr parseSpec(void);
+    AstPtr parsePostfix(void);
+    AstPtr parsePrimary(void);
 };
 
 
