@@ -265,7 +265,22 @@ struct Parser {
     }
 
     // -*-
-    AstPtr parseUnary(void);
+    AstPtr parseUnary(void){
+        if(this->accept("-")){
+            auto self = Parser::make(Ast::Neg);
+            self->children = {this->parseUnary()};
+            return self;
+        }
+        if(this->accept("+")){ return this->parseUnary(); }
+        auto base = this->parsePostfix();
+        if(this->accept("^")){
+            return Parser::makeBinaryOp("^", base, this->parseUnary());
+        }
+
+        return base;
+    }
+
+    // -*-
     AstPtr parseArg(void);
     AstPtr parseSpec(void);
     AstPtr parsePostfix(void);
