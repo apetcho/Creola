@@ -388,7 +388,8 @@ std::vector<AstPtr> parse(
     const std::string& src,
     const std::function<bool(const std::string&)>& isCallable
 ){
-    //! @todo
+    Parser parser{lex(src), 0, isCallable, {}};
+    return parser.parseProgram();
 }
 
 // ----------------------------------------------------------------------------
