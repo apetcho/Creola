@@ -292,7 +292,24 @@ struct Parser {
     }
 
     // -*-
-    AstPtr parseSpec(void);
+    // index spec: expr | [expr]: [expr]
+    AstPtr parseIndexSpec(void){
+        auto lo = this->isPunct(":") ? nullptr : this->parseExpr();
+        if(!this->accept(":")){ return lo; }
+
+        auto makeNumber = [](f64 num){
+            auto self = Parser::make(Ast::Num);
+            self->num = num;
+            return self;
+        };
+
+        AstPtr hi = (this->isPunct(",") || this->isPunct("]")) ? makeNumber(1e9) : this->parseExpr();
+        auto self = Parser::make(Ast::Slice);
+        self->children = {lo ? lo : makeNumber(0), hi};
+        return self;
+    }
+
+    // -*-
     AstPtr parsePostfix(void);
     AstPtr parsePrimary(void);
 };
