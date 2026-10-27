@@ -249,7 +249,22 @@ struct Parser {
     }
 
     // -*-
-    AstPtr parseTerm(void);
+    AstPtr parseTerm(void){
+        auto self = this->parseUnary();
+        while(true){
+            if(this->accept("*")){
+                self = Parser::makeBinaryOp("*", self, this->parseUnary());
+            }else if(this->accept("/")){
+                self = Parser::makeBinaryOp("/", self, this->parseUnary());
+            }else if(this->isImplicitMul()){
+                self = Parser::makeBinaryOp("*", self, this->parseUnary());
+            }else{
+                return self;
+            }
+        }
+    }
+
+    // -*-
     AstPtr parseUnary(void);
     AstPtr parseArg(void);
     AstPtr parseSpec(void);
