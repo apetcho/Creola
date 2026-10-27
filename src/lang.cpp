@@ -227,7 +227,20 @@ struct Parser {
     }
 
     // -*-
-    AstPtr parseExpr(void);
+    AstPtr parseExpr(void){
+        auto self = this->parseTerm();
+        while(true){
+            if(this->accept("+")){
+                self = Parser::makeBinaryOp("+", self, this->parseTerm());
+            }else if(this->accept("-")){
+                self = Parser::makeBinaryOp("-", self, this->parseTerm());
+            }else{
+                return self;
+            }
+        }
+    }
+
+    // -*-
     bool isImplicitMul(void) const;
     AstPtr parseTerm(void);
     AstPtr parseUnary(void);
