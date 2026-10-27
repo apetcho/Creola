@@ -177,7 +177,13 @@ struct Parser {
     }
 
     // -*-
-    void skipNewline(void);
+    void skipNewline(void){
+        while(this->peek().kind == TokenKind::Newline){
+            ++pos;
+        }
+    }
+
+    // -*-
     std::vector<AstPtr> parseProgram(void);
     AstPtr parseStatement(void);
     AstPtr parseExpr(void);
