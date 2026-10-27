@@ -149,11 +149,18 @@ struct Parser {
     }
 
     // -*-
-    static bool keyword(const std::string& str){
+    static bool isKeyword(const std::string& str){
         return str=="let" || str=="fun";
     }
-    
-    static AstPtr make(Ast::Kind kind, std::string str={});
+
+    static AstPtr make(Ast::Kind kind, std::string str={}){
+        auto self = std::make_shared<Ast>();
+        self->kind = kind;
+        self->text = std::move(str);
+        return self;
+    }
+
+    // -*-
     static AstPtr makeBinaryOp(const char* op, AstPtr lhs, AstPtr rhs);
     std::string ident(void);
     void skipNewline(void);

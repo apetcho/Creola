@@ -33,7 +33,7 @@ struct Ast{
 
     Kind kind{};
     double num{0.0};
-    std::string s;                      // identifier / operator / string / callee
+    std::string text;                   // identifier / operator / string / callee
     std::vector<AstPtr> children;
     std::vector<std::string> params;    // Fun
 };
