@@ -124,7 +124,9 @@ struct Parser {
     const std::function<bool(const std::string&)>& callable;
     std::set<std::string> funs;
 
-    const Token& peek(void) const;
+    //
+    const Token& peek(void) const{ return tokens[pos]; }
+
     bool isPunct(const char* cstr) const;
     bool accept(const char* cstr);
     void expect(const char* cstr);
