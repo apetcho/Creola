@@ -147,7 +147,12 @@ struct Parser {
             fail(std::string("expected '") + cstr + "' but found '" + this->peek().text + "'");
         }
     }
-    static bool keyword(const std::string& str);
+
+    // -*-
+    static bool keyword(const std::string& str){
+        return str=="let" || str=="fun";
+    }
+    
     static AstPtr make(Ast::Kind kind, std::string str={});
     static AstPtr makeBinaryOp(const char* op, AstPtr lhs, AstPtr rhs);
     std::string ident(void);
