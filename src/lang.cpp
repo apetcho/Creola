@@ -325,7 +325,60 @@ struct Parser {
     }
 
     // -*-
-    AstPtr parsePrimary(void);
+    AstPtr parsePrimary(void){
+        const Token token = this->peek();
+        if(token.kind == TokenKind::Num){
+            ++pos;
+            auto self = Parser::make(Ast::Num);
+            self->num = token.num;
+            return self;
+        }
+        if(token.kind == TokenKind::Str){
+            ++pos;
+            return Parser::make(Ast::Str, token.text);
+        }
+        if(token.kind == TokenKind::Ident){
+            if(this->isKeyword(token.text)){
+                fail("'" + token.text + "' is only valid at the start of a statement");
+            }
+            ++pos;
+            if(this->isPunct("(") && (this->funs.count(token.text) || this->callable(token.text))){
+                ++pos;
+                auto self = Parser::make(Ast::Call, token.text);
+                if(!this->isPunct(")")){
+                    do{
+                        self->children.push_back(this->parseArg());
+                    }while(this->accept(","));
+                }
+                this->expect(")");
+                return self;
+            }
+            return Parser::make(Ast::Ident, token.text);
+        }
+        if(this->accept("(")){
+            auto expr = this->parseExpr();
+            if(this->accept(",")){ // (x, y) pair literal
+                auto self = Parser::make(Ast::Call, "pair");
+                self->children = {expr, this->parseExpr()};
+                this->expect(")");
+                return self;
+            }
+            this->expect(")");
+            return expr;
+        }
+        if(this->accept("{")){
+            auto self = Parser::make(Ast::List);
+            if(!this->isPunct("}")){
+                do{
+                    if(this->isPunct("}")){ break; }
+                    self->children.push_back(this->parseExpr());
+                }while(this->accept(","));
+            }
+            this->expect("}");
+            return self;
+        }
+        fail(token.kind==TokenKind::End ? "unexpected end of input": "unexpected '" + token.text + "'");
+    }
 };
 
 
