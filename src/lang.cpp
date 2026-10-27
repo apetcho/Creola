@@ -199,7 +199,34 @@ struct Parser {
     }
 
     // -*-
-    AstPtr parseStatement(void);
+    AstPtr parseStatement(void){
+        if(this->peek().kind == TokenKind::Ident && this->peek().text == "let"){
+            ++pos;
+            auto self = Parser::make(Ast::Let, this->ident());
+            this->expect("=");
+            self->children = {this->parseExpr()};
+            return self;
+        }
+        if(this->peek().kind==TokenKind::Ident && this->peek().text=="fun"){
+            ++pos;
+            auto self = Parser::make(Ast::Fun, this->ident());
+            this->expect("(");
+            if(!this->isPunct(")")){
+                do{
+                    self->params.push_back(this->ident());
+                }while(this->accept(","));
+            }
+            this->expect(")");
+            this->funs.insert(self->text); // allow recursion
+            this->expect("=");
+            self->children = {this->parseExpr()};
+            return self;
+        }
+
+        return this->parseExpr();
+    }
+
+    // -*-
     AstPtr parseExpr(void);
     bool isImplicitMul(void) const;
     AstPtr parseTerm(void);
