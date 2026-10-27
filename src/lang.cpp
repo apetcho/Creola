@@ -29,8 +29,92 @@ struct Token {
 
 // -*-
 std::vector<Token> lex(const std::string& src){
-    //! @todo
-    return {};
+    std::vector<Token> result{};
+    size_t i = 0;
+    size_t len = src.length();
+    i32 depth = 0;
+
+    // -*-
+    auto is_identity_start = [](unsigned char c){
+        return std::isalpha(c) || c == '_' || c >= 0x80;
+    };
+
+    auto digit_p = [&](size_t k){
+        return k < len && std::isdigit(static_cast<unsigned char>(src[k]));
+    };
+
+    while(i < len){
+        unsigned char c = src[i];
+        if(c == '\n'){
+            if(depth==0){
+                result.push_back({TokenKind::Newline, "\n"});
+                ++i;
+                continue;
+            }
+        }
+        if(std::isspace(c)){
+            ++i;
+            continue;
+        }
+        if(c=='/' && i + 1 < len && src[i+1]=='/'){
+            while(i < len && src[i] != '\n'){
+                ++i;
+                continue;
+            }
+        }
+        if(digit_p(i) || (c=='.' && digit_p(i+1))){
+            size_t j = i;
+            while(j < len && (digit_p(j) || src[j] == '.')){ ++j; }
+            if(j < len && (src[j]=='e' || src[j]=='E')){
+                size_t k = j + 1;
+                if(k < len && (src[k] == '+' || src[k] == '-')){ ++k; }
+                if(digit_p(k)){
+                    while(digit_p(k)){ ++k;}
+                    j = k;
+                }
+            }
+            auto numstr = src.substr(i, j-i);
+            result.push_back({TokenKind::Num, numstr, std::stod(numstr)});
+            i = j;
+            continue;
+        }
+        if(is_identity_start(c)){
+            size_t j = i;
+            while(j < len && (is_identity_start(src[j]) || digit_p(j))){ ++j; }
+            result.push_back({TokenKind::Ident, src.substr(i, j-i)});
+            i = j;
+            continue;
+        }
+        if(c=='"'){
+            std::string str;
+            ++i;
+            while(i < len && src[i] != '"'){
+                if(src[i]=='\\' && i+1 < len){ ++i; }
+                str += src[i++];
+            }
+            if(i >= len){
+                fail("unterminated string");
+            }
+            ++i;
+            result.push_back({TokenKind::Str, str});
+            continue;
+        }
+        if(std::string("+-*/^()[]{},=:;").find(static_cast<char>(c)) != std::string::npos){
+            if(c=='(' || c == '[' || c=='{'){ ++depth; }
+            if((c==')' || c == ']' || c=='}') && depth > 0){ --depth; }
+            if(c==';'){
+                result.push_back({TokenKind::Newline, ";"});
+            }else{
+                result.push_back({TokenKind::Punct, std::string(1, static_cast<char>(c))});
+            }
+            ++i;
+            continue;
+        }
+        fail(std::string("unexpected character '") + static_cast<char>(c) + "'");
+    }
+    result.push_back({TokenKind::End, ""});
+
+    return result;
 }
 
 // -*-
