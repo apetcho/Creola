@@ -26,7 +26,7 @@ using AstPtr = std::shared_ptr<Ast>;
 
 struct Ast{
     enum Kind {
-        Num, Str, Ident, Bin, Neg,
+        Num, Str, Ident, BinOp, Neg,
         Call, List, Index, Slice,
         Named, Let, Fun,
     };

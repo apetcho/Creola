@@ -161,7 +161,13 @@ struct Parser {
     }
 
     // -*-
-    static AstPtr makeBinaryOp(const char* op, AstPtr lhs, AstPtr rhs);
+    static AstPtr makeBinaryOp(const char* op, AstPtr lhs, AstPtr rhs){
+        auto self = Parser::make(Ast::BinOp, op);
+        self->children = {std::move(lhs), std::move(rhs)};
+        return self;
+    }
+
+    // -*-
     std::string ident(void);
     void skipNewline(void);
     std::vector<AstPtr> parseProgram(void);
