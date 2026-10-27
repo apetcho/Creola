@@ -168,7 +168,15 @@ struct Parser {
     }
 
     // -*-
-    std::string ident(void);
+    std::string ident(void){
+        if(this->peek().kind != TokenKind::Ident || this->isKeyword(this->peek().text)){
+            fail("expected a name");
+            return "";
+        }
+        return tokens[pos++].text;
+    }
+
+    // -*-
     void skipNewline(void);
     std::vector<AstPtr> parseProgram(void);
     AstPtr parseStatement(void);
