@@ -171,7 +171,7 @@ struct Parser {
     std::string ident(void){
         if(this->peek().kind != TokenKind::Ident || this->isKeyword(this->peek().text)){
             fail("expected a name");
-            return "";
+            return ""; // never reached
         }
         return tokens[pos++].text;
     }
@@ -184,7 +184,21 @@ struct Parser {
     }
 
     // -*-
-    std::vector<AstPtr> parseProgram(void);
+    std::vector<AstPtr> parseProgram(void){
+        std::vector<AstPtr> result{};
+        this->skipNewline();
+        while(this->peek().kind != TokenKind::End){
+            result.push_back(this->parseStatement());
+            if(this->peek().kind != TokenKind::End && this->peek().kind != TokenKind::Newline){
+                fail("unexpected '" + this->peek().text + "'");
+                return {}; // never reached
+            }
+            this->skipNewline();
+        }
+        return result;
+    }
+
+    // -*-
     AstPtr parseStatement(void);
     AstPtr parseExpr(void);
     bool isImplicitMul(void) const;
