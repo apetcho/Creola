@@ -280,8 +280,18 @@ struct Parser {
         return base;
     }
 
+    // -*- expr | name=expr
+    AstPtr parseArg(void){
+        if(this->peek().kind == TokenKind::Ident && !this->isKeyword(this->peek().text) && tokens[pos+1].kind==TokenKind::Punct && tokens[pos+1].text=="="){
+            auto self = Parser::make(Ast::Named, tokens[pos].text);
+            pos += 2;
+            self->children = {this->parseExpr()};
+            return self;
+        }
+        return this->parseExpr();
+    }
+
     // -*-
-    AstPtr parseArg(void);
     AstPtr parseSpec(void);
     AstPtr parsePostfix(void);
     AstPtr parsePrimary(void);
