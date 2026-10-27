@@ -241,7 +241,14 @@ struct Parser {
     }
 
     // -*-
-    bool isImplicitMul(void) const;
+    bool isImplicitMul(void) const{
+        return (
+            (this->peek().kind == TokenKind::Ident && !this->isKeyword(this->peek().text))
+            || this->isPunct("(")
+        );
+    }
+
+    // -*-
     AstPtr parseTerm(void);
     AstPtr parseUnary(void);
     AstPtr parseArg(void);
