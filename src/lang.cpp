@@ -124,10 +124,14 @@ struct Parser {
     const std::function<bool(const std::string&)>& callable;
     std::set<std::string> funs;
 
-    //
+    // -*-
     const Token& peek(void) const{ return tokens[pos]; }
 
-    bool isPunct(const char* cstr) const;
+    // -*-
+    bool isPunct(const char* cstr) const{
+        return tokens[pos].kind==TokenKind::Punct && tokens[pos].text==cstr;
+    }
+
     bool accept(const char* cstr);
     void expect(const char* cstr);
     static bool keyword(const std::string& str);
